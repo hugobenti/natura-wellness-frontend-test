@@ -1,0 +1,41 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./ResponsiveDialog.stories";
+
+<Meta of={Stories} />
+
+# ResponsiveDialog
+
+A native `dialog` opened as a modal. On a phone it is a bottom sheet; from `sm` up it is a centered modal.
+
+<Canvas of={Stories.Confirmation} />
+
+## When to use it
+
+Use it only for confirmations and short multi-step flows. Anything longer or that needs its own URL belongs on a page.
+
+## Footer order
+
+Put the safe choice first (Keep it), the consequential one after (Skip shipment). On a phone the buttons stack in that order; from `sm` they sit in a row at the end.
+
+## Behavior
+
+- The parent owns `open`. Escape, the close button and the browser's own close all call `onClose`; the dialog closes when the parent sets `open` to `false`.
+- A parent may ignore `onClose` while an action is pending; the dialog stays open, even if the browser closes it after repeated Escape presses.
+- The browser traps focus and makes the page behind inert, and returns focus to the button that opened the dialog.
+
+<Canvas of={Stories.StaysOpenWhilePending} />
+
+<Canvas of={Stories.EscClosesAndReturnsFocus} />
+
+## Layout
+
+<Canvas of={Stories.BottomSheetOnPhone} />
+
+<Canvas of={Stories.CenteredOnDesktop} />
+
+The dialog fades in (the backdrop appears at once); the fade is removed under `prefers-reduced-motion`.
+
+## Accessibility
+
+- `aria-labelledby` points at the title; `aria-describedby` at the description when there is one.
+- The close button has a name from the `closeLabel` copy.
