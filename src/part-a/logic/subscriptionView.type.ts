@@ -1,9 +1,10 @@
 import type { SubscriptionStatus } from "@/api/types";
 import type { IBoxPricing } from "./pricing.type";
+import type { TPausePresetId } from "./pause.type";
 
 export type TLifecycleOverride =
   | { status: "active"; nextChargeAt: string }
-  | { status: "paused"; pausedUntil: string | null }
+  | { status: "paused"; pausedUntil: string | null; presetId: TPausePresetId | null }
   | { status: "cancelled"; cancelledAt: string };
 
 export interface ILocalOverlay {

@@ -25,7 +25,17 @@ function setup(successAmount?: (snapshot: Subscription) => number) {
   const reload = vi.fn(async (): Promise<Subscription | null> => fixtures.active());
   const onSkipped = vi.fn();
   const notify = vi.fn();
-  const hook = renderHook(() => useSkipFlow({ view, reload, onSkipped, notify, successAmount }));
+  const hook = renderHook(() =>
+    useSkipFlow({
+      view,
+      reload,
+      onSkipped,
+      notify,
+      successAmount,
+      skipLocally: vi.fn(),
+      localSuccessAmount: () => view.pricing.totalCents,
+    }),
+  );
   act(() => hook.result.current.open());
   return { snapshot, view, reload, onSkipped, notify, ...hook };
 }
@@ -150,5 +160,45 @@ describe("useSkipFlow", () => {
     await act(async () => result.current.confirm());
     expect(skipNextShipment).toHaveBeenCalledTimes(2);
     expect(result.current.phase).toBeNull();
+  });
+  it("when view.skipIsLocal, confirm calls skipLocally, never the API, and notifies success", async () => {
+    const nextChargeAt = "2026-11-06T12:00:00.000Z";
+    const view = deriveView(fixtures.paused(), {
+      ...EMPTY_OVERLAY,
+      quantities: { "NW-MULTI-30": 3 },
+      skippedSkus: ["NW-VITD-60"],
+      lifecycle: { status: "active", nextChargeAt },
+    });
+    const skipLocally = vi.fn();
+    const reload = vi.fn();
+    const onSkipped = vi.fn();
+    const notify = vi.fn();
+    const { result } = renderHook(() =>
+      useSkipFlow({
+        view,
+        reload,
+        onSkipped,
+        notify,
+        skipLocally,
+        localSuccessAmount: () => 14008,
+      }),
+    );
+    act(() => result.current.open());
+
+    await act(async () => result.current.confirm());
+
+    expect(skipLocally).toHaveBeenCalledOnce();
+    expect(skipNextShipment).not.toHaveBeenCalled();
+    expect(reload).not.toHaveBeenCalled();
+    expect(onSkipped).not.toHaveBeenCalled();
+    expect(result.current.phase).toBeNull();
+    expect(notify).toHaveBeenCalledWith({
+      tone: "success",
+      title: "Next box skipped",
+      body: expect.stringContaining("$140.08"),
+    });
+    expect(notify.mock.calls[0]?.[0].body).toContain(
+      formatDay(addDays(nextChargeAt, 30), new Date()),
+    );
   });
 });

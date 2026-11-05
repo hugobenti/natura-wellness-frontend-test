@@ -34,6 +34,14 @@ export function useSubscriptionCard(): TPageModel {
       replace(fresh);
       dispatch({ type: "clearSkipped" });
     },
+    skipLocally: () =>
+      dispatch({
+        type: "skipLocally",
+        nextChargeAt: view!.nextChargeAt!,
+        intervalDays: view!.intervalDays,
+      }),
+    localSuccessAmount: () =>
+      deriveView(snapshot!, { ...overlay, skippedSkus: [] }).pricing.totalCents,
     successAmount: (fresh) =>
       deriveView(fresh, overlayReducer(overlay, { type: "clearSkipped" })).pricing.totalCents,
     notify: setNotice,
