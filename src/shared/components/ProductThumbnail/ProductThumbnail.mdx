@@ -1,0 +1,39 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./ProductThumbnail.stories";
+
+<Meta of={Stories} />
+
+# ProductThumbnail
+
+A product image at a fixed size. When there is no image, or it fails to load, it shows a tile with the product's initial instead, so the layout never has a gap or a broken-image icon.
+
+<Canvas of={Stories.WithImage} />
+
+## Sizes
+
+`sm` is 40px, `md` 56px and `lg` 96px. The image is cropped to fill the square (`object-cover`) and uses the control radius.
+
+<Canvas of={Stories.Sizes} />
+
+## Fallback
+
+`src: null` shows the tile straight away. A `src` that errors (a 404, a blocked host) switches to the tile too; if `src` changes, the new URL gets a fresh try.
+
+<Canvas of={Stories.NoImage} />
+
+<Canvas of={Stories.BrokenImage} />
+
+## Accessibility
+
+- The image's `alt` is the product name, and the tile is a `role="img"` named the same, so both read alike.
+- Set `decorative` when the name is written right next to the thumbnail (a cart line, a subscription row). The image gets an empty `alt` and the tile is hidden, so the name isn't read twice.
+
+<Canvas of={Stories.Decorative} />
+
+## Do / Don't
+
+| Do                                      | Don't                                   |
+| --------------------------------------- | --------------------------------------- |
+| `decorative` when the name is beside it | Repeat the name in `alt` next to a name |
+| Pass `null` when a product has no image | Pass an empty string as `src`           |
+| Pick a size from `sm`, `md`, `lg`       | Resize with ad-hoc classes              |
