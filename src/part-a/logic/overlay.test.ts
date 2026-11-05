@@ -49,6 +49,7 @@ describe("overlayReducer", () => {
     expect(paused).toEqual({
       quantities: committed.quantities,
       skippedSkus: [],
+      zeroSkus: [],
       lifecycle: {
         status: "paused",
         presetId: "1m",
@@ -64,9 +65,13 @@ describe("overlayReducer", () => {
       lifecycle: { status: "paused" as const, pausedUntil: null, presetId: "open" as const },
     };
     expect(
-      overlayReducer(paused, { type: "resume", now: new Date("2026-11-05T12:00:00.000Z") }),
+      overlayReducer(paused, {
+        type: "resume",
+        now: new Date("2026-11-05T12:00:00.000Z"),
+        originalNextChargeAt: "2026-11-11T12:00:00.000Z",
+      }),
     ).toMatchObject({
-      lifecycle: { status: "active", nextChargeAt: "2026-11-06T12:00:00.000Z" },
+      lifecycle: { status: "active", nextChargeAt: "2026-11-11T12:00:00.000Z" },
     });
   });
 
@@ -86,6 +91,7 @@ describe("overlayReducer", () => {
     ).toEqual({
       quantities: committed.quantities,
       skippedSkus: [],
+      zeroSkus: [],
       lifecycle: { status: "active", nextChargeAt: "2026-12-06T12:00:00.000Z" },
     });
     expect(committed.skippedSkus).toEqual(["NW-VITD-60"]);

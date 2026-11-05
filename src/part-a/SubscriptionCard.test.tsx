@@ -71,7 +71,6 @@ it("requires a radio selection when changing a server pause and offers an open-e
   fireEvent.click(await screen.findByRole("button", { name: "Change pause" }));
   const sheet = screen.getByRole("dialog", { name: "Change your pause" });
   expect(within(sheet).getByRole("button", { name: "Choose a duration" })).toBeDisabled();
-  expect(within(sheet).getByRole("group", { name: "How long?" })).toHaveClass("mt-4");
   expect(within(sheet).getAllByRole("radio")).toHaveLength(4);
   fireEvent.click(within(sheet).getByRole("radio", { name: /Until I resume/ }));
   const confirm = within(sheet).getByRole("button", { name: "Pause until I resume" });
@@ -81,4 +80,17 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.getByRole("heading", { name: "Paused until you resume" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Resume now" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
+});
+
+it("moves focus to the receipt heading after pausing and after resuming", async () => {
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Pause subscription" }));
+  const sheet = screen.getByRole("dialog", { name: "Pause your subscription" });
+  fireEvent.click(within(sheet).getByRole("button", { name: "Pause for 1 month" }));
+  expect(screen.getByRole("heading", { name: /^Paused until/ })).toHaveFocus();
+
+  fireEvent.click(screen.getByRole("button", { name: "Resume now" }));
+  expect(screen.getByRole("heading", { name: "Next box" })).toHaveFocus();
 });

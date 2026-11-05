@@ -28,7 +28,10 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
     case "resume":
       return {
         ...overlay,
-        lifecycle: { status: "active", nextChargeAt: resumeChargeAt(action.now) },
+        lifecycle: {
+          status: "active",
+          nextChargeAt: resumeChargeAt(action.now, action.originalNextChargeAt),
+        },
       };
     case "skipLocally":
       return {

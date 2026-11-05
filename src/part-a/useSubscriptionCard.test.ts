@@ -379,4 +379,19 @@ describe("useSubscriptionCard", () => {
     });
     expect(skipNextShipment).not.toHaveBeenCalled();
   });
+
+  it("resuming after a pause keeps the original next charge date", async () => {
+    const snapshot = fixtures.active();
+    vi.mocked(getSubscription).mockResolvedValue(snapshot);
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[2]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("active");
+    expect(result.current.receipt.footer.label).toBe(
+      `Charged ${formatDay(snapshot.nextChargeAt!, new Date())}`,
+    );
+  });
 });

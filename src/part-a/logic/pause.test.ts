@@ -19,6 +19,14 @@ describe("pause dates", () => {
   });
 
   it("resumeChargeAt schedules tomorrow rather than charging immediately", () => {
-    expect(resumeChargeAt(now)).toBe("2026-11-06T12:00:00.000Z");
+    expect(resumeChargeAt(now, null)).toBe("2026-11-06T12:00:00.000Z");
+  });
+
+  it("resumeChargeAt keeps a later original charge date", () => {
+    expect(resumeChargeAt(now, "2026-11-11T12:00:00.000Z")).toBe("2026-11-11T12:00:00.000Z");
+  });
+
+  it("resumeChargeAt ignores an original charge date that already passed", () => {
+    expect(resumeChargeAt(now, "2026-11-01T12:00:00.000Z")).toBe("2026-11-06T12:00:00.000Z");
   });
 });

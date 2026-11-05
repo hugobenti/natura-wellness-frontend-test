@@ -13,6 +13,10 @@ export function pauseUntil(presetId: TPausePresetId, now: Date): string | null {
   return days === null ? null : addDays(now.toISOString(), days);
 }
 
-export function resumeChargeAt(now: Date): string {
-  return addDays(now.toISOString(), 1);
+/** Tomorrow, or the subscription's original next charge when that is later. */
+export function resumeChargeAt(now: Date, originalNextChargeAt: string | null): string {
+  const tomorrow = addDays(now.toISOString(), 1);
+  return originalNextChargeAt && Date.parse(originalNextChargeAt) > Date.parse(tomorrow)
+    ? originalNextChargeAt
+    : tomorrow;
 }

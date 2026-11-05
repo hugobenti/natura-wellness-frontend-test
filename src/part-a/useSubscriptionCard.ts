@@ -1,6 +1,6 @@
 import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
-import { useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { useSubscription } from "./hooks/useSubscription";
 import { useEditMode } from "./hooks/useEditMode";
 import type { INotice } from "./hooks/notice.type";
@@ -24,7 +24,13 @@ export function useSubscriptionCard(): TPageModel {
   const snapshot = state.status === "ready" ? state.snapshot : null;
   const view = snapshot ? deriveView(snapshot, overlay) : null;
   const edit = useEditMode({ overlay, snapshot, dispatch, notify: setNotice });
-  const pauseFlow = usePauseFlow({ view, overlay, dispatch, notify: setNotice });
+  const pauseFlow = usePauseFlow({
+    view,
+    overlay,
+    dispatch,
+    notify: setNotice,
+    originalNextChargeAt: snapshot?.nextChargeAt ?? null,
+  });
   const skipFlow = useSkipFlow({
     view,
     reload: async () => {
@@ -49,6 +55,14 @@ export function useSubscriptionCard(): TPageModel {
     notify: setNotice,
   });
   const h1Ref = useRef<HTMLHeadingElement>(null);
+  const shownStatus = useRef<string | null>(null);
+  const status = view?.status ?? null;
+  useEffect(() => {
+    if (status === null) return;
+    const previous = shownStatus.current;
+    shownStatus.current = status;
+    if (previous !== null && previous !== status) edit.headingRef.current?.focus();
+  }, [status, edit.headingRef]);
   if (state.status === "loading") return { h1Ref, kind: "loading" };
   if (state.status === "error") {
     return {

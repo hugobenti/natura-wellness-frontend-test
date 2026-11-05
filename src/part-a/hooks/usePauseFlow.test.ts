@@ -14,7 +14,9 @@ function setup(snapshot = fixtures.active(), overlay: ILocalOverlay = EMPTY_OVER
   const view = deriveView(snapshot, overlay);
   const dispatch = vi.fn();
   const notify = vi.fn();
-  const hook = renderHook(() => usePauseFlow({ view, overlay, dispatch, notify }));
+  const hook = renderHook(() =>
+    usePauseFlow({ view, overlay, dispatch, notify, originalNextChargeAt: snapshot.nextChargeAt }),
+  );
   return { view, dispatch, notify, ...hook };
 }
 
@@ -93,7 +95,11 @@ describe("usePauseFlow", () => {
   it("resume dispatches resume and notifies with the next charge", () => {
     const { result, dispatch, notify } = setup(fixtures.paused());
     act(() => result.current.resume());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "resume", now });
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+      type: "resume",
+      now,
+      originalNextChargeAt: null,
+    });
     expect(notify).toHaveBeenCalledWith({
       tone: "success",
       title: "Subscription resumed",

@@ -11,6 +11,7 @@ export function usePauseFlow({
   overlay,
   dispatch,
   notify,
+  originalNextChargeAt,
 }: IUsePauseFlowArgs): IUsePauseFlowResult {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TPausePresetId | "">("");
@@ -50,13 +51,13 @@ export function usePauseFlow({
   const resume = () => {
     if (!paused || !view) return;
     const resumedAt = new Date();
-    dispatch({ type: "resume", now: resumedAt });
+    dispatch({ type: "resume", now: resumedAt, originalNextChargeAt });
     notify({
       tone: "success",
       title: copy.resumedTitle,
       body: copy.resumedBody(
         formatMoney(view.pricing.totalCents),
-        formatDay(resumeChargeAt(resumedAt), resumedAt),
+        formatDay(resumeChargeAt(resumedAt, originalNextChargeAt), resumedAt),
       ),
     });
   };
