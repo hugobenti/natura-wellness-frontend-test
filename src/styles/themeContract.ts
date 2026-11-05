@@ -1,4 +1,4 @@
-/** The theme contract: every theme defines every semantic color and font role below. */
+/** The theme contract: every theme defines every semantic color, font and radius role below. */
 export const semanticColorTokens: readonly string[] = [
   "bg",
   "surface",
@@ -21,6 +21,9 @@ export const semanticColorTokens: readonly string[] = [
   "on-status-cancelled",
   "status-danger",
   "on-status-danger",
+  "highlight",
+  "on-highlight",
 ];
 
 export const fontRoles = ["sans", "heading"] as const;
+export const radiusRoles = ["control", "card", "pill"] as const;

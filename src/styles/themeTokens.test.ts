@@ -49,6 +49,15 @@ describe("readThemes", () => {
       /--missing/,
     );
   });
+
+  test("reads radius roles with the same inheritance as fonts", () => {
+    const [brand, alt] = readThemes(
+      `@theme static { --radius-*: initial; --radius-control: 10px; }\n[data-theme="alt"] { --radius-control: 4px; }`,
+    );
+    expect(brand?.radii["control"]).toBe("10px");
+    expect(alt?.radii["control"]).toBe("4px");
+    expect(alt?.declared).toContain("radius:control");
+  });
 });
 
 describe("readTypeScale", () => {

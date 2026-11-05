@@ -1,14 +1,14 @@
 /** Layout and specimen styles of the Foundations pages. Token colors are set inline from the token's CSS variable. */
 export const foundation = {
   grid: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3",
-  card: "flex flex-col gap-2 rounded-lg border border-line bg-surface p-4",
-  swatch: "h-16 rounded-md border border-line",
+  card: "flex flex-col gap-2 rounded-card border border-line bg-surface p-4",
+  swatch: "h-16 rounded-control border border-line",
   name: "text-small font-semibold text-fg",
   value: "text-small text-muted",
   description: "text-small text-muted",
   note: "mb-4 max-w-2xl text-small text-muted",
   pills: "flex flex-wrap gap-3",
-  pillBase: "inline-flex items-center gap-2 rounded-full px-3 py-1 text-small font-semibold",
+  pillBase: "inline-flex items-center gap-2 rounded-pill px-3 py-1 text-small font-semibold",
   pill: {
     active: "bg-status-active text-on-status-active",
     paused: "bg-status-paused text-on-status-paused",
@@ -21,8 +21,8 @@ export const foundation = {
   cell: "border-b border-line py-3 pr-4 align-middle text-muted",
   cellName: "border-b border-line py-3 pr-4 text-left align-middle font-semibold text-fg",
   sample:
-    "inline-flex min-w-16 items-center justify-center rounded-sm border border-line px-3 py-1 font-semibold",
-  shape: "inline-block h-6 w-16 rounded-sm border-2",
+    "inline-flex min-w-16 items-center justify-center rounded-control border border-line px-3 py-1 font-semibold",
+  shape: "inline-block h-6 w-16 rounded-control border-2",
   step: {
     title: "text-title",
     section: "text-section",
@@ -30,10 +30,10 @@ export const foundation = {
     small: "text-small",
     eyebrow: "text-eyebrow uppercase",
   } as Record<string, string>,
-  family: "flex flex-col gap-1 rounded-lg border border-line bg-surface p-4",
+  family: "flex flex-col gap-1 rounded-card border border-line bg-surface p-4",
   familySans: "font-sans text-title",
   familyHeading: "font-heading text-title",
-  specimen: "flex max-w-sm flex-col gap-1 rounded-lg border border-line bg-surface p-4",
+  specimen: "flex max-w-sm flex-col gap-1 rounded-card border border-line bg-surface p-4",
   specimenEyebrow: "text-eyebrow text-muted uppercase",
   specimenTitle: "font-heading text-title text-fg",
   specimenSection: "mt-3 font-heading text-section text-fg",
