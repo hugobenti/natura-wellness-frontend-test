@@ -30,12 +30,25 @@ export function SkipSheet({
           <Button fullWidth pending={phase === "pending"} onClick={onConfirm}>
             {confirmLabel}
           </Button>
-          <Button variant="secondary" fullWidth onClick={onClose}>
+          <Button variant="secondary" fullWidth disabled={phase === "pending"} onClick={onClose}>
             {copy.keep}
           </Button>
         </>
       }
     >
+      {phase === "conflict" && (
+        <Alert tone="info" title={copy.conflictTitle} className={skipSheet.alert}>
+          <p>{copy.conflictBody}</p>
+        </Alert>
+      )}
+      {phase === "error" && (
+        <Alert tone="danger" title={copy.errorTitle} className={skipSheet.alert}>
+          <p>{errorBody}</p>
+          <div className={skipSheet.alertSupport}>
+            <SupportLink />
+          </div>
+        </Alert>
+      )}
       <dl className={skipSheet.facts}>
         <div className={skipSheet.fact}>
           <dt className={skipSheet.factLabel}>{copy.nextBox}</dt>
@@ -51,19 +64,6 @@ export function SkipSheet({
         </div>
       </dl>
       <p className={skipSheet.note}>{nothingNote}</p>
-      {phase === "conflict" && (
-        <Alert tone="info" title={copy.conflictTitle} className={skipSheet.alert}>
-          <p>{copy.conflictBody}</p>
-        </Alert>
-      )}
-      {phase === "error" && (
-        <Alert tone="danger" title={copy.errorTitle} className={skipSheet.alert}>
-          <p>{errorBody}</p>
-          <div className={skipSheet.alertSupport}>
-            <SupportLink />
-          </div>
-        </Alert>
-      )}
     </ResponsiveDialog>
   );
 }

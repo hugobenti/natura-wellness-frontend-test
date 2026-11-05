@@ -7,6 +7,6 @@ export const skipSheet = {
   oldDate: "text-muted line-through",
   newDate: "font-semibold text-fg",
   note: "mt-4 text-small text-muted",
-  alert: "mt-4",
+  alert: "mb-4",
   alertSupport: "-ml-4",
 } as const;
