@@ -50,6 +50,7 @@
     "knip": "^6.44.1",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
+    "remark-gfm": "^4.0.1",
     "storybook": "10.6.5",
     "tailwindcss": "^4.3.4",
     "typescript": "~6.0.3",
