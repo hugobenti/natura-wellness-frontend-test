@@ -15,17 +15,14 @@ export function SubscriptionCard() {
       <h1 className={subscriptionCard.title}>{subscriptionContent.title}</h1>
       {model.kind === "loading" && <ReceiptSkeleton />}
       {model.kind === "error" && (
-        <Alert
-          tone="danger"
-          title={subscriptionContent.loadError.title}
-          action={
+        <Alert tone="danger" title={subscriptionContent.loadError.title}>
+          <p>{subscriptionContent.loadError.body}</p>
+          <div className={subscriptionCard.errorActions}>
             <Button variant="quiet" onClick={model.onRetry}>
               {subscriptionContent.loadError.retry}
             </Button>
-          }
-        >
-          <p>{subscriptionContent.loadError.body}</p>
-          <SupportLink />
+            <SupportLink />
+          </div>
         </Alert>
       )}
       {model.kind === "ready" && (

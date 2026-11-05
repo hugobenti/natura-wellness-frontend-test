@@ -43,7 +43,7 @@ export function ReceiptCard({
         ))}
       </div>
       <footer className={receiptCard.footer}>
-        <div>
+        <div className={receiptCard.footerText}>
           <p className={receiptCard.footerLabel}>{footer.label}</p>
           {footer.sublabel && <p className={receiptCard.footerSublabel}>{footer.sublabel}</p>}
         </div>
