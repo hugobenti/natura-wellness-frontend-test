@@ -1,13 +1,34 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
-import { page, userEvent as browserUser } from "vitest/browser";
 import { Button } from "../Button/Button";
 import { ResponsiveDialog } from "./ResponsiveDialog";
 import { responsiveDialogStory } from "./ResponsiveDialog.stories.style";
 import type { IResponsiveDialogProps } from "./ResponsiveDialog.type";
 
 const title = "Skip next shipment?";
+
+/** `vitest/browser` only exists under the Vitest runner; plain Storybook gets null. */
+async function loadBrowserApi() {
+  try {
+    return await import("vitest/browser");
+  } catch {
+    return null;
+  }
+}
+
+/** Runs `check` at a viewport size (Vitest only), then restores the original size. */
+async function atViewport(width: number, height: number, check: () => Promise<void>) {
+  const browser = await loadBrowserApi();
+  if (!browser) return;
+  const original = { width: window.innerWidth, height: window.innerHeight };
+  await browser.page.viewport(width, height);
+  try {
+    await check();
+  } finally {
+    await browser.page.viewport(original.width, original.height);
+  }
+}
 
 type TDemoProps = Pick<IResponsiveDialogProps, "onClose"> &
   Partial<Pick<IResponsiveDialogProps, "title" | "description">>;
@@ -70,8 +91,11 @@ export const EscClosesAndReturnsFocus: TStory = {
     const dialog = await within(document.body).findByRole("dialog", { name: title });
     await waitFor(() => expect(dialog).toBeVisible());
 
-    // A real key press: the synthetic one from storybook/test never fires the native cancel event.
-    await browserUser.keyboard("{Escape}");
+    // Under Vitest, a real key press (the synthetic one never fires the native cancel event);
+    // elsewhere, dispatch the native cancel event the browser would.
+    const browser = await loadBrowserApi();
+    if (browser) await browser.userEvent.keyboard("{Escape}");
+    else dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
     await waitFor(() =>
       expect(within(document.body).queryByRole("dialog", { name: title })).toBeNull(),
     );
@@ -87,25 +111,27 @@ export const EscClosesAndReturnsFocus: TStory = {
 /** At 375px wide the dialog sits on the bottom edge. */
 export const BottomSheetOnPhone: TStory = {
   play: async ({ canvasElement }) => {
-    await page.viewport(375, 812);
-    await userEvent.click(
-      within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
-    );
-    const dialog = await within(document.body).findByRole("dialog", { name: title });
-    await waitFor(() => expect(dialog.getBoundingClientRect().bottom).toBe(window.innerHeight));
+    await atViewport(375, 812, async () => {
+      await userEvent.click(
+        within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
+      );
+      const dialog = await within(document.body).findByRole("dialog", { name: title });
+      await waitFor(() => expect(dialog.getBoundingClientRect().bottom).toBe(window.innerHeight));
+    });
   },
 };
 
 /** From 1280px wide the dialog is centered, clear of the bottom edge. */
 export const CenteredOnDesktop: TStory = {
   play: async ({ canvasElement }) => {
-    await page.viewport(1280, 800);
-    await userEvent.click(
-      within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
-    );
-    const dialog = await within(document.body).findByRole("dialog", { name: title });
-    await waitFor(() =>
-      expect(dialog.getBoundingClientRect().bottom).toBeLessThan(window.innerHeight),
-    );
+    await atViewport(1280, 800, async () => {
+      await userEvent.click(
+        within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
+      );
+      const dialog = await within(document.body).findByRole("dialog", { name: title });
+      await waitFor(() =>
+        expect(dialog.getBoundingClientRect().bottom).toBeLessThan(window.innerHeight),
+      );
+    });
   },
 };
