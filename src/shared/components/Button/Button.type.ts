@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, MouseEvent } from "react";
+import type { ButtonHTMLAttributes, MouseEvent, Ref } from "react";
 import type { button } from "./Button.style";
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -7,6 +7,7 @@ export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   /** Shows a spinner and ignores clicks; the button stays focusable and keeps its label. */
   pending?: boolean;
+  ref?: Ref<HTMLButtonElement>;
 }
 
 export interface IUseButtonArgs {
