@@ -1,8 +1,8 @@
 export const formField = {
-  base: "flex gap-1",
+  base: "flex",
   layout: {
-    stacked: "flex-col",
-    inline: "flex-row flex-wrap items-center gap-x-3",
+    stacked: "flex-col gap-1",
+    inline: "flex-row flex-wrap items-center gap-x-3 gap-y-1",
   },
   label: "text-body text-fg",
   hint: "text-small text-muted",

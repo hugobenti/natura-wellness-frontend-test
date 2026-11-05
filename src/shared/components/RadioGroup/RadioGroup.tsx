@@ -19,13 +19,21 @@ export function RadioGroup<TValue extends string>({
 
   return (
     <fieldset className={cx(radioGroup.base, className)}>
-      <legend className={cx(radioGroup.legend, legendHidden && radioGroup.legendHidden)}>
+      <legend
+        className={cx(
+          radioGroup.legend,
+          legendHidden ? radioGroup.legendHidden : radioGroup.legendVisible,
+        )}
+      >
         {legend}
       </legend>
       <div className={cx(radioGroup.list, look.list)}>
         {items.map((item) => (
           <div key={item.inputId} className={item.checked ? look.frameChecked : look.frame}>
-            <label htmlFor={item.inputId} className={cx(radioGroup.label, look.label)}>
+            <label
+              htmlFor={item.inputId}
+              className={cx(radioGroup.label, item.checked ? look.labelChecked : look.label)}
+            >
               <input
                 id={item.inputId}
                 type="radio"
@@ -44,7 +52,7 @@ export function RadioGroup<TValue extends string>({
               {item.badge && <span className={radioGroup.badge}>{item.badge}</span>}
               {item.trailing && <span className={radioGroup.trailing}>{item.trailing}</span>}
             </label>
-            {item.checked && item.panel}
+            {item.checked && item.panel && <div className={look.panel}>{item.panel}</div>}
           </div>
         ))}
       </div>

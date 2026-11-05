@@ -29,19 +29,17 @@ function DeliveryPanel() {
   const [days, setDays] = useState("30");
 
   return (
-    <div className={radioGroupStory.panel}>
-      <Select
-        label="Delivered every"
-        layout="inline"
-        value={days}
-        onChange={setDays}
-        options={[
-          { value: "30", label: "30 days" },
-          { value: "60", label: "60 days" },
-          { value: "90", label: "90 days" },
-        ]}
-      />
-    </div>
+    <Select
+      label="Delivered every"
+      layout="inline"
+      value={days}
+      onChange={setDays}
+      options={[
+        { value: "30", label: "30 days" },
+        { value: "60", label: "60 days" },
+        { value: "90", label: "90 days" },
+      ]}
+    />
   );
 }
 
@@ -104,6 +102,7 @@ export const Cards: TStory = {
 
 /** Arrow keys move the selection between native radios. */
 export const KeyboardSelection: TStory = {
+  args: { name: "reason-keyboard" },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const first = canvas.getByRole("radio", { name: /costs too much/ });
@@ -114,6 +113,8 @@ export const KeyboardSelection: TStory = {
 
     const second = canvas.getByRole("radio", { name: /too much product/ });
     await expect(second).toBeChecked();
+    await expect(first).not.toBeChecked();
+    await expect(args.onChange).toHaveBeenCalledTimes(1);
     await expect(args.onChange).toHaveBeenCalledWith("stock");
   },
 };
@@ -141,6 +142,27 @@ export const PanelOnlyForSelected: TStory = {
     await expect(select).toHaveFocus();
     await userEvent.selectOptions(select, "90");
     await expect(select).toHaveValue("90");
+    await expect(canvas.getByRole("radio", { name: /Subscribe/ })).toBeChecked();
+  },
+};
+
+/** The whole card is the label: a click 4px inside its top-left corner selects it. */
+export const CardEdgeClick: TStory = {
+  args: {
+    appearance: "card",
+    legend: "How do you want to buy?",
+    name: "purchase-edge",
+    initial: "once",
+    options: purchaseOptions,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvas.getByRole("radio", { name: /Subscribe/ }).closest("label")!.parentElement!;
+    const rect = card.getBoundingClientRect();
+    const hit = document.elementFromPoint(rect.left + 4, rect.top + 4);
+
+    await expect(hit).not.toBeNull();
+    await userEvent.click(hit!);
     await expect(canvas.getByRole("radio", { name: /Subscribe/ })).toBeChecked();
   },
 };

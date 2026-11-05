@@ -49,6 +49,7 @@ Declared once; never used by components or style files directly. `★` marks Hug
 | `lime-100` ★  | `#E7EFC7` |                                                 |
 | `lime-200`    | `#DDE5C4` | dividers                                        |
 | `sage-300` ★  | `#AEC8A4` |                                                 |
+| `sage-100`    | `#DDE9D3` | selected option fill                            |
 | `sage-600`    | `#7E8B63` | control borders                                 |
 | `brown-500` ★ | `#8A784E` | decoration only (4.3:1 on white, below text AA) |
 | `brown-700`   | `#6B5D3A` | secondary text                                  |
@@ -81,7 +82,7 @@ These names are the theme contract: every theme defines every one of them.
 | `on-accent`                                | `lime-50`                 | text on `accent` / `accent-hover`        |
 | `focus`                                    | `olive-900`               | focus ring                               |
 | `fill-soft`                                | `lime-100`                | soft fills, product tiles                |
-| `fill-selected`                            | `sage-300`                | selected option fill                     |
+| `fill-selected`                            | `sage-100`                | selected option fill                     |
 | `decor`                                    | `brown-500`               | icons and rules only, never text         |
 | `status-active` / `on-status-active`       | `green-100` / `green-800` | active pill, success message             |
 | `status-paused` / `on-status-paused`       | `amber-100` / `amber-800` | paused pill                              |
@@ -94,7 +95,7 @@ Naming follows the existing house convention (`accent` / `on-accent`), so Tailwi
 
 Measured during brainstorming; all pass.
 
-- **Text, ≥ 4.5:1:** `fg` on `bg` (10.8), `fg` on `surface` (11.5), `muted` on `bg` (6.1), `muted` on `surface` (6.5), `on-accent` on `accent` (10.8), `on-accent` on `accent-hover` (13.7), `accent` on `surface` and on `bg` (links), `fg` on `fill-soft` (9.6), `muted` on `fill-soft` (5.4), `fg` on `fill-selected` (6.4), each `on-status-*` on its `status-*` (6.4 / 5.7 / 7.0 / 5.6).
+- **Text, ≥ 4.5:1:** `fg` on `bg` (10.8), `fg` on `surface` (11.5), `muted` on `bg` (6.1), `muted` on `surface` (6.5), `on-accent` on `accent` (10.8), `on-accent` on `accent-hover` (13.7), `accent` on `surface` and on `bg` (links), `fg` on `fill-soft` (9.6), `muted` on `fill-soft` (5.4), `fg` on `fill-selected` (9.1), `muted` on `fill-selected` (5.1), each `on-status-*` on its `status-*` (6.4 / 5.7 / 7.0 / 5.6).
 - **UI, ≥ 3:1:** `control-line` on `surface` (3.7) and on `bg` (3.4), `focus` on `bg` and `surface`, `decor` on `surface` (4.3) and `bg` (4.1).
 
 ### Typography

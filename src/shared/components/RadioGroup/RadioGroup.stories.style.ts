@@ -5,5 +5,4 @@ export const radioGroupStory = {
   prices: "flex flex-col items-end",
   price: "text-body text-fg",
   oldPrice: "text-small text-muted line-through",
-  panel: "pl-8",
 } as const;
