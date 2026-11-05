@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit",
     "test:storybook": "vitest run --project storybook",
-    "test:watch": "vitest",
+    "test:watch": "vitest --project unit",
     "test:e2e": "playwright test",
     "knip": "knip",
     "storybook": "storybook dev -p 6006",
