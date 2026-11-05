@@ -6,14 +6,7 @@ import { cx } from "@/shared/utils/cx";
 import { receiptCard } from "./ReceiptCard.style";
 import type { IReceiptCardProps } from "./ReceiptCard.type";
 
-export function ReceiptCard({
-  heading,
-  status,
-  dimmed,
-  lines,
-  footer,
-  headingRef,
-}: IReceiptCardProps) {
+export function ReceiptCard({ heading, status, lines, footer, headingRef }: IReceiptCardProps) {
   return (
     <section className={receiptCard.card}>
       <header className={receiptCard.header}>
@@ -24,8 +17,14 @@ export function ReceiptCard({
       </header>
       <div>
         {lines.map((line) => (
-          <div key={line.sku} className={cx(receiptCard.row, dimmed && receiptCard.dimmed)}>
-            <ProductThumbnail src={line.imageUrl} name={line.name} size="md" decorative />
+          <div key={line.sku} className={receiptCard.row}>
+            <ProductThumbnail
+              src={line.imageUrl}
+              name={line.name}
+              size="md"
+              decorative
+              className={cx(status === "paused" && receiptCard.dimmed)}
+            />
             <div className={receiptCard.details}>
               <p className={receiptCard.name}>{line.name}</p>
               <p className={receiptCard.mobileQuantity}>{line.quantityLabel}</p>
