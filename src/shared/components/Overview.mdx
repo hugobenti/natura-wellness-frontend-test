@@ -1,0 +1,34 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Components/Overview" />
+
+# Components
+
+Shared building blocks for Part A and Part B. Every component follows the same rules.
+
+## Shared rules
+
+- **Native elements.** Buttons, inputs, selects and dialogs are the browser's own, so keyboard and screen readers work without custom ARIA.
+- **Presentation only.** The `.tsx` renders props and what its hook returns; classes live in a style file, copy in `src/content`.
+- **Theme-ready.** Colors, fonts and radii come from tokens, so a theme set with `data-theme` restyles every component with no code change.
+- **Control borders.** `border-line` where visible text and an icon identify the control (`Select`, `QuantityStepper`, unselected `RadioGroup` cards); `border-control-line` for the radio circle, checkboxes and empty text inputs and textareas; a selected card uses `border-accent`. Focus always shows the focus ring: the base layer's `:focus-visible` outline in `focus`, never removed.
+- **Inline feedback, no toasts.** Messages render where they belong with an `Alert`, never as a floating notification.
+
+## Components
+
+| Component                                   | Purpose                                                                           |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
+| [`Icon`](?path=/docs/components-icon--docs) | Stroke icons on a 24px grid that take the color of the text around them.          |
+| `Button`                                    | Primary, secondary, quiet and destructive actions, with a pending state.          |
+| `Badge`                                     | Short label in a highlight or status tone, optionally with an icon.               |
+| `StatusBadge`                               | A subscription status shown as icon plus word.                                    |
+| `Alert`                                     | Inline success, info or error message with an optional action.                    |
+| `ProductThumbnail`                          | Product image, with an initial tile when there is no image.                       |
+| `PriceDisplay`                              | Formatted price, with an optional crossed-out original price.                     |
+| `QuantityStepper`                           | Decrease and increase buttons around a bounded quantity.                          |
+| `RadioGroup`                                | Native radio choices as a list or as cards, with nested content for the selected. |
+| `Select`                                    | Native select with a chevron.                                                     |
+| `FormField`                                 | Label, hint and error wiring around a control.                                    |
+| `ResponsiveDialog`                          | Native dialog: bottom sheet on mobile, centered modal on larger screens.          |
+
+Each component links its row here, in the same PR that adds its docs page (`?path=/docs/components-<name>--docs`).

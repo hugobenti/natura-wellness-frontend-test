@@ -47,6 +47,9 @@ function semanticName(property: string): string | undefined {
   if (property.startsWith("--font-")) {
     return `font:${property.slice("--font-".length)}`;
   }
+  if (property.startsWith("--radius-")) {
+    return `radius:${property.slice("--radius-".length)}`;
+  }
   return undefined;
 }
 
@@ -61,6 +64,7 @@ function buildTheme(
     name,
     colors: { ...inherited?.colors },
     fonts: { ...inherited?.fonts },
+    radii: { ...inherited?.radii },
     primitives: {},
     declared: [],
   };
@@ -75,6 +79,8 @@ function buildTheme(
     const value = resolve(vars[property] ?? "", vars, [property]);
     if (semantic.startsWith("font:")) {
       theme.fonts[semantic.slice("font:".length)] = value;
+    } else if (semantic.startsWith("radius:")) {
+      theme.radii[semantic.slice("radius:".length)] = value;
     } else {
       theme.colors[semantic] = value;
     }

@@ -1,0 +1,40 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Icon.stories";
+
+<Meta of={Stories} />
+
+# Icon
+
+A small set of stroke icons on a 24px grid. They draw in `currentColor`, so they take the color of the text around them.
+
+<Canvas of={Stories.Gallery} />
+
+## Inherits color
+
+<Canvas of={Stories.InheritsColor} />
+
+## Use when
+
+- A word needs a small shape beside it: a status, a stepper button, a select chevron.
+
+## Don't use when
+
+- The icon would be the only thing telling the user something. Add the word.
+- You need a shape that isn't in the set: draw it into `Icon.data.ts` and add its name to `TIconName`.
+
+## Accessibility
+
+- Icons are decorative (`aria-hidden`, not focusable). Always pair one with a visible word; an icon button gets its name from visible text or an `aria-label` on the button.
+- Color never carries meaning alone: a status icon has its own shape and sits next to its word.
+
+## Size
+
+Icons are `size-4` by default. Resize through `className` (for example `size-6`); never with inline styles.
+
+## Do / Don't
+
+| Do                              | Don't                           |
+| ------------------------------- | ------------------------------- |
+| An icon beside a visible word   | An icon as the only signal      |
+| Color through the parent's text | A hex value on the icon         |
+| Size through `className`        | `width` and `height` attributes |

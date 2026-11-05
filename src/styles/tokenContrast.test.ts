@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { contrastRatio } from "@/shared/utils/colorContrast";
 
 import { contrastPairs, minimumRatio } from "./contrastPairs";
-import { fontRoles, semanticColorTokens } from "./themeContract";
+import { fontRoles, radiusRoles, semanticColorTokens } from "./themeContract";
 import { readThemes } from "./themeTokens";
 import { themeNames } from "./themes";
 import type { TThemeName } from "./themes.type";
@@ -25,7 +25,11 @@ describe.each(themes)("$name theme tokens meet WCAG 2.2 AA", ({ colors }) => {
 });
 
 test("every theme declares the full contract", () => {
-  const contract = [...semanticColorTokens, ...fontRoles.map((role) => `font:${role}`)];
+  const contract = [
+    ...semanticColorTokens,
+    ...fontRoles.map((role) => `font:${role}`),
+    ...radiusRoles.map((role) => `radius:${role}`),
+  ];
   for (const theme of themes.filter(({ name }) => name !== "brand")) {
     expect(theme.declared, theme.name).toEqual(expect.arrayContaining(contract));
   }

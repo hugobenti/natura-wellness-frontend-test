@@ -14,15 +14,18 @@ Vite, React, TypeScript and Tailwind CSS v4. Deployed on Vercel from `main`; eve
 ## Repo map
 
 ```
-src/main.tsx          entry: mounts <App /> into index.html and loads the global styles
-src/app               app shell: picks the part from ?part=a|b, renders the nav
-src/part-a            Part A (the brief fixes this path and SubscriptionCard.tsx)
-src/part-b            Part B (the brief fixes this path, BuyBox.tsx and copy.ts)
-src/shared            shared kernel: UI primitives, hooks, utils
-src/content           all UI copy, typed
-src/styles            tokens (globals.css, themeContract.ts), theme reader (themeTokens.ts), contrast pairs and test
-src/api               the brief's mock backend; given, kept byte-identical
-e2e                   Playwright smoke + accessibility tests over every view in e2e/views.ts
+src/main.tsx           entry: mounts <App /> into index.html and loads the global styles
+src/app                app shell: picks the part from ?part=a|b, renders the nav
+src/part-a             Part A (the brief fixes this path and SubscriptionCard.tsx)
+src/part-b             Part B (the brief fixes this path, BuyBox.tsx and copy.ts)
+src/shared             shared kernel: UI primitives, hooks, utils
+src/shared/components  shared UI components (Button, Badge, Alert…); Icon lives in src/shared/icons
+src/shared/logic       pure, unit-tested logic shared by components
+src/content            all UI copy, typed
+src/content/components copy of the shared components, one file each
+src/styles             tokens (globals.css, themeContract.ts), theme reader (themeTokens.ts), contrast pairs and test
+src/api                the brief's mock backend; given, kept byte-identical
+e2e                    Playwright smoke + accessibility tests over every view in e2e/views.ts
 ```
 
 Views are query strings, not routes: `?part=a&fixture=active|paused|cancelled|error` (add `&conflict=always` to force the 409), and `?part=b`.
@@ -33,17 +36,18 @@ Dependencies flow one way: **kernel (shared, content, styles, api) → parts →
 
 - **Boundary:** the kernel may not import a part or `src/app`; a part may not import another part or `src/app`. What both parts need moves to `src/shared` (or `src/content` for copy). ESLint generates the rule for every `src/part-*` folder, and CI fails on a violation. Do not disable the rule; move the code instead.
 - **The brief's files are fixed.** Never edit `INSTRUCTIONS.md` or `src/api` (it's the given backend: lint and Prettier skip it, `tsc` still checks it). Build on its exports; anything the API doesn't offer is simulated in local state. Keep the paths the brief names.
-- **No third-party UI kit.** Build components in `src/shared/components` (primitives) or the part's `components/`. Behavior-only libraries are fine.
+- **No third-party UI kit.** Build components in `src/shared/components` (primitives; `Icon` lives in `src/shared/icons`) or the part's `components/`. Behavior-only libraries are fine.
 - **Every `.tsx` component is presentation only.** It renders props and what its hook returns: no logic, no data, no class strings. ESLint fails the build on helper functions, arithmetic, template formatting, array manipulation, module-level data, effects or browser APIs in a component file (`presentation/no-restricted-syntax`). Full rule: "Component architecture" below. `src/main.tsx` is the only exception: it's the entry point, not a component.
 - **Types live in `X.type.ts`.** Every `interface` and `type` goes in a `.type.ts` file next to the file that uses it (`Button.tsx` → `Button.type.ts`); tests may keep local types. Interfaces start with `I` (`IUser`), type aliases with `T` (`TButtonProps`). ESLint enforces both. The API's own types (`Subscription`, `CatalogProduct`…) keep their given names.
-- **Token-only styling.** `src/styles/globals.css` layers primitives (`--brand-*` on `:root`) → semantic tokens (`@theme static`) → `[data-theme]` blocks. Style files never use primitives, only the utilities the semantic tokens generate (`bg-surface`, `text-muted`, `font-heading`…). Semantic tokens are the theme contract: a new one goes in `@theme`, in every `[data-theme]` block, in `src/styles/themeContract.ts` and, if it carries text or UI, in `src/styles/contrastPairs.ts` (checked by `tokenContrast.test.ts`). Themes switch via `data-theme` on a wrapper; Part B will get its own theme there later. Light only, no dark mode. Fonts are `font-sans` and `font-heading`; sizes are only `text-title`, `text-section`, `text-body`, `text-small`, `text-eyebrow`. Tailwind's default palette is removed and `design-tokens/no-raw-color` fails on raw palette classes and color literals.
+- **Token-only styling.** `src/styles/globals.css` layers primitives (`--brand-*` on `:root`) → semantic tokens (`@theme static`) → `[data-theme]` blocks. Style files never use primitives, only the utilities the semantic tokens generate (`bg-surface`, `text-muted`, `font-heading`…). Semantic tokens are the theme contract: a new one goes in `@theme`, in every `[data-theme]` block, in `src/styles/themeContract.ts` and, if it carries text or UI, in `src/styles/contrastPairs.ts` (checked by `tokenContrast.test.ts`). Themes switch via `data-theme` on a wrapper; Part B will get its own theme there later. Light only, no dark mode. Fonts are `font-sans` and `font-heading`; sizes are only `text-title`, `text-section`, `text-body`, `text-small`, `text-eyebrow`. Radii are only the roles `rounded-control` (buttons, inputs, steppers), `rounded-card` (option cards, dialogs) and `rounded-pill` (badges). Shapes that must stay circles in every theme (radio circle and dot, spinner) use `rounded-full`, which is not a theme role. Tailwind's default palette is removed and `design-tokens/no-raw-color` fails on raw palette classes and color literals.
+- **Control borders:** `border-line` only where visible text + icon identify the control (`Select`, `QuantityStepper`, unselected `RadioGroup` cards); `border-control-line` for the radio circle, checkboxes, empty text inputs and textareas; selected card `border-accent`; focus always shows the `focus` ring (the base layer's `:focus-visible` outline in `focus`; never remove it).
 - **Status colors** always come with their icon and word, never color alone.
 - **Accessibility is a requirement:** semantic HTML, an accessible name on every control, visible focus (`focus-visible`), WCAG 2.2 AA contrast for every token pair (tested per theme), keyboard access, and `prefers-reduced-motion` honored (opacity fades only). `jsx-a11y` strict rules run in lint; axe runs on every view in `pnpm test:e2e`.
 - **No scroll-jacking:** never `preventDefault` wheel, touch or keyboard scrolling.
 - **Copy:** all text lives in `src/content` (labels, headings, `aria-label`s); Part B's given copy stays in `src/part-b/copy.ts`. ESLint fails on text in markup.
 - **New view or fixture:** add its URL to `e2e/views.ts`; the e2e suite then loads it on desktop and at 375px and runs axe on it.
 - **Security headers** are declared once in `vercel.json`; `vite preview` (and so the e2e suite) serves the same ones. Exception: `/iframe.html` (Storybook's canvas, which its manager frames from the same origin) gets `X-Frame-Options: SAMEORIGIN` and `frame-ancestors 'self'`; every other path stays `DENY` / `frame-ancestors 'none'`. `vite preview` uses the non-iframe rule.
-- **Stories** (`*.stories.tsx`, `*.mdx` under `src`) are exempt from the presentation, copy and type-file rules, but keep the class-string and no-raw-color rules. Foundations pages (Introduction, Color, Typography, the test-only ThemeScope story) live in `src/styles/foundations`.
+- **Stories** (`*.stories.tsx`, `*.mdx` under `src`) are exempt from the presentation, copy and type-file rules, but keep the class-string and no-raw-color rules. Foundations pages (Introduction, Color, Typography, the test-only ThemeScope story) live in `src/styles/foundations`. Component stories are titled `Components/<Name>` and prove behavior with play functions in the component's own stories. Story-only classes go in `<Name>.stories.style.ts` next to the story; stories may reuse the generic specimen styles (grid, card, name) from `src/styles/foundations/foundations.style.ts`.
 
 ## Component architecture
 
@@ -51,9 +55,23 @@ Each concern has its own kind of file. A component file never mixes them.
 
 - **`X.tsx` is presentation only.** It maps props and hook results to markup: JSX, destructuring, `.map` over ready-made arrays, simple conditionals on given values (`status === "done"`, `index > 0`), and `cx()` for classes. Nothing else: no helper functions, arithmetic, template formatting, array manipulation (`filter`, `sort`, `join`…), module-level data, effects, timers, observers or `window` / `document` / `navigator`.
 - **`useX.ts` is behavior and derived data.** State, effects, browser APIs, timers, and the view model the markup needs. It never returns JSX. A generic behavior hook is named after what it does (`useDisclosure`) and composed by the component's own hook.
-- **Pure logic** that needs no React (price math, date formatting, state transitions) goes in a plain `.ts` module (`src/part-*/logic`) with its own unit test; hooks call it.
+- **Pure logic** that needs no React (price math, date formatting, state transitions) goes in a plain `.ts` module (`src/shared/logic` for the kernel, `src/part-*/logic` for a part) with its own unit test; hooks call it.
 - **`X.data.ts`** holds static data a component renders (option lists, presets). UI copy lives in `src/content`.
 - **`X.type.ts`** holds every type and interface, next to the file that uses it.
+
+## Component folder convention
+
+Each shared component lives in `src/shared/components/<Name>/` (`Icon` in `src/shared/icons`):
+
+- `<Name>.tsx`: presentation.
+- `<Name>.style.ts`: classes.
+- `<Name>.type.ts`: types.
+- `use<Name>.ts`: behavior, only if the component has any.
+- `<Name>.stories.tsx`: variants and play functions.
+- `<Name>.mdx`: docs page.
+- Copy goes in `src/content/components/<camelName>.ts`, one file per component, exporting `<camelName>Content`.
+- Plus `<Name>.data.ts`, `use<Name>.test.ts` and `<Name>.stories.style.ts` when needed; a component that only composes another may skip `.style.ts`.
+- Link your component's row in `src/shared/components/Overview.mdx` (`?path=/docs/components-<name>--docs`) in the same PR.
 
 ## Styling architecture
 
