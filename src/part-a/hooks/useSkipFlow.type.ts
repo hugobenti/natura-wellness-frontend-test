@@ -10,7 +10,7 @@ export interface IUseSkipFlowArgs {
   onSkipped: (snapshot: Subscription) => void;
   skipLocally: () => void;
   localSuccessAmount: () => number;
-  successAmount?: (snapshot: Subscription) => number;
+  successAmount: (snapshot: Subscription) => number;
   notify: (notice: INotice) => void;
 }
 

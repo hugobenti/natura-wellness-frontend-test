@@ -9,8 +9,6 @@ export interface IUsePauseFlowArgs {
   overlay: ILocalOverlay;
   dispatch: Dispatch<TOverlayAction>;
   notify: (notice: INotice) => void;
-  /** The loaded snapshot's next charge date, kept when it is later than tomorrow. */
-  originalNextChargeAt: string | null;
 }
 
 export interface IUsePauseFlowResult {

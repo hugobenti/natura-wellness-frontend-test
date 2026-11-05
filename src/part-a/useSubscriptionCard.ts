@@ -4,6 +4,7 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { useSubscription } from "./hooks/useSubscription";
 import { useEditMode } from "./hooks/useEditMode";
 import type { INotice } from "./hooks/notice.type";
+import { useCancelFlow } from "./hooks/useCancelFlow";
 import { usePauseFlow } from "./hooks/usePauseFlow";
 import { useSkipFlow } from "./hooks/useSkipFlow";
 import { addDays, formatDay } from "./logic/dates";
@@ -23,13 +24,17 @@ export function useSubscriptionCard(): TPageModel {
   const [notice, setNotice] = useState<INotice | null>(null);
   const snapshot = state.status === "ready" ? state.snapshot : null;
   const view = snapshot ? deriveView(snapshot, overlay) : null;
+  const clearNotice = () => setNotice(null);
   const edit = useEditMode({ overlay, snapshot, dispatch, notify: setNotice });
+  const startEdit = () => {
+    clearNotice();
+    edit.start();
+  };
   const pauseFlow = usePauseFlow({
     view,
     overlay,
     dispatch,
     notify: setNotice,
-    originalNextChargeAt: snapshot?.nextChargeAt ?? null,
   });
   const skipFlow = useSkipFlow({
     view,
@@ -54,7 +59,14 @@ export function useSubscriptionCard(): TPageModel {
       deriveView(fresh, overlayReducer(overlay, { type: "clearSkipped" })).pricing.totalCents,
     notify: setNotice,
   });
-  const h1Ref = useRef<HTMLHeadingElement>(null);
+  const cancelFlow = useCancelFlow({
+    subscription: view,
+    dispatch,
+    notify: setNotice,
+    clearNotice,
+    startEdit,
+  });
+  const { h1Ref } = cancelFlow;
   const shownStatus = useRef<string | null>(null);
   const status = view?.status ?? null;
   useEffect(() => {
@@ -117,8 +129,8 @@ export function useSubscriptionCard(): TPageModel {
       label: copy.pausedTotal,
       sublabel: readyView.pausedUntil
         ? copy.pausedNext(
-            formatDay(readyView.pausedUntil, now),
             formatMoney(readyView.pricing.totalCents),
+            formatDay(readyView.pausedUntil, now),
           )
         : copy.pausedOpenNext,
     };
@@ -164,6 +176,12 @@ export function useSubscriptionCard(): TPageModel {
     footer,
     headingRef: edit.headingRef,
   };
+  const cancelAction: IManageAction = {
+    key: "cancel",
+    label: subscriptionContent.manage.cancel,
+    variant: "quiet",
+    onClick: cancelFlow.open,
+  };
   const actions: IManageAction[] = edit.editing
     ? [
         {
@@ -172,7 +190,10 @@ export function useSubscriptionCard(): TPageModel {
           variant: "primary",
           disabled: edit.emptyBox,
           onClick: () => {
-            if (edit.save()) skipFlow.open();
+            if (edit.save()) {
+              clearNotice();
+              skipFlow.open();
+            }
           },
         },
         {
@@ -188,21 +209,28 @@ export function useSubscriptionCard(): TPageModel {
             key: "edit",
             label: subscriptionContent.manage.edit,
             variant: "secondary",
-            onClick: edit.start,
+            onClick: startEdit,
             ref: edit.editButtonRef,
           },
           {
             key: "skip",
             label: subscriptionContent.manage.skip,
             variant: "secondary",
-            onClick: skipFlow.open,
+            onClick: () => {
+              clearNotice();
+              skipFlow.open();
+            },
           },
           {
             key: "pause",
             label: subscriptionContent.manage.pause,
             variant: "secondary",
-            onClick: pauseFlow.openPause,
+            onClick: () => {
+              clearNotice();
+              pauseFlow.openPause();
+            },
           },
+          cancelAction,
         ]
       : readyView.status === "paused"
         ? [
@@ -216,8 +244,12 @@ export function useSubscriptionCard(): TPageModel {
               key: "changePause",
               label: subscriptionContent.manage.changePause,
               variant: "secondary",
-              onClick: pauseFlow.openChange,
+              onClick: () => {
+                clearNotice();
+                pauseFlow.openChange();
+              },
             },
+            cancelAction,
           ]
         : [];
   let skipSheet: ISkipSheetProps | null = null;
@@ -251,9 +283,26 @@ export function useSubscriptionCard(): TPageModel {
   return {
     h1Ref,
     kind: "ready",
-    editHint: edit.editing && edit.emptyBox ? { text: editCopy.stopAllHint } : null,
+    pageView: cancelFlow.view,
+    confirm: cancelFlow.confirm,
+    survey: cancelFlow.survey,
+    editHint:
+      edit.editing && edit.emptyBox
+        ? {
+            text: editCopy.stopAllHint,
+            cancelLabel: subscriptionContent.manage.cancel,
+            onCancel: () => {
+              edit.cancel();
+              cancelFlow.open();
+            },
+          }
+        : null,
     receipt,
     notice,
+    dismissNotice: () => {
+      clearNotice();
+      edit.headingRef.current?.focus();
+    },
     skipSheet,
     pauseSheet: pauseFlow.sheet,
     actions,

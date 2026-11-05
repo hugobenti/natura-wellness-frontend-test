@@ -53,7 +53,7 @@ export function useSkipFlow({
         tone: "success",
         title: copy.successTitle,
         body: copy.successBody(
-          formatMoney(successAmount ? successAmount(snapshot) : snapshot.nextChargeTotalCents!),
+          formatMoney(successAmount(snapshot)),
           formatDay(snapshot.nextChargeAt!, new Date()),
         ),
       });
