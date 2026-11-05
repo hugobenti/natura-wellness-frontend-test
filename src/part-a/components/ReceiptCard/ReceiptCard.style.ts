@@ -1,0 +1,26 @@
+export const receiptCard = {
+  card: "rounded-card border border-line bg-surface px-4",
+  header: "flex items-center justify-between gap-4 border-b border-line py-4",
+  heading: "font-semibold text-eyebrow text-muted uppercase tracking-wide",
+  row: "grid grid-cols-[56px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 border-b border-line py-4 lg:items-center",
+  rowRead: "lg:grid-cols-[56px_minmax(0,1fr)_96px_120px]",
+  rowEdit: "lg:grid-cols-[56px_minmax(0,1fr)_144px_120px]",
+  dimmed: "opacity-60",
+  details: "min-w-0",
+  name: "font-semibold text-body text-fg",
+  mobileQuantity: "mt-1 text-small text-muted lg:hidden",
+  desktopQuantity: "hidden text-small text-muted lg:block",
+  skippedNote: "mt-1 text-small text-muted",
+  editorStepper: "col-span-2 col-start-1 row-start-2 lg:col-span-1 lg:col-start-3 lg:row-start-1",
+  editorAction:
+    "col-start-3 row-start-2 -mr-4 justify-self-end lg:col-start-2 lg:row-start-2 lg:-ml-4 lg:mr-0 lg:justify-self-start",
+  skippedAction:
+    "col-span-2 col-start-2 row-start-2 -mr-4 flex min-w-0 items-center gap-2 lg:col-span-3 lg:col-start-2",
+  skippedRowNote: "min-w-0 flex-1 text-small text-muted",
+  price: "col-start-3 row-start-1 justify-self-end text-right lg:col-start-4",
+  footer: "flex items-start justify-between gap-3 py-4",
+  footerText: "min-w-0 flex-1",
+  footerLabel: "font-semibold text-body text-fg",
+  footerSublabel: "mt-1 text-small text-muted",
+  footerAmount: "flex shrink-0 flex-col items-end gap-1 text-right",
+} as const;

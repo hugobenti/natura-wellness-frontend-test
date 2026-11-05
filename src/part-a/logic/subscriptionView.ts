@@ -2,7 +2,12 @@ import type { Subscription } from "@/api/types";
 import { priceBox } from "./pricing";
 import type { ILocalOverlay, ISubscriptionView } from "./subscriptionView.type";
 
-export const EMPTY_OVERLAY: ILocalOverlay = { quantities: {}, skippedSkus: [], lifecycle: null };
+export const EMPTY_OVERLAY: ILocalOverlay = {
+  quantities: {},
+  skippedSkus: [],
+  zeroSkus: [],
+  lifecycle: null,
+};
 
 export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISubscriptionView {
   const lifecycle = overlay.lifecycle;
@@ -35,7 +40,10 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
       sku: item.sku,
       name: item.name,
       imageUrl: item.imageUrl,
-      quantity: overlay.quantities[item.sku] ?? item.quantity,
+      quantity:
+        skipped && overlay.zeroSkus.includes(item.sku)
+          ? 0
+          : (overlay.quantities[item.sku] ?? item.quantity),
       skipped,
       priceCents: priced?.priceCents ?? null,
       compareAtCents: priced?.compareAtCents ?? null,

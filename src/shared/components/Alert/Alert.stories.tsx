@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import { Button } from "../Button/Button";
 import { Alert } from "./Alert";
 
@@ -40,5 +40,19 @@ export const Danger: TStory = {
     const alert = within(canvasElement).getByRole("alert");
 
     await expect(within(alert).getByRole("button", { name: "Reload" })).toBeVisible();
+  },
+};
+
+/** A close button in the top-right corner, for page-level outcome notices. */
+export const Dismissible: TStory = {
+  args: {
+    tone: "success",
+    title: "Changes saved",
+    children: "We'll charge $101.87 on 12 June for your next box.",
+    onDismiss: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Dismiss message" }));
+    await expect(args.onDismiss).toHaveBeenCalledOnce();
   },
 };

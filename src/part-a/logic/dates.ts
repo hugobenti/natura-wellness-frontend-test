@@ -7,7 +7,7 @@ export function addDays(iso: string, days: number): string {
 }
 
 export function formatDay(iso: string, now: Date, options?: IFormatDayOptions): string {
-  const { locale, timeZone } = options ?? {};
+  const { locale = "en-US", timeZone } = options ?? {};
   const yearFormatter = new Intl.DateTimeFormat(locale, { year: "numeric", timeZone });
   const date = new Date(iso);
   const dateYear = yearFormatter.formatToParts(date).find((part) => part.type === "year")?.value;

@@ -15,6 +15,10 @@ describe("formatDay", () => {
     expect(formatDay("2026-11-11T12:00:00.000Z", now, options)).toBe("Wed, Nov 11");
   });
 
+  it("defaults to English when no locale is specified", () => {
+    expect(formatDay("2026-11-11T12:00:00.000Z", now, { timeZone: "UTC" })).toBe("Wed, Nov 11");
+  });
+
   it("includes the year when it differs from the current year", () => {
     expect(formatDay("2027-01-04T12:00:00.000Z", now, options)).toBe("Mon, Jan 4, 2027");
   });
