@@ -1,57 +1,110 @@
 @import "tailwindcss";
 
 /**
- * Design tokens, declared once here. The light scheme is the `@theme static` block: Tailwind generates
- * the utilities from it (`bg-surface`, `text-muted`, `outline-focus`…). The dark scheme overrides the
- * same variables under `prefers-color-scheme: dark`, so components never branch on the scheme.
- * Tailwind's default palette is removed, so raw classes such as `bg-zinc-200` generate no CSS.
- * src/styles/tokenContrast.test.ts checks WCAG 2.2 AA for both schemes and requires the dark block to
- * override every color token. Starting values are sampled from public/reference/buy-box.png.
+ * Design tokens, declared once here, in three layers:
+ * 1. Primitives: the raw palette as `--brand-*` custom properties on `:root`. Never used by components.
+ * 2. Semantic tokens: `@theme static` maps each role (`bg`, `fg`, `status-active`…) to a primitive with
+ *    `var()`. Tailwind generates the utilities from them (`bg-surface`, `text-muted`…). Tailwind's
+ *    default palette and type scale are removed, so raw classes such as `bg-zinc-200` or `text-lg`
+ *    generate no CSS. Light only: there is no dark scheme.
+ * 3. Themes: a `[data-theme="name"]` block brings its own primitives and redefines every semantic
+ *    color plus `--font-sans` and `--font-heading`; any element with `data-theme` re-themes its subtree.
+ * src/styles/tokenContrast.test.ts reads this file, resolves every `var()` and checks WCAG 2.2 AA for
+ * each theme, and requires every theme to declare the full contract (src/styles/themeContract.ts).
  */
+:root {
+  --brand-lime-50: #f7f9ee;
+  --brand-lime-100: #e7efc7;
+  --brand-lime-200: #dde5c4;
+  --brand-sage-300: #aec8a4;
+  --brand-sage-600: #7e8b63;
+  --brand-brown-500: #8a784e;
+  --brand-brown-700: #6b5d3a;
+  --brand-olive-900: #3b3b1a;
+  --brand-olive-950: #2a2a10;
+  --brand-white: #ffffff;
+  --brand-green-100: #d6ebc8;
+  --brand-green-800: #2f5a1e;
+  --brand-amber-100: #fbe3b0;
+  --brand-amber-800: #7a4e00;
+  --brand-grey-100: #e4e4e0;
+  --brand-grey-700: #4a4a44;
+  --brand-red-100: #fadad3;
+  --brand-red-700: #a12c1a;
+}
+
 @theme static {
   --color-*: initial;
 
   /* Surfaces */
-  --color-bg: #fbf8f3;
-  --color-surface: #ffffff;
-  --color-line: #e7e1d6;
+  --color-bg: var(--brand-lime-50);
+  --color-surface: var(--brand-white);
+  --color-line: var(--brand-lime-200);
+  --color-control-line: var(--brand-sage-600);
 
   /* Text */
-  --color-fg: #1f2a24;
-  --color-muted: #5b675f;
+  --color-fg: var(--brand-olive-900);
+  --color-muted: var(--brand-brown-700);
 
   /* Primary action, links and focus */
-  --color-accent: #17402f;
-  --color-accent-hover: #0f2d21;
-  --color-on-accent: #ffffff;
-  --color-focus: #17402f;
+  --color-accent: var(--brand-olive-900);
+  --color-accent-hover: var(--brand-olive-950);
+  --color-on-accent: var(--brand-lime-50);
+  --color-focus: var(--brand-olive-900);
+
+  /* Soft fills and decoration (decor is for icons and rules, never text) */
+  --color-fill-soft: var(--brand-lime-100);
+  --color-fill-selected: var(--brand-sage-300);
+  --color-decor: var(--brand-brown-500);
+
+  /* Status pills: a soft tint with its dark text */
+  --color-status-active: var(--brand-green-100);
+  --color-on-status-active: var(--brand-green-800);
+  --color-status-paused: var(--brand-amber-100);
+  --color-on-status-paused: var(--brand-amber-800);
+  --color-status-cancelled: var(--brand-grey-100);
+  --color-on-status-cancelled: var(--brand-grey-700);
+  --color-status-danger: var(--brand-red-100);
+  --color-on-status-danger: var(--brand-red-700);
 
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
 }
 
-/* Fonts are loaded in index.html. */
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
-}
+/* Static so the variables always exist at runtime: the base layer and theme overrides read them. */
+@theme static {
+  /* Fonts are loaded in index.html. */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
-/* Dark scheme: same token names, every color overridden. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #111714;
-    --color-surface: #18211c;
-    --color-line: #2b3731;
-    --color-fg: #e8eee9;
-    --color-muted: #a5b2aa;
-    --color-accent: #8fcaa9;
-    --color-accent-hover: #acdcc1;
-    --color-on-accent: #0b1f15;
-    --color-focus: #acdcc1;
+  /* Type scale, mobile first. Only these sizes exist. */
+  --text-*: initial;
 
-    color-scheme: dark;
-  }
+  --text-title: 28px;
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: -0.02em;
+  --text-title--font-weight: 700;
+
+  --text-section: 17px;
+  --text-section--line-height: 1.3;
+  --text-section--letter-spacing: 0;
+  --text-section--font-weight: 700;
+
+  --text-body: 15px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0;
+  --text-body--font-weight: 400;
+
+  --text-small: 13px;
+  --text-small--line-height: 1.4;
+  --text-small--letter-spacing: 0;
+  --text-small--font-weight: 400;
+
+  --text-eyebrow: 11px;
+  --text-eyebrow--line-height: 1.3;
+  --text-eyebrow--letter-spacing: 0.12em;
+  --text-eyebrow--font-weight: 600;
 }
 
 @layer base {
@@ -60,7 +113,13 @@
   }
 
   body {
+    @apply font-sans text-body;
     background-color: var(--color-bg);
+    color: var(--color-fg);
+  }
+
+  /* A themed subtree re-resolves the text color and font from its own tokens. */
+  [data-theme] {
     color: var(--color-fg);
     font-family: var(--font-sans);
   }
@@ -72,6 +131,7 @@
 
   h1,
   h2 {
+    font-family: var(--font-heading);
     text-wrap: balance;
   }
 

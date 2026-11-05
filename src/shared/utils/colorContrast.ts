@@ -1,12 +1,6 @@
-/**
- * WCAG 2.x contrast math for design tokens, plus readers for the `--color-*` tokens declared in
- * src/styles/globals.css: the `@theme` blocks (light scheme) and the `prefers-color-scheme: dark` block.
- */
+/** WCAG 2.x contrast math for design tokens. */
 
 const OPAQUE_HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
-const THEME_BLOCK = /@theme\b[^{]*\{([^}]*)\}/g;
-const DARK_BLOCK = /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root\s*\{([^}]*)\}/;
-const COLOR_DECLARATION = /--color-([a-z0-9-]+)\s*:\s*([^;]+);/gi;
 
 /** WCAG 2.x relative luminance of an opaque #rgb / #rrggbb color, from 0 (black) to 1 (white). */
 function relativeLuminance(hex: string): number {
@@ -28,31 +22,4 @@ export function contrastRatio(foreground: string, background: string): number {
   const a = relativeLuminance(foreground);
   const b = relativeLuminance(background);
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-}
-
-function readColors(declarations: string, into: Record<string, string>) {
-  for (const [, name, value] of declarations.matchAll(COLOR_DECLARATION)) {
-    if (name && value) {
-      into[name] = value.trim();
-    }
-  }
-}
-
-/**
- * Color tokens declared in `@theme` blocks, keyed by name without the `--color-` prefix.
- * The wildcard reset (`--color-*: initial`) doesn't match a token name and is skipped.
- */
-export function readThemeColors(css: string): Record<string, string> {
-  const colors: Record<string, string> = {};
-  for (const [, declarations = ""] of css.matchAll(THEME_BLOCK)) {
-    readColors(declarations, colors);
-  }
-  return colors;
-}
-
-/** Color tokens the `@media (prefers-color-scheme: dark) { :root { … } }` block overrides. */
-export function readDarkColors(css: string): Record<string, string> {
-  const colors: Record<string, string> = {};
-  readColors(DARK_BLOCK.exec(css)?.[1] ?? "", colors);
-  return colors;
 }
