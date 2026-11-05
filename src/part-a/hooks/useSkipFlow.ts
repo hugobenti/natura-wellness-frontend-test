@@ -10,6 +10,7 @@ export function useSkipFlow({
   view,
   reload,
   onSkipped,
+  successAmount,
   notify,
 }: IUseSkipFlowArgs): IUseSkipFlowResult {
   const [phase, setPhase] = useState<TSkipPhase | null>(null);
@@ -37,7 +38,7 @@ export function useSkipFlow({
         tone: "success",
         title: copy.successTitle,
         body: copy.successBody(
-          formatMoney(snapshot.nextChargeTotalCents!),
+          formatMoney(successAmount ? successAmount(snapshot) : snapshot.nextChargeTotalCents!),
           formatDay(snapshot.nextChargeAt!, new Date()),
         ),
       });

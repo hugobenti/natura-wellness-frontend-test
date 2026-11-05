@@ -19,13 +19,13 @@ function deferred<T>() {
 
 beforeEach(() => vi.mocked(skipNextShipment).mockReset());
 
-function setup() {
+function setup(successAmount?: (snapshot: Subscription) => number) {
   const snapshot = fixtures.active();
   const view = deriveView(snapshot, EMPTY_OVERLAY);
   const reload = vi.fn(async (): Promise<Subscription | null> => fixtures.active());
   const onSkipped = vi.fn();
   const notify = vi.fn();
-  const hook = renderHook(() => useSkipFlow({ view, reload, onSkipped, notify }));
+  const hook = renderHook(() => useSkipFlow({ view, reload, onSkipped, notify, successAmount }));
   act(() => hook.result.current.open());
   return { snapshot, view, reload, onSkipped, notify, ...hook };
 }
@@ -51,6 +51,15 @@ describe("useSkipFlow", () => {
       body: expect.stringContaining(formatDay(nextChargeAt, new Date())),
     });
     expect(notify.mock.calls[0]?.[0].body).toContain("$101.87");
+  });
+
+  it("uses the committed overlay's total for the next box after a skip", async () => {
+    const { result, notify } = setup(() => 14008);
+    vi.mocked(skipNextShipment).mockResolvedValueOnce(fixtures.active());
+
+    await act(async () => result.current.confirm());
+
+    expect(notify.mock.calls[0]?.[0].body).toContain("$140.08");
   });
 
   it("confirm twice while pending calls the API once", async () => {

@@ -1,6 +1,6 @@
 import { fixtures } from "@/api/fixtures";
 import { getSubscription, skipNextShipment } from "@/api/mockApi";
-import type { Subscription } from "@/api/types";
+import { ApiError, type Subscription } from "@/api/types";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { addDays, formatDay } from "./logic/dates";
@@ -86,7 +86,7 @@ describe("useSubscriptionCard", () => {
       await waitFor(() => expect(result.current.kind).toBe("ready"));
       if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
       expect(result.current.actions.map(({ key }) => key)).toEqual(
-        status === "active" ? ["skip"] : [],
+        status === "active" ? ["edit", "skip"] : [],
       );
       unmount();
     }
@@ -98,7 +98,7 @@ describe("useSubscriptionCard", () => {
     const { result } = renderHook(useSubscriptionCard);
     await waitFor(() => expect(result.current.kind).toBe("ready"));
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
-    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
 
     expect(result.current.skipSheet).toMatchObject({
@@ -117,7 +117,7 @@ describe("useSubscriptionCard", () => {
     vi.mocked(skipNextShipment).mockResolvedValue({ ...snapshot, nextChargeAt });
     const { result } = renderHook(useSubscriptionCard);
     await waitFor(() => expect(result.current.kind).toBe("ready"));
-    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
     await act(async () => {
       if (result.current.kind === "ready" && result.current.skipSheet) {
         await result.current.skipSheet.onConfirm();
@@ -134,5 +134,132 @@ describe("useSubscriptionCard", () => {
       kind: "charge",
       label: `Charged ${formatDay(nextChargeAt, new Date())}`,
     });
+  });
+  it("editing updates the draft receipt and replaces the actions with Save and Cancel", async () => {
+    vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.actions.map(({ key }) => key)).toEqual(["edit", "skip"]);
+
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.actions.map(({ key }) => key)).toEqual(["save", "cancelEdit"]);
+    expect(result.current.receipt.heading).toBe("Editing next box");
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines
+          .find(({ sku }) => sku === "NW-MULTI-30")
+          ?.edit?.onQuantityChange(3),
+    );
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.footer).toMatchObject({
+      kind: "draft",
+      label: "New total",
+      sublabel: "Currently $101.87",
+      totalCents: 14008,
+    });
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.edit?.skip?.onClick(),
+    );
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")).toMatchObject({
+      priceCents: null,
+      compareAtCents: null,
+      edit: {
+        skippedNote: "Skipped in the next box only",
+        undo: { label: expect.stringContaining("Vitamin D") },
+      },
+    });
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-MULTI-30")?.edit?.lastItemHint,
+    ).toBe("To skip everything, use Skip the whole box");
+  });
+
+  it("save commits quantities and a whole-box skip clears only the per-product skips", async () => {
+    const snapshot = fixtures.active();
+    const nextChargeAt = addDays(snapshot.nextChargeAt!, 30);
+    vi.mocked(getSubscription).mockResolvedValue(snapshot);
+    vi.mocked(skipNextShipment).mockResolvedValue({ ...snapshot, nextChargeAt });
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines
+          .find(({ sku }) => sku === "NW-MULTI-30")
+          ?.edit?.onQuantityChange(3),
+    );
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.edit?.skip?.onClick(),
+    );
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.footer).toMatchObject({ kind: "charge", totalCents: 11462 });
+    expect(result.current.skipSheet?.amount).toBe("$140.08");
+
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    await act(async () => {
+      if (result.current.kind === "ready" && result.current.skipSheet) {
+        await result.current.skipSheet.onConfirm();
+      }
+    });
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-MULTI-30")?.quantityLabel,
+    ).toBe("Qty 3");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.priceCents,
+    ).not.toBeNull();
+    expect(result.current.receipt.footer).toMatchObject({ kind: "charge", totalCents: 14008 });
+    expect(result.current.notice?.body).toContain("$140.08");
+  });
+
+  it("a 409 reload keeps quantities and clears skips from the previous box", async () => {
+    const snapshot = fixtures.active();
+    const fresh = {
+      ...snapshot,
+      nextChargeAt: addDays(snapshot.nextChargeAt!, 30),
+      updatedAt: "2026-12-01T12:00:00.000Z",
+    };
+    vi.mocked(getSubscription).mockResolvedValueOnce(snapshot).mockResolvedValueOnce(fresh);
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines
+          .find(({ sku }) => sku === "NW-MULTI-30")
+          ?.edit?.onQuantityChange(3),
+    );
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.edit?.skip?.onClick(),
+    );
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    await act(async () => {
+      if (result.current.kind === "ready" && result.current.skipSheet) {
+        await result.current.skipSheet.onConfirm();
+      }
+    });
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.skipSheet?.phase).toBe("conflict");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-MULTI-30")?.quantityLabel,
+    ).toBe("Qty 3");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.priceCents,
+    ).not.toBeNull();
+    expect(result.current.receipt.footer).toMatchObject({ kind: "charge", totalCents: 14008 });
   });
 });
