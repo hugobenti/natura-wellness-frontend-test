@@ -1,0 +1,5 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // The brief's mock backend: its exports are the contract Part A builds on, used or not yet.
+  "entry": ["src/api/*.ts"],
+}

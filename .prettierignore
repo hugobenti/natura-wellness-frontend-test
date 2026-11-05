@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+dist
+.dist-*
+playwright-report
+test-results
+.superpowers
+# The brief and its mock backend, kept byte-identical to what it ships.
+INSTRUCTIONS.md
+src/api
