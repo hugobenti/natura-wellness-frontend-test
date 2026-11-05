@@ -1,2 +1,32 @@
-node_modules
-dist
+# dependencies
+/node_modules
+
+# testing
+/coverage
+/playwright-report
+/test-results
+
+# production (.dist-verify, .dist-e2e: isolated builds)
+/dist
+/.dist-*/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+pnpm-debug.log*
+
+# env files (.env.example stays tracked)
+.env
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# local agent scratch (brainstorm mockups, execution ledgers)
+/.superpowers/
