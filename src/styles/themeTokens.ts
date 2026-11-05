@@ -1,4 +1,4 @@
-import type { ITheme } from "./themeTokens.type";
+import type { ITheme, ITypeStep } from "./themeTokens.type";
 
 /**
  * Reads the themes declared in src/styles/globals.css: the brand theme (every `@theme` block plus
@@ -124,4 +124,39 @@ export function readThemes(css: string): ITheme[] {
     );
   }
   return themes;
+}
+
+const TYPE_STEP = /^--text-([\w-]+)$/;
+
+/** The `--text-<step>` family of every `@theme` block, in source order. Skips the `--text-*` reset. */
+export function readTypeScale(css: string): ITypeStep[] {
+  const vars: Record<string, string> = {};
+  for (const [, selector = "", , body = ""] of css.replace(COMMENT, "").matchAll(BLOCK)) {
+    if (selector.startsWith("@theme")) {
+      Object.assign(vars, declarations(body));
+    }
+  }
+  const part = (step: string, suffix: string) => {
+    const value = vars[`--text-${step}--${suffix}`];
+    if (value === undefined) {
+      // eslint-disable-next-line no-restricted-syntax -- developer error from the theme reader, never shown to users
+      throw new Error(`Type step "${step}" misses --text-${step}--${suffix}`);
+    }
+    return value;
+  };
+  return Object.entries(vars).flatMap(([property, size]) => {
+    const step = TYPE_STEP.exec(property)?.[1];
+    if (step === undefined || step.includes("--")) {
+      return [];
+    }
+    return [
+      {
+        name: step,
+        size,
+        lineHeight: part(step, "line-height"),
+        letterSpacing: part(step, "letter-spacing"),
+        fontWeight: part(step, "font-weight"),
+      },
+    ];
+  });
 }

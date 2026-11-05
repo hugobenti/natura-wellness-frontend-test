@@ -228,6 +228,7 @@ export default defineConfig([
   globalIgnores([
     "dist/**",
     ".dist-*/**",
+    "storybook-static/**",
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
@@ -248,7 +249,7 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ["*.{ts,mts,mjs}", "e2e/**/*.ts", "src/**/*.test.{ts,tsx}"],
+    files: ["*.{ts,mts,mjs}", "e2e/**/*.ts", ".storybook/**/*.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
     languageOptions: { globals: globals.node },
   },
   {
@@ -315,6 +316,15 @@ export default defineConfig([
         ...logicRules,
         ...dataRules,
       ],
+    },
+  },
+  // Stories are documentation, not components: they may hold fixtures, set up browser state and keep
+  // local types and their own titles and text. Class strings still belong in a .style.ts file.
+  {
+    files: ["src/**/*.stories.tsx"],
+    rules: {
+      "no-restricted-syntax": "off",
+      "presentation/no-restricted-syntax": ["error", ...classStringRules],
     },
   },
   // Style files hold class strings composed with cx() (AGENTS.md "Styling architecture").

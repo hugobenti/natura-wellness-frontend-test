@@ -1,0 +1,53 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Color.stories";
+
+<Meta of={Stories} />
+
+# Color
+
+Every color is a token. Components use the semantic layer (`bg-surface`, `text-muted`, `border-line`); the palette behind it is raw material.
+
+<Canvas of={Stories.Semantic} />
+
+## Palette
+
+Raw values the semantic colors point to. Never use them directly.
+
+<Canvas of={Stories.Palette} />
+
+## Status
+
+Active, paused, cancelled and error each have their own hue, icon and word. Color never carries meaning alone.
+
+<Canvas of={Stories.Status} />
+
+## Contrast
+
+The ratio is calculated from the resolved token values with `contrastRatio()`, the same function `tokenContrast.test.ts` uses to fail the build. Text pairs preview as "Aa"; UI pairs preview as a 2px border, since they carry no text.
+
+<Canvas of={Stories.Contrast} />
+
+## Use when
+
+- Choosing a color for text, a surface, a border or a state: pick the semantic token by purpose.
+- Checking whether two colors can sit together: read their ratio in the table.
+
+## Don't use when
+
+- You need a color that isn't here: add a semantic token (theme contract, every theme block, contrast pairs) instead of a hex value.
+- A pair isn't in the table: add it to `contrastPairs.ts` before using it.
+
+## Accessibility
+
+- Text pairs need 4.5:1, UI pairs and the focus ring 3:1 (WCAG 2.2 AA). Every pair listed passes.
+- Color never carries meaning alone: a status always comes with its icon and word.
+- `decor` is for icons and rules only, never text.
+
+## Do / Don't
+
+| Do                                     | Don't                               |
+| -------------------------------------- | ----------------------------------- |
+| Semantic tokens (`text-muted`)         | Raw hex or a Tailwind default color |
+| `on-accent` for text on an accent fill | `fg` on `accent`                    |
+| A status pill with its icon and word   | A colored dot on its own            |
+| `line` for card borders and dividers   | `line` for text or control borders  |

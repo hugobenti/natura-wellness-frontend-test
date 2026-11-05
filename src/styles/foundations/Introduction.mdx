@@ -1,0 +1,24 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Foundations/Introduction" />
+
+# Natura Wellness foundations
+
+## The brand
+
+Quiet sage: a light, clean look where the product and the words do the talking. Surfaces stay calm and
+text stays easy to read.
+
+Headings and body copy are set in Plus Jakarta Sans, a friendly geometric sans that keeps the page warm
+without getting loud.
+
+## How themes work
+
+The semantic tokens (`bg`, `fg`, `surface`, `decor`, and the rest) are the contract. Components only ever
+use the utilities those tokens generate, never a raw color. Putting `data-theme` on a wrapper switches
+the tokens for everything inside it, so a whole subtree can change theme without touching a component.
+
+## Where tokens live
+
+Everything is declared in `src/styles/globals.css`: the `--brand-*` primitives, the semantic tokens and
+the `[data-theme]` blocks. The toolbar's theme picker applies a theme to the story you are looking at.

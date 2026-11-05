@@ -4,6 +4,8 @@ Natura Wellness is a fictional brand made up for this test. The full brief is in
 
 Live: https://natura-wellness-frontend-test-hazel.vercel.app
 
+Storybook: https://natura-wellness-storybook.vercel.app
+
 Vite, React, TypeScript and Tailwind CSS. Rules for contributors and AI agents live in
 [`AGENTS.md`](./AGENTS.md); read it before changing anything.
 
@@ -26,6 +28,10 @@ pnpm dev
 isolated production build). `pnpm test:e2e` runs the Playwright suite: every view in `e2e/views.ts` on
 desktop and at 375px, with an axe accessibility scan on each, plus the security headers. The first run
 needs `pnpm exec playwright install chromium`.
+
+Storybook (design foundations: colors, typography, themes): `pnpm storybook` serves it on :6006,
+`pnpm build-storybook` writes the static site to `storybook-static`, and `pnpm test:storybook` runs
+every story in Chromium with axe.
 
 ## Deploying
 

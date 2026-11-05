@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { readThemes } from "./themeTokens";
+import { readThemes, readTypeScale } from "./themeTokens";
 
 const brandCss = `
 @theme static {
@@ -48,5 +48,33 @@ describe("readThemes", () => {
     expect(() => readThemes("@theme static { --color-bg: var(--missing, #fff); }")).toThrow(
       /--missing/,
     );
+  });
+});
+
+describe("readTypeScale", () => {
+  test("lists steps in source order with their sub-properties", () => {
+    const css = `
+@theme static {
+  --text-*: initial;
+  --text-big: 28px;
+  --text-big--line-height: 1.15;
+  --text-big--letter-spacing: -0.02em;
+  --text-big--font-weight: 700;
+  --text-tiny: 11px;
+  --text-tiny--line-height: 1.3;
+  --text-tiny--letter-spacing: 0.12em;
+  --text-tiny--font-weight: 600;
+}
+`;
+    expect(readTypeScale(css)).toEqual([
+      {
+        name: "big",
+        size: "28px",
+        lineHeight: "1.15",
+        letterSpacing: "-0.02em",
+        fontWeight: "700",
+      },
+      { name: "tiny", size: "11px", lineHeight: "1.3", letterSpacing: "0.12em", fontWeight: "600" },
+    ]);
   });
 });
