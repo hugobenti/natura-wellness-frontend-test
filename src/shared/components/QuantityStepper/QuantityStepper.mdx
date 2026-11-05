@@ -1,0 +1,32 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./QuantityStepper.stories";
+
+<Meta of={Stories} />
+
+# QuantityStepper
+
+Decrease and increase buttons around a bounded quantity.
+
+<Canvas of={Stories.Default} />
+
+## Never removes an item
+
+The stepper stops at `min` (1 by default). It never removes an item: removal is a separate, explicit action next to it, such as a Remove button.
+
+## Without a visible label
+
+`labelHidden` keeps the label for assistive technology and shows only − 1 + in the bordered box.
+
+<Canvas of={Stories.LabelHidden} />
+
+## Bounds
+
+Each button is natively `disabled` at its bound. When a click disables the focused button, focus moves to the other button so keyboard use continues.
+
+<Canvas of={Stories.Bounds} />
+
+## Accessibility
+
+- A `group` named by the label; the two buttons are named from the `decrease` and `increase` copy.
+- The value is an `output` with `aria-live="polite"`, so changes are announced.
+- The frame uses `border-line`: the icons and the number identify the control.
