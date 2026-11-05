@@ -64,7 +64,7 @@ Paths: `src/shared/components/<Name>/` holds `<Name>.tsx`, `.style.ts`, `.type.t
   - **Brand values:** `radius-control` 10px, `radius-card` 14px, `radius-pill` 9999px. These match the brainstorm mockups.
   - **Contract:** `themeContract.ts` gains `radiusRoles`. The contract test then requires every theme to declare them, so Part B's theme can match the reference's corners.
 - **New color pair `highlight` / `on-highlight`:** the promotional badge. The brand values are `--brand-lime-100` / `--brand-olive-900` (9.6:1), deliberately distinct from the amber "paused". Part B's theme will set its pale-yellow pair. This is the only new color role; reusing `status-paused` would force Part B to repaint "paused" to get its badge.
-- **Contrast pairs added:** `on-status-danger` on `surface` and on `bg` (destructive button, inline error text), `accent` on `fill-selected` (selected card border and text), and `on-highlight` on `highlight`.
+- **Contrast pairs added:** `on-status-danger` on `surface` and on `bg` (destructive button, inline error text), `accent` on `fill-selected` (selected card border and text), `muted` on `fill-selected` (description text on a selected card; the selected fill is the light `sage-100` so this passes), and `on-highlight` on `highlight`.
 
 ## Documentation
 
