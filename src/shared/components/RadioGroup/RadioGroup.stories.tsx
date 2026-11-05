@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { expect, fn, userEvent, within } from "storybook/test";
+import { Select } from "../Select/Select";
 import { RadioGroup } from "./RadioGroup";
 import { radioGroupStory } from "./RadioGroup.stories.style";
 import type { IRadioGroupProps, IRadioOption } from "./RadioGroup.type";
@@ -19,6 +20,26 @@ function Demo({ initial, onChange, ...props }: TDemoProps) {
           setValue(next);
           onChange(next);
         }}
+      />
+    </div>
+  );
+}
+
+function DeliveryPanel() {
+  const [days, setDays] = useState("30");
+
+  return (
+    <div className={radioGroupStory.panel}>
+      <Select
+        label="Delivered every"
+        layout="inline"
+        value={days}
+        onChange={setDays}
+        options={[
+          { value: "30", label: "30 days" },
+          { value: "60", label: "60 days" },
+          { value: "90", label: "90 days" },
+        ]}
       />
     </div>
   );
@@ -48,16 +69,7 @@ const purchaseOptions: Array<IRadioOption> = [
         <span className={radioGroupStory.oldPrice}>$29.95</span>
       </span>
     ),
-    panel: (
-      <label className={radioGroupStory.panelField}>
-        Delivered every
-        <select className={radioGroupStory.select} defaultValue="4">
-          <option value="2">2 weeks</option>
-          <option value="4">4 weeks</option>
-          <option value="8">8 weeks</option>
-        </select>
-      </label>
-    ),
+    panel: <DeliveryPanel />,
   },
 ];
 
@@ -127,8 +139,8 @@ export const PanelOnlyForSelected: TStory = {
     ).not.toContainElement(select);
     await userEvent.tab();
     await expect(select).toHaveFocus();
-    await userEvent.selectOptions(select, "8");
-    await expect(select).toHaveValue("8");
+    await userEvent.selectOptions(select, "90");
+    await expect(select).toHaveValue("90");
     await expect(canvas.getByRole("radio", { name: /Subscribe/ })).toBeChecked();
   },
 };

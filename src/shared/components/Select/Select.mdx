@@ -1,0 +1,49 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Select.stories";
+
+<Meta of={Stories} />
+
+# Select
+
+A native `<select>` with a chevron, labelled by `FormField` with an optional hint and error. The browser provides the picker, keyboard handling and screen reader semantics.
+
+## Usage
+
+```tsx
+<Select
+  label="Delivered every"
+  value={days}
+  onChange={setDays}
+  options={[
+    { value: "30", label: "30 days" },
+    { value: "60", label: "60 days" },
+  ]}
+/>
+```
+
+`Select<TValue extends string>` is generic: `value`, `onChange` and the option values share one union, so `onChange` needs no cast.
+
+## Layout
+
+`stacked` (default) puts the label above; `inline` puts label and select in a row, wrapping on narrow screens.
+
+<Canvas of={Stories.Stacked} />
+<Canvas of={Stories.Inline} />
+
+## Error
+
+`error` renders an alert under the select and sets `aria-invalid`; `hint` and `error` are both linked with `aria-describedby`.
+
+<Canvas of={Stories.WithError} />
+
+## Border
+
+The select uses `border-line`: its value text and chevron identify it. Inside a selected `RadioGroup` card it keeps its own `bg-surface`. Focus shows the base `:focus-visible` outline.
+
+## Do / Don't
+
+| Do                                       | Don't                          |
+| ---------------------------------------- | ------------------------------ |
+| Use for a short, closed list of choices  | Build a custom dropdown        |
+| Give every select a visible label        | Rely on a placeholder as label |
+| Pass option values from one string union | Cast values in `onChange`      |
