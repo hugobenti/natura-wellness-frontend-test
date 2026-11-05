@@ -79,14 +79,18 @@ describe("useSubscriptionCard", () => {
     await act(async () => resolveRetry(fixtures.active()));
     expect(result.current.kind).toBe("ready");
   });
-  it("active offers the skip action; paused and cancelled offer none", async () => {
+  it("active offers edit, skip and pause; paused offers resume and change pause", async () => {
     for (const status of ["active", "paused", "cancelled"] as const) {
       vi.mocked(getSubscription).mockResolvedValue(fixtures[status]());
       const { result, unmount } = renderHook(useSubscriptionCard);
       await waitFor(() => expect(result.current.kind).toBe("ready"));
       if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
       expect(result.current.actions.map(({ key }) => key)).toEqual(
-        status === "active" ? ["edit", "skip"] : [],
+        status === "active"
+          ? ["edit", "skip", "pause", "cancel"]
+          : status === "paused"
+            ? ["resume", "changePause", "cancel"]
+            : [],
       );
       unmount();
     }
@@ -140,7 +144,12 @@ describe("useSubscriptionCard", () => {
     const { result } = renderHook(useSubscriptionCard);
     await waitFor(() => expect(result.current.kind).toBe("ready"));
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
-    expect(result.current.actions.map(({ key }) => key)).toEqual(["edit", "skip"]);
+    expect(result.current.actions.map(({ key }) => key)).toEqual([
+      "edit",
+      "skip",
+      "pause",
+      "cancel",
+    ]);
 
     act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
@@ -262,7 +271,6 @@ describe("useSubscriptionCard", () => {
     ).not.toBeNull();
     expect(result.current.receipt.footer).toMatchObject({ kind: "charge", totalCents: 14008 });
   });
-
   it("a 409 reload keeps a saved product skip while the box has not moved", async () => {
     const snapshot = fixtures.active();
     const fresh = { ...snapshot, updatedAt: "2026-12-01T12:00:00.000Z" };
@@ -288,5 +296,153 @@ describe("useSubscriptionCard", () => {
     expect(
       result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.priceCents,
     ).toBeNull();
+  });
+
+  it("pausing clears the next-box product skip and change pause can become open-ended", async () => {
+    vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.edit?.skip?.onClick(),
+    );
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.actions[2]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.pauseSheet).toMatchObject({
+      open: true,
+      value: "1m",
+      confirmLabel: "Pause for 1 month",
+    });
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("paused");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.skippedNote,
+    ).toBeNull();
+    expect(result.current.receipt.footer).toMatchObject({
+      kind: "note",
+      label: "No charges while paused",
+      sublabel: expect.stringContaining("$101.87"),
+    });
+    expect(result.current.actions.map(({ key }) => key)).toEqual([
+      "resume",
+      "changePause",
+      "cancel",
+    ]);
+
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.pauseSheet.value).toBe("1m");
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onChange("open"));
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.heading).toBe("Paused until you resume");
+    expect(result.current.receipt.footer).toMatchObject({
+      kind: "note",
+      sublabel: "Resume any time to restart your boxes",
+    });
+  });
+
+  it("resuming the paused fixture skips locally without calling the API", async () => {
+    vi.mocked(getSubscription).mockResolvedValue(fixtures.paused());
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.pauseSheet).toMatchObject({
+      open: true,
+      value: "",
+      confirmDisabled: true,
+    });
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onClose());
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("active");
+    expect(result.current.notice).toMatchObject({ title: "Subscription resumed" });
+    const chargeLabel = result.current.receipt.footer.label;
+    expect(chargeLabel).toContain("Charged ");
+
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    if (result.current.kind !== "ready" || !result.current.skipSheet) {
+      throw new Error("Expected an open skip sheet");
+    }
+    const newDate = result.current.skipSheet.newDate;
+    await act(async () => {
+      if (result.current.kind === "ready") await result.current.skipSheet?.onConfirm();
+    });
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.skipSheet?.open).toBe(false);
+    expect(result.current.receipt.footer).toMatchObject({
+      kind: "charge",
+      label: `Charged ${newDate}`,
+      totalCents: 10187,
+    });
+    expect(result.current.notice).toMatchObject({
+      tone: "success",
+      title: "Next box skipped",
+      body: expect.stringContaining(`$101.87 on ${newDate}`),
+    });
+    expect(skipNextShipment).not.toHaveBeenCalled();
+  });
+
+  it("resuming after a pause keeps the original next charge date", async () => {
+    const snapshot = fixtures.active();
+    vi.mocked(getSubscription).mockResolvedValue(snapshot);
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[2]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("active");
+    expect(result.current.receipt.footer.label).toBe(
+      `Charged ${formatDay(snapshot.nextChargeAt!, new Date())}`,
+    );
+  });
+
+  it("resuming after a local skip and another pause keeps the skipped date", async () => {
+    const snapshot = fixtures.active();
+    vi.mocked(getSubscription).mockResolvedValue(snapshot);
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    const click = (index: number) =>
+      act(() => result.current.kind === "ready" && result.current.actions[index]?.onClick());
+    click(2);
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    click(0);
+    click(1);
+    await act(async () => {
+      if (result.current.kind === "ready") await result.current.skipSheet?.onConfirm();
+    });
+    click(2);
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    click(0);
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("active");
+    expect(result.current.receipt.footer.label).toBe(
+      `Charged ${formatDay(addDays(snapshot.nextChargeAt!, 30), new Date())}`,
+    );
+  });
+
+  it("the stop-all hint links to Before you cancel and discards the draft", async () => {
+    vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    for (const sku of ["NW-VITD-60", "NW-MULTI-30"]) {
+      act(
+        () =>
+          result.current.kind === "ready" &&
+          result.current.receipt.lines.find((line) => line.sku === sku)?.edit?.onQuantityChange(0),
+      );
+    }
+    act(() => result.current.kind === "ready" && result.current.editHint?.onCancel());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.pageView).toBe("cancelConfirm");
+    expect(result.current.receipt.heading).toBe("Next box");
   });
 });

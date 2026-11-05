@@ -5,6 +5,7 @@ export type TIconName =
   | "x-circle"
   | "alert-triangle"
   | "info"
+  | "arrow-left"
   | "chevron-down"
   | "minus"
   | "plus"

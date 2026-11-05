@@ -5,4 +5,5 @@ export const subscriptionCard = {
   errorActions: "-ml-4 flex items-center gap-4",
   notice: "mb-4",
   editHint: "mt-4 text-small text-muted",
+  editHintAction: "-ml-4",
 } as const;

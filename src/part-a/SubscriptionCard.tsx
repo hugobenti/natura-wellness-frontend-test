@@ -1,7 +1,10 @@
 import { subscriptionContent } from "@/content/subscription";
 import { Alert } from "@/shared/components/Alert/Alert";
 import { Button } from "@/shared/components/Button/Button";
+import { CancelConfirm } from "./components/CancelConfirm/CancelConfirm";
+import { CancelSurvey } from "./components/CancelSurvey/CancelSurvey";
 import { ManagePanel } from "./components/ManagePanel/ManagePanel";
+import { PauseSheet } from "./components/PauseSheet/PauseSheet";
 import { ReceiptCard } from "./components/ReceiptCard/ReceiptCard";
 import { ReceiptSkeleton } from "./components/ReceiptSkeleton/ReceiptSkeleton";
 import { SkipSheet } from "./components/SkipSheet/SkipSheet";
@@ -11,6 +14,27 @@ import { useSubscriptionCard } from "./useSubscriptionCard";
 
 export function SubscriptionCard() {
   const { h1Ref, ...model } = useSubscriptionCard();
+
+  if (model.kind === "ready" && model.pageView === "cancelConfirm") {
+    return (
+      <CancelConfirm
+        {...model.confirm}
+        title={subscriptionContent.cancel.title}
+        lead={subscriptionContent.cancel.lead}
+        h1Ref={h1Ref}
+      />
+    );
+  }
+  if (model.kind === "ready" && model.pageView === "survey") {
+    return (
+      <CancelSurvey
+        {...model.survey}
+        title={subscriptionContent.survey.title}
+        lead={subscriptionContent.survey.lead}
+        h1Ref={h1Ref}
+      />
+    );
+  }
 
   return (
     <div className={subscriptionCard.page}>
@@ -38,12 +62,24 @@ export function SubscriptionCard() {
                   tone={model.notice.tone}
                   title={model.notice.title}
                   className={subscriptionCard.notice}
+                  onDismiss={model.dismissNotice}
                 >
                   <p>{model.notice.body}</p>
                 </Alert>
               )}
               <ReceiptCard {...model.receipt} />
-              {model.editHint && <p className={subscriptionCard.editHint}>{model.editHint.text}</p>}
+              {model.editHint && (
+                <div className={subscriptionCard.editHint}>
+                  <p>{model.editHint.text}</p>
+                  <Button
+                    variant="quiet"
+                    className={subscriptionCard.editHintAction}
+                    onClick={model.editHint.onCancel}
+                  >
+                    {model.editHint.cancelLabel}
+                  </Button>
+                </div>
+              )}
             </div>
             {model.actions.length > 0 && (
               <ManagePanel>
@@ -64,6 +100,7 @@ export function SubscriptionCard() {
             )}
           </div>
           {model.skipSheet && <SkipSheet {...model.skipSheet} />}
+          <PauseSheet {...model.pauseSheet} />
         </>
       )}
     </div>
