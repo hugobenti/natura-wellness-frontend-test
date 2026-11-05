@@ -5,7 +5,7 @@ import type { INotice } from "./notice.type";
 export type TSkipPhase = "confirm" | "pending" | "conflict" | "error";
 
 export interface IUseSkipFlowArgs {
-  view: ISubscriptionView;
+  view: ISubscriptionView | null;
   reload: () => Promise<Subscription | null>;
   onSkipped: (snapshot: Subscription) => void;
   notify: (notice: INotice) => void;

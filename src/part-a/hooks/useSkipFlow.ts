@@ -15,16 +15,15 @@ export function useSkipFlow({
   const [phase, setPhase] = useState<TSkipPhase | null>(null);
   const pendingRef = useRef(false);
   const copy = subscriptionContent.skip;
-
   const open = () => {
-    if (!pendingRef.current) setPhase("confirm");
+    if (view?.status === "active" && !pendingRef.current) setPhase("confirm");
   };
   const close = () => {
     if (!pendingRef.current) setPhase(null);
   };
 
   const confirm = async () => {
-    if (pendingRef.current || phase === null || view.status !== "active") return;
+    if (pendingRef.current || phase === null || view?.status !== "active") return;
     pendingRef.current = true;
     setPhase("pending");
     try {
