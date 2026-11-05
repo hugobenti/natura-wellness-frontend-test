@@ -43,5 +43,11 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
           nextChargeAt: addDays(action.nextChargeAt, action.intervalDays),
         },
       };
+    case "cancel":
+      return {
+        ...overlay,
+        skippedSkus: [],
+        lifecycle: { status: "cancelled", cancelledAt: action.now.toISOString() },
+      };
   }
 }

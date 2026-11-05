@@ -4,6 +4,7 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { useSubscription } from "./hooks/useSubscription";
 import { useEditMode } from "./hooks/useEditMode";
 import type { INotice } from "./hooks/notice.type";
+import { useCancelFlow } from "./hooks/useCancelFlow";
 import { usePauseFlow } from "./hooks/usePauseFlow";
 import { useSkipFlow } from "./hooks/useSkipFlow";
 import { addDays, formatDay } from "./logic/dates";
@@ -54,7 +55,13 @@ export function useSubscriptionCard(): TPageModel {
       deriveView(fresh, overlayReducer(overlay, { type: "clearSkipped" })).pricing.totalCents,
     notify: setNotice,
   });
-  const h1Ref = useRef<HTMLHeadingElement>(null);
+  const cancelFlow = useCancelFlow({
+    subscription: view,
+    dispatch,
+    notify: setNotice,
+    startEdit: edit.start,
+  });
+  const { h1Ref } = cancelFlow;
   const shownStatus = useRef<string | null>(null);
   const status = view?.status ?? null;
   useEffect(() => {
@@ -164,6 +171,12 @@ export function useSubscriptionCard(): TPageModel {
     footer,
     headingRef: edit.headingRef,
   };
+  const cancelAction: IManageAction = {
+    key: "cancel",
+    label: subscriptionContent.manage.cancel,
+    variant: "quiet",
+    onClick: cancelFlow.open,
+  };
   const actions: IManageAction[] = edit.editing
     ? [
         {
@@ -203,6 +216,7 @@ export function useSubscriptionCard(): TPageModel {
             variant: "secondary",
             onClick: pauseFlow.openPause,
           },
+          cancelAction,
         ]
       : readyView.status === "paused"
         ? [
@@ -218,6 +232,7 @@ export function useSubscriptionCard(): TPageModel {
               variant: "secondary",
               onClick: pauseFlow.openChange,
             },
+            cancelAction,
           ]
         : [];
   let skipSheet: ISkipSheetProps | null = null;
@@ -251,7 +266,9 @@ export function useSubscriptionCard(): TPageModel {
   return {
     h1Ref,
     kind: "ready",
-    editHint: edit.editing && edit.emptyBox ? { text: editCopy.stopAllHint } : null,
+    pageView: cancelFlow.view,
+    confirm: cancelFlow.confirm,
+    survey: cancelFlow.survey,
     receipt,
     notice,
     skipSheet,

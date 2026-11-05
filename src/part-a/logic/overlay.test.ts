@@ -96,4 +96,19 @@ describe("overlayReducer", () => {
     });
     expect(committed.skippedSkus).toEqual(["NW-VITD-60"]);
   });
+
+  it("cancel sets a cancelled lifecycle at now", () => {
+    const committed = {
+      ...EMPTY_OVERLAY,
+      quantities: { "NW-MULTI-30": 3 },
+      lifecycle: { status: "active" as const, nextChargeAt: "2026-11-06T12:00:00.000Z" },
+    };
+    expect(
+      overlayReducer(committed, { type: "cancel", now: new Date("2026-11-05T12:00:00.000Z") }),
+    ).toEqual({
+      quantities: committed.quantities,
+      skippedSkus: [],
+      lifecycle: { status: "cancelled", cancelledAt: "2026-11-05T12:00:00.000Z" },
+    });
+  });
 });

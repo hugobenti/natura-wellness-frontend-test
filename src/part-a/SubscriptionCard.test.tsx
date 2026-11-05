@@ -82,6 +82,42 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });
 
+it("walks cancel → survey → no thanks to the cancelled receipt", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  const confirmHeading = screen.getByRole("heading", { level: 1, name: "Before you cancel" });
+  expect(confirmHeading).toHaveFocus();
+  expect(screen.queryByRole("heading", { name: "Manage" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  const surveyHeading = screen.getByRole("heading", {
+    level: 1,
+    name: "Your subscription is cancelled",
+  });
+  expect(surveyHeading).toHaveFocus();
+  expect(screen.getByRole("button", { name: "Send answer" })).toBeDisabled();
+
+  fireEvent.click(screen.getByRole("button", { name: "No thanks" }));
+  expect(screen.getByRole("heading", { level: 1, name: "My subscription" })).toHaveFocus();
+  expect(screen.getByText(/^Cancelled on /)).toBeInTheDocument();
+  expect(screen.getByText("No more charges")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Cancel subscription" })).not.toBeInTheDocument();
+});
+
+it("moves focus to the page heading when retrying a failed load", async () => {
+  vi.mocked(getSubscription)
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
+  expect(screen.getByRole("heading", { level: 1, name: "My subscription" })).toHaveFocus();
+  await screen.findByRole("heading", { name: "Next box" });
+});
+
 it("moves focus to the receipt heading after pausing and after resuming", async () => {
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);

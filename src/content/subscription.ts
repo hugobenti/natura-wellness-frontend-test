@@ -33,6 +33,7 @@ export const subscriptionContent = {
     pause: "Pause subscription",
     resume: "Resume now",
     changePause: "Change pause",
+    cancel: "Cancel subscription",
   },
   edit: {
     heading: "Editing next box",
@@ -93,5 +94,36 @@ export const subscriptionContent = {
     successBody: (amount: string, date: string) => `Your next charge is ${amount} on ${date}.`,
     changedTitle: "Your subscription changed somewhere else",
     changedBody: "We loaded the latest version.",
+  },
+  cancel: {
+    title: "Before you cancel",
+    lead: "A couple of things worth knowing.",
+    back: "Back",
+    tooMuchTitle: "Too much product left? You don't need to cancel",
+    tooMuchBody:
+      "You can skip your next box, or leave out a single product, from your subscription page whenever you like.",
+    editLink: "Edit my next box",
+    costTitle: "Subscribing costs you less",
+    costBody: (percent: number, perBox: string, perYear: string) =>
+      `You pay ${percent}% less on every box: ${perBox} off your next one, ${perYear} over the next 12 boxes.`,
+    keep: "Keep my subscription",
+    confirm: "Cancel subscription",
+  },
+  survey: {
+    title: "Your subscription is cancelled",
+    lead: "You won't be charged again.",
+    legend: "Optional · Why did you cancel?",
+    reasons: {
+      tooMuch: "I have too much product left",
+      cost: "It costs too much",
+      otherProduct: "I'm trying a different product",
+      noResults: "I didn't see results",
+      other: "Something else",
+    },
+    send: "Send answer",
+    skip: "No thanks",
+    doneTitle: "Your subscription is cancelled",
+    doneBodySent: "Thanks for telling us why.",
+    doneBody: "You won't be charged again.",
   },
 } as const;

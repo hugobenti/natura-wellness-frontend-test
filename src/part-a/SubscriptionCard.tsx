@@ -1,6 +1,8 @@
 import { subscriptionContent } from "@/content/subscription";
 import { Alert } from "@/shared/components/Alert/Alert";
 import { Button } from "@/shared/components/Button/Button";
+import { CancelConfirm } from "./components/CancelConfirm/CancelConfirm";
+import { CancelSurvey } from "./components/CancelSurvey/CancelSurvey";
 import { ManagePanel } from "./components/ManagePanel/ManagePanel";
 import { PauseSheet } from "./components/PauseSheet/PauseSheet";
 import { ReceiptCard } from "./components/ReceiptCard/ReceiptCard";
@@ -12,6 +14,27 @@ import { useSubscriptionCard } from "./useSubscriptionCard";
 
 export function SubscriptionCard() {
   const { h1Ref, ...model } = useSubscriptionCard();
+
+  if (model.kind === "ready" && model.pageView === "cancelConfirm") {
+    return (
+      <CancelConfirm
+        {...model.confirm}
+        title={subscriptionContent.cancel.title}
+        lead={subscriptionContent.cancel.lead}
+        h1Ref={h1Ref}
+      />
+    );
+  }
+  if (model.kind === "ready" && model.pageView === "survey") {
+    return (
+      <CancelSurvey
+        {...model.survey}
+        title={subscriptionContent.survey.title}
+        lead={subscriptionContent.survey.lead}
+        h1Ref={h1Ref}
+      />
+    );
+  }
 
   return (
     <div className={subscriptionCard.page}>

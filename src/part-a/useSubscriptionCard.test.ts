@@ -87,9 +87,9 @@ describe("useSubscriptionCard", () => {
       if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
       expect(result.current.actions.map(({ key }) => key)).toEqual(
         status === "active"
-          ? ["edit", "skip", "pause"]
+          ? ["edit", "skip", "pause", "cancel"]
           : status === "paused"
-            ? ["resume", "changePause"]
+            ? ["resume", "changePause", "cancel"]
             : [],
       );
       unmount();
@@ -144,7 +144,12 @@ describe("useSubscriptionCard", () => {
     const { result } = renderHook(useSubscriptionCard);
     await waitFor(() => expect(result.current.kind).toBe("ready"));
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
-    expect(result.current.actions.map(({ key }) => key)).toEqual(["edit", "skip", "pause"]);
+    expect(result.current.actions.map(({ key }) => key)).toEqual([
+      "edit",
+      "skip",
+      "pause",
+      "cancel",
+    ]);
 
     act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
@@ -322,7 +327,11 @@ describe("useSubscriptionCard", () => {
       label: "No charges while paused",
       sublabel: expect.stringContaining("$101.87"),
     });
-    expect(result.current.actions.map(({ key }) => key)).toEqual(["resume", "changePause"]);
+    expect(result.current.actions.map(({ key }) => key)).toEqual([
+      "resume",
+      "changePause",
+      "cancel",
+    ]);
 
     act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");

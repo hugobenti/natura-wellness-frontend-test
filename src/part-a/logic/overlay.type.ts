@@ -6,4 +6,5 @@ export type TOverlayAction =
   | { type: "clearSkipped" }
   | { type: "pause"; presetId: TPausePresetId; now: Date }
   | { type: "resume"; now: Date; originalNextChargeAt: string | null }
-  | { type: "skipLocally"; nextChargeAt: string; intervalDays: number };
+  | { type: "skipLocally"; nextChargeAt: string; intervalDays: number }
+  | { type: "cancel"; now: Date };
