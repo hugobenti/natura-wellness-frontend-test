@@ -13,6 +13,8 @@ export const contrastPairs: readonly IContrastPair[] = [
   { fg: "fg", bg: "fill-soft", kind: "text" },
   { fg: "muted", bg: "fill-soft", kind: "text" },
   { fg: "fg", bg: "fill-selected", kind: "text" },
+  { fg: "fg", bg: "status-active", kind: "text" },
+  { fg: "fg", bg: "status-danger", kind: "text" },
   { fg: "on-status-active", bg: "status-active", kind: "text" },
   { fg: "on-status-paused", bg: "status-paused", kind: "text" },
   { fg: "on-status-cancelled", bg: "status-cancelled", kind: "text" },

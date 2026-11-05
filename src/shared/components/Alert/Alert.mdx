@@ -1,0 +1,30 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Alert.stories";
+
+<Meta of={Stories} />
+
+# Alert
+
+An inline message about the outcome of an action. Place it next to the action that caused it, so the message and the control stay together. There are no toasts: nothing floats or disappears on a timer.
+
+## Tones
+
+`success` and `info` render with `role="status"`, which screen readers announce politely. `danger` renders with `role="alert"`, which interrupts so an error is never missed. An icon repeats the tone, and the title always says it in words.
+
+<Canvas of={Stories.Success} />
+<Canvas of={Stories.Info} />
+
+## Action
+
+The `action` slot holds the next step, usually a quiet `Button`. Use it when the person can recover from the message, as in a reload after a conflict.
+
+<Canvas of={Stories.Danger} />
+
+## Do / Don't
+
+| Do                                    | Don't                                |
+| ------------------------------------- | ------------------------------------ |
+| Place it next to the action           | Float it as a toast                  |
+| One alert per outcome                 | Stack several alerts for one failure |
+| Say what happened and what to do next | Show an error code or a bare "Error" |
+| Offer the recovery as the `action`    | Make the person find the retry       |
