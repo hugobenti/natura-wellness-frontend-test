@@ -14,15 +14,8 @@ export function PriceDisplay({
   const { price, compareAt, compareAtLabel } = usePriceDisplay({ amountCents, compareAtCents });
 
   return (
-    <span
-      className={cx(
-        priceDisplay.base,
-        priceDisplay.size[size],
-        priceDisplay.layout[layout],
-        className,
-      )}
-    >
-      <span className={priceDisplay.price}>{price}</span>
+    <span className={cx(priceDisplay.base, priceDisplay.layout[layout], className)}>
+      <span className={cx(priceDisplay.price, priceDisplay.size[size])}>{price}</span>
       {compareAt ? (
         <>
           <span aria-hidden="true" className={priceDisplay.compareAt}>

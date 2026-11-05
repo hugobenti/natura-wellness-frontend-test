@@ -35,6 +35,14 @@ export const Stacked: TStory = {
 /** The large size, for a product page. */
 export const Large: TStory = {
   args: { compareAtCents: 2995, size: "lg" },
+  play: async ({ canvasElement }) => {
+    const price = within(canvasElement).getByText("$25.46");
+    const compareAt = within(canvasElement).getByText("$29.95");
+    await expect(getComputedStyle(compareAt).fontWeight).toBe("400");
+    await expect(parseFloat(getComputedStyle(compareAt).fontSize)).toBeLessThan(
+      parseFloat(getComputedStyle(price).fontSize),
+    );
+  },
 };
 
 /** No original price: just the price. */

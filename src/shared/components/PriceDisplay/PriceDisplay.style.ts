@@ -1,7 +1,7 @@
 export const priceDisplay = {
   base: "inline-flex",
   price: "font-semibold tabular-nums",
-  compareAt: "text-muted line-through tabular-nums",
+  compareAt: "text-small text-muted line-through tabular-nums",
   srOnly: "sr-only",
   size: {
     sm: "text-small",

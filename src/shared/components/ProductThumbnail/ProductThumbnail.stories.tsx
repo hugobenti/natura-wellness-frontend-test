@@ -16,7 +16,13 @@ type TStory = StoryObj<typeof meta>;
 const sizes = Object.keys(productThumbnail.size) as Array<keyof typeof productThumbnail.size>;
 
 /** The product image at the default size. */
-export const WithImage: TStory = {};
+export const WithImage: TStory = {
+  play: async ({ canvasElement }) => {
+    await waitFor(() =>
+      expect(canvasElement.querySelector("img")?.naturalWidth).toBeGreaterThan(0),
+    );
+  },
+};
 
 /** Every size, with an image and with the fallback tile. */
 export const Sizes: TStory = {
