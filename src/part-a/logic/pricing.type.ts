@@ -1,4 +1,4 @@
-export interface IPricedLine {
+interface IPricedLine {
   sku: string;
   priceCents: number;
   compareAtCents: number;

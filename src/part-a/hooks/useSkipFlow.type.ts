@@ -8,6 +8,9 @@ export interface IUseSkipFlowArgs {
   view: ISubscriptionView | null;
   reload: () => Promise<Subscription | null>;
   onSkipped: (snapshot: Subscription) => void;
+  skipLocally: () => void;
+  localSuccessAmount: () => number;
+  successAmount: (snapshot: Subscription) => number;
   notify: (notice: INotice) => void;
 }
 
