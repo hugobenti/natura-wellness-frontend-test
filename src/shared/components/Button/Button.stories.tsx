@@ -19,8 +19,19 @@ const sizes = Object.keys(button.size).filter((size) => size !== "icon") as Arra
   keyof typeof button.size
 >;
 
-/** The default action: one per view. */
-export const Primary: TStory = {};
+/** The default action: one per view. Enter and Space activate it (positive control for the pending guard). */
+export const Primary: TStory = {
+  args: { onClick: fn() },
+  play: async ({ args, canvas }) => {
+    const control = canvas.getByRole("button", { name: "Save changes" });
+
+    control.focus();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.keyboard(" ");
+
+    await expect(args.onClick).toHaveBeenCalledTimes(2);
+  },
+};
 
 /** Every variant side by side. */
 export const Variants: TStory = {
