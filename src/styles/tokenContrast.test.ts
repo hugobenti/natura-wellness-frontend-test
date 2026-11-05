@@ -3,53 +3,37 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { contrastRatio, readDarkColors, readThemeColors } from "@/shared/utils/colorContrast";
+import { contrastRatio } from "@/shared/utils/colorContrast";
 
-const css = readFileSync(join(process.cwd(), "src/styles/globals.css"), "utf8");
-const light = readThemeColors(css);
-const darkOverrides = readDarkColors(css);
-const schemes: Array<[string, Record<string, string>]> = [
-  ["light", light],
-  ["dark", { ...light, ...darkOverrides }],
-];
+import { contrastPairs, minimumRatio } from "./contrastPairs";
+import { fontRoles, semanticColorTokens } from "./themeContract";
+import { readThemes } from "./themeTokens";
+import { themeNames } from "./themes";
+import type { TThemeName } from "./themes.type";
 
-// Text pairs need 4.5:1, UI pairs (focus rings, control borders, icons) 3:1. Add every new pair a
-// component uses.
-const textPairs: Array<[string, string]> = [
-  ["fg", "bg"],
-  ["fg", "surface"],
-  ["muted", "bg"],
-  ["muted", "surface"],
-  ["accent", "bg"],
-  ["accent", "surface"],
-  ["on-accent", "accent"],
-  ["on-accent", "accent-hover"],
-];
+const themes = readThemes(readFileSync(join(process.cwd(), "src/styles/globals.css"), "utf8"));
 
-const uiPairs: Array<[string, string]> = [
-  ["focus", "bg"],
-  ["focus", "surface"],
-];
-
-describe.each(schemes)("%s scheme tokens meet WCAG 2.2 AA", (_name, tokens) => {
-  function ratio(foreground: string, background: string): number {
-    const fg = tokens[foreground];
-    const bg = tokens[background];
-    if (!fg || !bg) {
-      throw new Error(`missing color token: ${!fg ? foreground : background}`);
+describe.each(themes)("$name theme tokens meet WCAG 2.2 AA", ({ colors }) => {
+  test.each(contrastPairs)("$kind $fg on $bg", ({ fg, bg, kind }) => {
+    const foreground = colors[fg];
+    const background = colors[bg];
+    if (!foreground || !background) {
+      throw new Error(`missing color token: ${!foreground ? fg : bg}`);
     }
-    return contrastRatio(fg, bg);
-  }
-
-  test.each(textPairs)("text %s on %s ≥ 4.5:1", (foreground, background) => {
-    expect(ratio(foreground, background)).toBeGreaterThanOrEqual(4.5);
-  });
-
-  test.each(uiPairs)("UI %s on %s ≥ 3:1", (foreground, background) => {
-    expect(ratio(foreground, background)).toBeGreaterThanOrEqual(3);
+    expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(minimumRatio(kind));
   });
 });
 
-test("the dark scheme overrides every color token, so no light value leaks into it", () => {
-  expect(Object.keys(darkOverrides).sort()).toEqual(Object.keys(light).sort());
+test("every theme declares the full contract", () => {
+  const contract = [...semanticColorTokens, ...fontRoles.map((role) => `font:${role}`)];
+  for (const theme of themes.filter(({ name }) => name !== "brand")) {
+    expect(theme.declared, theme.name).toEqual(expect.arrayContaining(contract));
+  }
+  const brand = themes.find(({ name }) => name === "brand");
+  expect([...(brand?.declared ?? [])].sort()).toEqual([...contract].sort());
+});
+
+test("the theme picker lists every theme", () => {
+  const names: TThemeName[] = [...themeNames];
+  expect(themes.map(({ name }) => name)).toEqual(names);
 });

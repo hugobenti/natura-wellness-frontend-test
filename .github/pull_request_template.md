@@ -12,5 +12,5 @@
 - [ ] Failing test written first for anything with logic
 - [ ] `pnpm verify` passes (format, lint, typecheck, test, knip, isolated build)
 - [ ] `pnpm test:e2e` passes; new views or fixtures are in `e2e/views.ts`
-- [ ] Copy lives in `src/content` (or `src/part-b/copy.ts`); colors come from tokens; new color pairs are in `tokenContrast.test.ts`
+- [ ] Copy lives in `src/content` (or `src/part-b/copy.ts`); colors come from tokens; new color pairs are in `src/styles/contrastPairs.ts`
 - [ ] `AGENTS.md` updated if a rule, command or folder changed
