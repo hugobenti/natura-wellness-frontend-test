@@ -1,0 +1,55 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RadioGroup.stories";
+
+<Meta of={Stories} />
+
+# RadioGroup
+
+Native radio inputs in a `fieldset`, as a plain list or as cards. All radios share one `name`, so the browser handles grouping and arrow-key movement.
+
+## Usage
+
+```tsx
+<RadioGroup
+  legend="Why are you cancelling?"
+  name="reason"
+  value={reason}
+  onChange={setReason}
+  options={[{ value: "price", label: "It costs too much", trailing: "38%" }]}
+/>
+```
+
+`RadioGroup<TValue extends string>` is generic: `value` and `onChange` use the same union as the option values. Set `legendHidden` to keep the legend for screen readers only.
+
+## List and card
+
+`list` (default) is a column of rows. `card` puts each option in a frame: unselected `border-line`, selected `border-2 border-accent` on the selected fill. The padding shrinks by 1px when the border grows, so the card never changes height.
+
+<Canvas of={Stories.List} />
+<Canvas of={Stories.Cards} />
+
+## Panel
+
+An option's `panel` is nested content such as a "Delivered every" select. It renders inside the card frame but outside the `<label>`, and only while that option is selected, so its controls are reachable by Tab and changing them leaves the radio checked.
+
+<Canvas of={Stories.PanelOnlyForSelected} />
+
+## Borders
+
+The radio circle uses `border-control-line` and stays a circle in every theme (`rounded-full`). Unselected cards use `border-line` because the label text identifies them; the selected card uses `border-accent`.
+
+## Accessibility
+
+- The `legend` names the group; each label is a real `<label htmlFor>`.
+- Arrow keys move and select between radios; Tab leaves the group.
+- Focus shows the base `:focus-visible` outline.
+
+<Canvas of={Stories.KeyboardSelection} />
+
+## Do / Don't
+
+| Do                                          | Don't                                    |
+| ------------------------------------------- | ---------------------------------------- |
+| Put nested controls in `panel`              | Put interactive content inside the label |
+| Use a legend, hidden if the heading says it | Leave the group unnamed                  |
+| Pass option values from one string union    | Cast values in `onChange`                |
