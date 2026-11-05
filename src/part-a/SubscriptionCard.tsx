@@ -1,9 +1,38 @@
-// Part A: build the "Manage my subscription" page here.
-// Data comes from getSubscription() and skipNextShipment() in ../api/mockApi.
-// Anything beyond skipping can live in local state; other products are in `catalog` in ../api/fixtures.
-
 import { subscriptionContent } from "@/content/subscription";
+import { Alert } from "@/shared/components/Alert/Alert";
+import { Button } from "@/shared/components/Button/Button";
+import { ReceiptCard } from "./components/ReceiptCard/ReceiptCard";
+import { ReceiptSkeleton } from "./components/ReceiptSkeleton/ReceiptSkeleton";
+import { SupportLink } from "./components/SupportLink/SupportLink";
+import { subscriptionCard } from "./SubscriptionCard.style";
+import { useSubscriptionCard } from "./useSubscriptionCard";
 
 export function SubscriptionCard() {
-  return <h1>{subscriptionContent.title}</h1>;
+  const model = useSubscriptionCard();
+
+  return (
+    <div className={subscriptionCard.page}>
+      <h1 className={subscriptionCard.title}>{subscriptionContent.title}</h1>
+      {model.kind === "loading" && <ReceiptSkeleton />}
+      {model.kind === "error" && (
+        <Alert
+          tone="danger"
+          title={subscriptionContent.loadError.title}
+          action={
+            <Button variant="quiet" onClick={model.onRetry}>
+              {subscriptionContent.loadError.retry}
+            </Button>
+          }
+        >
+          <p>{subscriptionContent.loadError.body}</p>
+          <SupportLink />
+        </Alert>
+      )}
+      {model.kind === "ready" && (
+        <div className={subscriptionCard.ready}>
+          <ReceiptCard {...model.receipt} />
+        </div>
+      )}
+    </div>
+  );
 }

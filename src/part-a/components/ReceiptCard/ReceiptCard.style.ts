@@ -1,0 +1,16 @@
+export const receiptCard = {
+  card: "rounded-card border border-line bg-surface px-4",
+  header: "flex items-center justify-between gap-4 border-b border-line py-4",
+  heading: "font-semibold text-eyebrow text-muted uppercase tracking-wide",
+  row: "grid grid-cols-[56px_minmax(0,1fr)_auto] items-start gap-3 border-b border-line py-4 lg:grid-cols-[56px_minmax(0,1fr)_96px_120px] lg:items-center",
+  dimmed: "opacity-60",
+  details: "min-w-0",
+  name: "font-semibold text-body text-fg",
+  mobileQuantity: "mt-1 text-small text-muted lg:hidden",
+  desktopQuantity: "hidden text-small text-muted lg:block",
+  price: "justify-self-end text-right",
+  footer: "flex flex-wrap items-start justify-between gap-3 py-4",
+  footerLabel: "font-semibold text-body text-fg",
+  footerSublabel: "mt-1 text-small text-muted",
+  footerAmount: "flex flex-col items-end gap-2 text-right",
+} as const;
