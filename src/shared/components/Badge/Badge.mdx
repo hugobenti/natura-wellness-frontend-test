@@ -1,0 +1,39 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Badge.stories";
+import * as StatusStories from "../StatusBadge/StatusBadge.stories";
+
+<Meta of={Stories} />
+
+# Badge
+
+A short label in a tone: `highlight` for a promotion, or a status tone (`active`, `paused`, `cancelled`, `danger`). It is a plain `span`, not interactive.
+
+<Canvas of={Stories.Tones} />
+
+## Icon
+
+An optional `icon` sits before the text. It is decorative (`aria-hidden`): the word always carries the meaning, so color and icon never stand alone.
+
+<Canvas of={Stories.WithIcon} />
+
+## Highlight
+
+`highlight` uses the eyebrow text style in capitals. Write the copy in sentence case ("Best value"); the style does the uppercase, so screen readers read it as a normal phrase.
+
+<Canvas of={Stories.HighlightUppercase} />
+
+## StatusBadge
+
+`StatusBadge` shows a subscription status as icon plus word. Pass `status="active" | "paused" | "cancelled"`; the tone, icon and word come from the status, so every screen shows the same badge for the same state.
+
+<Canvas of={StatusStories.Active} />
+<Canvas of={StatusStories.Paused} />
+<Canvas of={StatusStories.Cancelled} />
+
+## Do / Don't
+
+| Do                                    | Don't                             |
+| ------------------------------------- | --------------------------------- |
+| Keep a word in every badge            | An icon-only or color-only badge  |
+| `StatusBadge` for subscription status | Re-creating a status with `Badge` |
+| Sentence-case copy for `highlight`    | Typing the copy in capitals       |
