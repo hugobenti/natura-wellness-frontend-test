@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { foundationsContent as content } from "@/content/foundations";
-import { StatusIcon } from "@/shared/icons/StatusIcon";
+import { Icon } from "@/shared/icons/Icon";
+import type { TIconName } from "@/shared/icons/Icon.type";
 import { contrastRatio } from "@/shared/utils/colorContrast";
 import { cx } from "@/shared/utils/cx";
 import { contrastPairs, minimumRatio } from "@/styles/contrastPairs";
@@ -9,6 +10,13 @@ import { foundation as f } from "./foundations.style";
 import { themeFor } from "./themeFor";
 
 const statuses = ["active", "paused", "cancelled", "danger"] as const;
+
+const statusIcons: Record<(typeof statuses)[number], TIconName> = {
+  active: "check-circle",
+  paused: "pause",
+  cancelled: "x-circle",
+  danger: "alert-triangle",
+};
 
 const meta = { title: "Foundations/Color" } satisfies Meta;
 
@@ -71,7 +79,7 @@ export const Status: TStory = {
       <ul className={f.pills}>
         {statuses.map((status) => (
           <li key={status} className={cx(f.pillBase, f.pill[status])}>
-            <StatusIcon status={status} />
+            <Icon name={statusIcons[status]} />
             {content.statusWords[status]}
           </li>
         ))}

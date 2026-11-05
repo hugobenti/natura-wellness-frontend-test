@@ -15,6 +15,7 @@ export const foundation = {
     cancelled: "bg-status-cancelled text-on-status-cancelled",
     danger: "bg-status-danger text-on-status-danger",
   },
+  galleryIcon: "size-6 text-fg",
   table: "w-full border-collapse text-left text-small",
   caption: "mb-3 text-left text-eyebrow font-semibold text-muted uppercase",
   headCell: "border-b border-line py-2 pr-4 text-eyebrow font-semibold text-muted uppercase",
