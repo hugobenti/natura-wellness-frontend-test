@@ -24,7 +24,6 @@ export type TReceiptFooter =
 export interface IReceiptCardProps {
   heading: string;
   status: SubscriptionStatus;
-  dimmed: boolean;
   lines: IReceiptLineModel[];
   footer: TReceiptFooter;
   headingRef?: Ref<HTMLHeadingElement>;

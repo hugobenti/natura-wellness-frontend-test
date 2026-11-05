@@ -1,5 +1,6 @@
 import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
+import { useRef } from "react";
 import { useSubscription } from "./hooks/useSubscription";
 import { formatDay } from "./logic/dates";
 import { deriveView, EMPTY_OVERLAY } from "./logic/subscriptionView";
@@ -12,8 +13,18 @@ import type {
 
 export function useSubscriptionCard(): TPageModel {
   const { state, retry } = useSubscription();
-  if (state.status === "loading") return { kind: "loading" };
-  if (state.status === "error") return { kind: "error", onRetry: retry };
+  const h1Ref = useRef<HTMLHeadingElement>(null);
+  if (state.status === "loading") return { h1Ref, kind: "loading" };
+  if (state.status === "error") {
+    return {
+      h1Ref,
+      kind: "error",
+      onRetry: () => {
+        h1Ref.current?.focus();
+        retry();
+      },
+    };
+  }
 
   const view = deriveView(state.snapshot, EMPTY_OVERLAY);
   const now = new Date();
@@ -60,9 +71,8 @@ export function useSubscriptionCard(): TPageModel {
   const receipt: IReceiptCardProps = {
     heading,
     status: view.status,
-    dimmed: view.status === "paused",
     lines,
     footer,
   };
-  return { kind: "ready", receipt };
+  return { h1Ref, kind: "ready", receipt };
 }

@@ -8,11 +8,13 @@ import { subscriptionCard } from "./SubscriptionCard.style";
 import { useSubscriptionCard } from "./useSubscriptionCard";
 
 export function SubscriptionCard() {
-  const model = useSubscriptionCard();
+  const { h1Ref, ...model } = useSubscriptionCard();
 
   return (
     <div className={subscriptionCard.page}>
-      <h1 className={subscriptionCard.title}>{subscriptionContent.title}</h1>
+      <h1 ref={h1Ref} tabIndex={-1} className={subscriptionCard.title}>
+        {subscriptionContent.title}
+      </h1>
       {model.kind === "loading" && <ReceiptSkeleton />}
       {model.kind === "error" && (
         <Alert tone="danger" title={subscriptionContent.loadError.title}>

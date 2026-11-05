@@ -22,7 +22,6 @@ describe("useSubscriptionCard", () => {
       receipt: {
         heading: "Next box",
         status: "active",
-        dimmed: false,
         lines: [{ quantityLabel: "Qty 1" }, { quantityLabel: "Qty 2" }],
         footer: {
           kind: "charge",
@@ -34,14 +33,13 @@ describe("useSubscriptionCard", () => {
     });
   });
 
-  it("paused maps to a dimmed note", async () => {
+  it("paused maps to a note", async () => {
     vi.mocked(getSubscription).mockResolvedValue(fixtures.paused());
     const { result } = renderHook(useSubscriptionCard);
 
     await waitFor(() => expect(result.current.kind).toBe("ready"));
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
     expect(result.current.receipt.heading).toMatch(/^Paused until/);
-    expect(result.current.receipt.dimmed).toBe(true);
     expect(result.current.receipt.footer).toMatchObject({
       kind: "note",
       label: "No charges while paused",
