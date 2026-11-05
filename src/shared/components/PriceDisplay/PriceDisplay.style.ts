@@ -1,5 +1,5 @@
 export const priceDisplay = {
-  base: "inline-flex items-baseline gap-2",
+  base: "inline-flex",
   price: "font-semibold tabular-nums",
   compareAt: "text-muted line-through tabular-nums",
   srOnly: "sr-only",
@@ -9,7 +9,7 @@ export const priceDisplay = {
     lg: "text-section",
   },
   layout: {
-    inline: "",
+    inline: "items-baseline gap-2",
     stacked: "flex-col items-end gap-0",
   },
 } as const;

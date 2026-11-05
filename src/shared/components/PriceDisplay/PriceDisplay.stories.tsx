@@ -14,6 +14,11 @@ type TStory = StoryObj<typeof meta>;
 /** Price and original price side by side. */
 export const Inline: TStory = {
   args: { compareAtCents: 2995 },
+  play: async ({ canvasElement }) => {
+    const row = within(canvasElement).getByText("$25.46").parentElement as HTMLElement;
+    await expect(getComputedStyle(row).rowGap).toBe("8px");
+    await expect(getComputedStyle(row).flexDirection).toBe("row");
+  },
 };
 
 /** Original price under the price, right-aligned. Assistive tech reads "Was $29.95". */
@@ -21,7 +26,9 @@ export const Stacked: TStory = {
   args: { compareAtCents: 2995, layout: "stacked" },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByText("Was $29.95")).toBeInTheDocument();
-    await expect(within(canvasElement).getByText("$25.46")).toBeInTheDocument();
+    const row = within(canvasElement).getByText("$25.46").parentElement as HTMLElement;
+    await expect(getComputedStyle(row).rowGap).toBe("0px");
+    await expect(getComputedStyle(row).flexDirection).toBe("column");
   },
 };
 
