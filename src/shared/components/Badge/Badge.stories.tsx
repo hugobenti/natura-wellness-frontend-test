@@ -13,6 +13,14 @@ const meta = {
 export default meta;
 type TStory = StoryObj<typeof meta>;
 
+const toneLabel = {
+  highlight: "Best value",
+  active: "Active",
+  paused: "Paused",
+  cancelled: "Cancelled",
+  danger: "Payment failed",
+} as const satisfies Record<keyof typeof badge.tone, string>;
+
 const tones = Object.keys(badge.tone) as Array<keyof typeof badge.tone>;
 
 /** Every tone, text only. */
@@ -21,7 +29,7 @@ export const Tones: TStory = {
     <div className={badgeStory.row}>
       {tones.map((tone) => (
         <Badge key={tone} tone={tone}>
-          {tone}
+          {toneLabel[tone]}
         </Badge>
       ))}
     </div>

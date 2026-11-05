@@ -1,7 +1,7 @@
 import type { TIconName } from "@/shared/icons/Icon.type";
-import type { TSubscriptionStatus } from "./StatusBadge.type";
+import type { SubscriptionStatus } from "@/api/types";
 
-export const statusBadgeIcon: Record<TSubscriptionStatus, TIconName> = {
+export const statusBadgeIcon: Record<SubscriptionStatus, TIconName> = {
   active: "check-circle",
   paused: "pause",
   cancelled: "x-circle",

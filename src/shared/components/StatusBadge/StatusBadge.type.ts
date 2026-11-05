@@ -1,5 +1,6 @@
-export type TSubscriptionStatus = "active" | "paused" | "cancelled";
+import type { SubscriptionStatus } from "@/api/types";
 
 export interface IStatusBadgeProps {
-  status: TSubscriptionStatus;
+  status: SubscriptionStatus;
+  className?: string;
 }
