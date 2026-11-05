@@ -2,4 +2,6 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   // The brief's mock backend: its exports are the contract Part A builds on, used or not yet.
   "entry": ["src/api/*.ts"],
+  // Public Part A logic types are consumed by later stacked PRs.
+  "ignoreIssues": { "src/part-a/logic/*.type.ts": ["types"] },
 }
