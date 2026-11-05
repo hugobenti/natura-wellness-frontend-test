@@ -1,4 +1,5 @@
 import type { Ref, RefObject } from "react";
+import type { IPauseSheetProps } from "./components/PauseSheet/PauseSheet.type";
 import type { INotice } from "./hooks/notice.type";
 import type { ISkipSheetProps } from "./components/SkipSheet/SkipSheet.type";
 import type { IReceiptCardProps } from "./components/ReceiptCard/ReceiptCard.type";
@@ -21,6 +22,7 @@ export type TPageModel = { h1Ref: RefObject<HTMLHeadingElement | null> } & (
       receipt: IReceiptCardProps;
       notice: INotice | null;
       skipSheet: ISkipSheetProps | null;
+      pauseSheet: IPauseSheetProps;
       actions: IManageAction[];
     }
 );

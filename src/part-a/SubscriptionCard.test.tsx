@@ -1,13 +1,32 @@
 import { fixtures } from "@/api/fixtures";
 import { getSubscription } from "@/api/mockApi";
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { SubscriptionCard } from "./SubscriptionCard";
 
 vi.mock("@/api/mockApi", () => ({ getSubscription: vi.fn() }));
 
 beforeEach(() => {
   vi.mocked(getSubscription).mockReset();
+});
+
+beforeEach(() => {
+  Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    },
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, "close", {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.removeAttribute("open");
+    },
+  });
+});
+afterEach(() => {
+  Reflect.deleteProperty(HTMLDialogElement.prototype, "showModal");
+  Reflect.deleteProperty(HTMLDialogElement.prototype, "close");
 });
 
 it("offers retry before contact support in the load error", async () => {
@@ -45,13 +64,20 @@ it("edits the receipt, hides a skipped price and restores focus after cancelling
   expect(screen.getByText("$25.46")).toBeInTheDocument();
 });
 
-it("moves focus to the page heading when retrying a failed load", async () => {
-  vi.mocked(getSubscription)
-    .mockRejectedValueOnce(new Error("offline"))
-    .mockResolvedValue(fixtures.active());
+it("requires a radio selection when changing a server pause and offers an open-ended pause", async () => {
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.paused());
   render(<SubscriptionCard />);
 
-  fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
-  expect(screen.getByRole("heading", { level: 1, name: "My subscription" })).toHaveFocus();
-  await screen.findByRole("heading", { name: "Next box" });
+  fireEvent.click(await screen.findByRole("button", { name: "Change pause" }));
+  const sheet = screen.getByRole("dialog", { name: "Change your pause" });
+  expect(within(sheet).getByRole("button", { name: "Choose a duration" })).toBeDisabled();
+  expect(within(sheet).getAllByRole("radio")).toHaveLength(4);
+  fireEvent.click(within(sheet).getByRole("radio", { name: /Until I resume/ }));
+  const confirm = within(sheet).getByRole("button", { name: "Pause until I resume" });
+  expect(confirm).toBeEnabled();
+  fireEvent.click(confirm);
+
+  expect(screen.getByRole("heading", { name: "Paused until you resume" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Resume now" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });

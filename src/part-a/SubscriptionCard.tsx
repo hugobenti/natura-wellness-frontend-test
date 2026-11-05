@@ -2,6 +2,7 @@ import { subscriptionContent } from "@/content/subscription";
 import { Alert } from "@/shared/components/Alert/Alert";
 import { Button } from "@/shared/components/Button/Button";
 import { ManagePanel } from "./components/ManagePanel/ManagePanel";
+import { PauseSheet } from "./components/PauseSheet/PauseSheet";
 import { ReceiptCard } from "./components/ReceiptCard/ReceiptCard";
 import { ReceiptSkeleton } from "./components/ReceiptSkeleton/ReceiptSkeleton";
 import { SkipSheet } from "./components/SkipSheet/SkipSheet";
@@ -64,6 +65,7 @@ export function SubscriptionCard() {
             )}
           </div>
           {model.skipSheet && <SkipSheet {...model.skipSheet} />}
+          <PauseSheet {...model.pauseSheet} />
         </>
       )}
     </div>

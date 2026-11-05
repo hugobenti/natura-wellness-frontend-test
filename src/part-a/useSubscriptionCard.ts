@@ -4,6 +4,7 @@ import { useReducer, useRef, useState } from "react";
 import { useSubscription } from "./hooks/useSubscription";
 import { useEditMode } from "./hooks/useEditMode";
 import type { INotice } from "./hooks/notice.type";
+import { usePauseFlow } from "./hooks/usePauseFlow";
 import { useSkipFlow } from "./hooks/useSkipFlow";
 import { addDays, formatDay } from "./logic/dates";
 import { overlayReducer } from "./logic/overlay";
@@ -23,6 +24,7 @@ export function useSubscriptionCard(): TPageModel {
   const snapshot = state.status === "ready" ? state.snapshot : null;
   const view = snapshot ? deriveView(snapshot, overlay) : null;
   const edit = useEditMode({ overlay, snapshot, dispatch, notify: setNotice });
+  const pauseFlow = usePauseFlow({ view, overlay, dispatch, notify: setNotice });
   const skipFlow = useSkipFlow({
     view,
     reload: async () => {
@@ -181,8 +183,29 @@ export function useSubscriptionCard(): TPageModel {
             variant: "secondary",
             onClick: skipFlow.open,
           },
+          {
+            key: "pause",
+            label: subscriptionContent.manage.pause,
+            variant: "secondary",
+            onClick: pauseFlow.openPause,
+          },
         ]
-      : [];
+      : readyView.status === "paused"
+        ? [
+            {
+              key: "resume",
+              label: subscriptionContent.manage.resume,
+              variant: "primary",
+              onClick: pauseFlow.resume,
+            },
+            {
+              key: "changePause",
+              label: subscriptionContent.manage.changePause,
+              variant: "secondary",
+              onClick: pauseFlow.openChange,
+            },
+          ]
+        : [];
   let skipSheet: ISkipSheetProps | null = null;
   if (readyView.status === "active" && readyView.nextChargeAt) {
     const oldDate = formatDay(readyView.nextChargeAt, now);
@@ -218,6 +241,7 @@ export function useSubscriptionCard(): TPageModel {
     receipt,
     notice,
     skipSheet,
+    pauseSheet: pauseFlow.sheet,
     actions,
   };
 }
