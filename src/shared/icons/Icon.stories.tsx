@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { cx } from "@/shared/utils/cx";
 import { foundation as f } from "@/styles/foundations/foundations.style";
 import { Icon } from "./Icon";
 import { iconPaths } from "./Icon.data";
@@ -32,7 +31,7 @@ export const Gallery: TStory = {
 export const InheritsColor: TStory = {
   args: { name: "alert-triangle" },
   render: (args) => (
-    <span className={cx(f.pillBase, f.pill.danger)}>
+    <span className={iconStory.pill}>
       <Icon {...args} />
       Payment failed
     </span>

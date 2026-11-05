@@ -8,7 +8,8 @@
  *    default palette and type scale are removed, so raw classes such as `bg-zinc-200` or `text-lg`
  *    generate no CSS. Light only: there is no dark scheme.
  * 3. Themes: a `[data-theme="name"]` block brings its own primitives and redefines every semantic
- *    color plus `--font-sans`, `--font-heading` and the three `--radius-*` roles; any element with `data-theme` re-themes its subtree.
+ *    color plus `--font-sans`, `--font-heading` and the three `--radius-*` roles; any element with
+ *    `data-theme` re-themes its subtree.
  * src/styles/tokenContrast.test.ts reads this file, resolves every `var()` and checks WCAG 2.2 AA for
  * each theme, and requires every theme to declare the full contract (src/styles/themeContract.ts).
  */
@@ -67,7 +68,7 @@
   --color-status-danger: var(--brand-red-100);
   --color-on-status-danger: var(--brand-red-700);
 
-  /* Soft highlight for emphasis (promo badges, notices) */
+  /* Promotional badge only (“Best value”, “Recommended”) */
   --color-highlight: var(--brand-lime-100);
   --color-on-highlight: var(--brand-olive-900);
 

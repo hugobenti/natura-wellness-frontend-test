@@ -27,10 +27,10 @@
 - Native elements only. No custom ARIA widgets, no focus-trap or roving-tabindex code, no new runtime dependencies.
 - Control borders (Hugo's decision):
   - `border-line` only where visible text plus an icon identify the control: `Select`, `QuantityStepper`, unselected `RadioGroup` cards.
-  - `border-control-line` for the radio circle, checkboxes and empty text inputs.
+  - `border-control-line` for the radio circle, checkboxes and empty text inputs and textareas.
   - A selected card gets `border-accent`.
   - Focus always gets the `focus` ring (`focus-visible:outline-focus`, from the base layer).
-- Radii only via `rounded-control`, `rounded-card` and `rounded-pill`. Text sizes only via `text-title|section|body|small|eyebrow`.
+- Radii only via `rounded-control`, `rounded-card` and `rounded-pill`; shapes that must stay circles in every theme (radio circle and dot, spinner) use `rounded-full`, which is not a theme role. Text sizes only via `text-title|section|body|small|eyebrow`.
 - Motion: opacity fades only; spinners are static under `prefers-reduced-motion`.
 - Never edit `INSTRUCTIONS.md` or `src/api/**`; never commit to `main`.
 - Before each commit: `corepack pnpm verify` and `corepack pnpm test:storybook` exit 0. Before each PR: `corepack pnpm test:e2e` too.
@@ -328,7 +328,7 @@ _(Controller: push, open PR 1, watch CI, check the Storybook preview at 1280 and
   - `<fieldset>` with `<legend>` (`sr-only` when `legendHidden`).
   - Each item is a frame `div` holding `<label htmlFor=inputId>` (radio, label, description, badge, trailing). When `checked && panel`, the `panel` is a sibling of the label inside the frame.
 - **Styles:**
-  - Radio circle: `appearance-none size-5 rounded-pill border-2 border-control-line`, plus a checked inner dot in `accent`.
+  - Radio circle: `appearance-none size-5 rounded-full border-2 border-control-line`, plus a checked inner dot in `accent`.
   - Card frame: `rounded-card border border-line bg-surface`. Checked: `border-2 border-accent bg-fill-selected`.
 
 - [ ] **Step 1: Build the hook and the component.**

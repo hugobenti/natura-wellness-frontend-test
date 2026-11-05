@@ -32,8 +32,8 @@ export const foundationsContent = {
     "on-status-cancelled": "Text on the cancelled pill",
     "status-danger": "Errors (e.g. the 409 skip conflict)",
     "on-status-danger": "Text on the error state",
-    highlight: "Soft emphasis fill (badges, notices)",
-    "on-highlight": "Text on highlight",
+    highlight: "Promotional badge fill (“Best value”, “Recommended”)",
+    "on-highlight": "Text on the promotional badge",
   } as Record<string, string>,
   statusWords: {
     active: "Active",

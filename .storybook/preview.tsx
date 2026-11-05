@@ -24,6 +24,9 @@ const preview: Preview = {
     layout: "fullscreen",
     a11y: { test: "error" },
     controls: { expanded: true },
+    options: {
+      storySort: { order: ["Foundations", ["Introduction"], "Components", ["Overview", "*"]] },
+    },
   },
 };
 

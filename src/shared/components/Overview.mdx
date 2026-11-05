@@ -11,7 +11,7 @@ Shared building blocks for Part A and Part B. Every component follows the same r
 - **Native elements.** Buttons, inputs, selects and dialogs are the browser's own, so keyboard and screen readers work without custom ARIA.
 - **Presentation only.** The `.tsx` renders props and what its hook returns; classes live in a style file, copy in `src/content`.
 - **Theme-ready.** Colors, fonts and radii come from tokens, so a theme set with `data-theme` restyles every component with no code change.
-- **Control borders.** `border-line` where visible text and an icon identify the control (`Select`, `QuantityStepper`, unselected `RadioGroup` cards); `border-control-line` for the radio circle, checkboxes and empty text inputs; a selected card uses `border-accent`. Focus always shows the focus ring.
+- **Control borders.** `border-line` where visible text and an icon identify the control (`Select`, `QuantityStepper`, unselected `RadioGroup` cards); `border-control-line` for the radio circle, checkboxes and empty text inputs and textareas; a selected card uses `border-accent`. Focus always shows the focus ring: the base layer's `:focus-visible` outline in `focus`, never removed.
 - **Inline feedback, no toasts.** Messages render where they belong with an `Alert`, never as a floating notification.
 
 ## Components
@@ -31,4 +31,4 @@ Shared building blocks for Part A and Part B. Every component follows the same r
 | `FormField`                                 | Label, hint and error wiring around a control.                                    |
 | `ResponsiveDialog`                          | Native dialog: bottom sheet on mobile, centered modal on larger screens.          |
 
-Only `Icon` has a page so far; the others get a link here as they land.
+Each component links its row here, in the same PR that adds its docs page (`?path=/docs/components-<name>--docs`).

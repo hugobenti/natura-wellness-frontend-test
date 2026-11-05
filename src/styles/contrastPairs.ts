@@ -19,7 +19,7 @@ export const contrastPairs: readonly IContrastPair[] = [
   { fg: "on-status-danger", bg: "status-danger", kind: "text" },
   { fg: "on-status-danger", bg: "surface", kind: "text" },
   { fg: "on-status-danger", bg: "bg", kind: "text" },
-  { fg: "accent", bg: "fill-selected", kind: "ui" },
+  { fg: "accent", bg: "fill-selected", kind: "text" },
   { fg: "on-highlight", bg: "highlight", kind: "text" },
   { fg: "control-line", bg: "surface", kind: "ui" },
   { fg: "control-line", bg: "bg", kind: "ui" },
