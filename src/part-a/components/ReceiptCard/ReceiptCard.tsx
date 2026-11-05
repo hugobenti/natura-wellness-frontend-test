@@ -38,7 +38,9 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
             <div className={receiptCard.details}>
               <p className={receiptCard.name}>{line.name}</p>
               {!line.edit && <p className={receiptCard.mobileQuantity}>{line.quantityLabel}</p>}
-              {line.skippedNote && <p className={receiptCard.skippedNote}>{line.skippedNote}</p>}
+              {line.skippedNote && !line.edit?.undo && (
+                <p className={receiptCard.skippedNote}>{line.skippedNote}</p>
+              )}
               {line.edit?.lastItemHint && (
                 <p className={receiptCard.lastItemHint}>{line.edit.lastItemHint}</p>
               )}
@@ -67,28 +69,31 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
                 className={receiptCard.price}
               />
             )}
-            {line.edit && (line.edit.skip || line.edit.undo) && (
+            {line.edit?.skip && (
               <div className={receiptCard.editorAction}>
-                {line.edit.skip && (
-                  <Button
-                    variant="quiet"
-                    size="md"
-                    aria-label={line.edit.skip.label}
-                    onClick={line.edit.skip.onClick}
-                  >
-                    {subscriptionContent.edit.skipOnce}
-                  </Button>
-                )}
-                {line.edit.undo && (
-                  <Button
-                    variant="quiet"
-                    size="md"
-                    aria-label={line.edit.undo.label}
-                    onClick={line.edit.undo.onClick}
-                  >
-                    {subscriptionContent.edit.undo}
-                  </Button>
-                )}
+                <Button
+                  variant="quiet"
+                  size="md"
+                  aria-label={line.edit.skip.label}
+                  onClick={line.edit.skip.onClick}
+                >
+                  {subscriptionContent.edit.skipOnce}
+                </Button>
+              </div>
+            )}
+            {line.edit?.undo && (
+              <div className={receiptCard.skippedAction}>
+                <p className={cx(receiptCard.skippedRowNote, receiptCard.dimmed)}>
+                  {line.edit.skippedNote}
+                </p>
+                <Button
+                  variant="quiet"
+                  size="md"
+                  aria-label={line.edit.undo.label}
+                  onClick={line.edit.undo.onClick}
+                >
+                  {subscriptionContent.edit.undo}
+                </Button>
               </div>
             )}
           </div>

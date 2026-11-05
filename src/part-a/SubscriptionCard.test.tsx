@@ -32,11 +32,11 @@ it("edits the receipt, hides a skipped price and restores focus after cancelling
     screen.getByRole("group", { name: "Quantity of Vitamin D, 60 softgels" }),
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Skip Vitamin D, 60 softgels once" }));
-  expect(screen.getByText("Skipped in the next box only")).toBeInTheDocument();
+  const skippedNote = screen.getByText("Skipped in the next box only");
   expect(screen.queryByText("$25.46")).not.toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: "Undo skipping Vitamin D, 60 softgels" }),
-  ).toBeInTheDocument();
+  const undo = screen.getByRole("button", { name: "Undo skipping Vitamin D, 60 softgels" });
+  expect(skippedNote.parentElement).toContainElement(undo);
+  expect(undo.closest(".opacity-60")).toBeNull();
   expect(screen.getByText("To skip everything, use Skip the whole box")).toBeInTheDocument();
   expect(screen.getByText("New total")).toBeInTheDocument();
   expect(screen.getByText("Currently $101.87")).toBeInTheDocument();
