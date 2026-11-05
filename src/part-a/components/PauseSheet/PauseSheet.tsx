@@ -3,6 +3,7 @@ import { Button } from "@/shared/components/Button/Button";
 import { RadioGroup } from "@/shared/components/RadioGroup/RadioGroup";
 import { ResponsiveDialog } from "@/shared/components/ResponsiveDialog/ResponsiveDialog";
 import type { TPausePresetId } from "../../logic/pause.type";
+import { pauseSheet } from "./PauseSheet.style";
 import type { IPauseSheetProps } from "./PauseSheet.type";
 
 export function PauseSheet({
@@ -38,6 +39,7 @@ export function PauseSheet({
       <RadioGroup<TPausePresetId | "">
         legend={subscriptionContent.pause.legend}
         name="pause-duration"
+        className={pauseSheet.options}
         appearance="list"
         value={value}
         options={options}

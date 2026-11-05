@@ -71,6 +71,7 @@ it("requires a radio selection when changing a server pause and offers an open-e
   fireEvent.click(await screen.findByRole("button", { name: "Change pause" }));
   const sheet = screen.getByRole("dialog", { name: "Change your pause" });
   expect(within(sheet).getByRole("button", { name: "Choose a duration" })).toBeDisabled();
+  expect(within(sheet).getByRole("group", { name: "How long?" })).toHaveClass("mt-4");
   expect(within(sheet).getAllByRole("radio")).toHaveLength(4);
   fireEvent.click(within(sheet).getByRole("radio", { name: /Until I resume/ }));
   const confirm = within(sheet).getByRole("button", { name: "Pause until I resume" });
