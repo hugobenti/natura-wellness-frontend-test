@@ -10,9 +10,11 @@ import vercel from "./vercel.json" with { type: "json" };
 
 // Security headers are declared once, in vercel.json (production). `vite preview`, which the e2e
 // suite runs against, serves the same ones. Only directives that need no script inventory: a
-// `script-src` would need hashes for Vite's module preload.
+// `script-src` would need hashes for Vite's module preload. The `/iframe.html` rule is Storybook's
+// framing exception; the app itself is never framable, so preview takes the other rule.
+const appRule = vercel.headers.find((rule) => rule.source !== "/iframe.html");
 const securityHeaders = Object.fromEntries(
-  vercel.headers.flatMap((rule) => rule.headers.map((header) => [header.key, header.value])),
+  (appRule?.headers ?? []).map((header) => [header.key, header.value]),
 );
 
 export default defineConfig({

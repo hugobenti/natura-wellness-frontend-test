@@ -42,7 +42,8 @@ Dependencies flow one way: **kernel (shared, content, styles, api) → parts →
 - **No scroll-jacking:** never `preventDefault` wheel, touch or keyboard scrolling.
 - **Copy:** all text lives in `src/content` (labels, headings, `aria-label`s); Part B's given copy stays in `src/part-b/copy.ts`. ESLint fails on text in markup.
 - **New view or fixture:** add its URL to `e2e/views.ts`; the e2e suite then loads it on desktop and at 375px and runs axe on it.
-- **Security headers** are declared once in `vercel.json`; `vite preview` (and so the e2e suite) serves the same ones.
+- **Security headers** are declared once in `vercel.json`; `vite preview` (and so the e2e suite) serves the same ones. Exception: `/iframe.html` (Storybook's canvas, which its manager frames from the same origin) gets `X-Frame-Options: SAMEORIGIN` and `frame-ancestors 'self'`; every other path stays `DENY` / `frame-ancestors 'none'`. `vite preview` uses the non-iframe rule.
+- **Stories** (`*.stories.tsx`, `*.mdx` under `src`) are exempt from the presentation, copy and type-file rules, but keep the class-string and no-raw-color rules. Foundations pages (Introduction, Color, Typography, the test-only ThemeScope story) live in `src/styles/foundations`.
 
 ## Component architecture
 
@@ -65,25 +66,26 @@ Markup and styling never share a file.
 
 ## Commands
 
-| Command               | What it does                                                              |
-| --------------------- | ------------------------------------------------------------------------- |
-| `pnpm dev`            | Vite dev server                                                           |
-| `pnpm build`          | production build into `dist`                                              |
-| `pnpm preview`        | serves `dist` with the production security headers                        |
-| `pnpm lint`           | ESLint (boundary, component, style-file, copy, token and a11y rules)      |
-| `pnpm typecheck`      | `tsc --noEmit`                                                            |
-| `pnpm test`           | Vitest + Testing Library                                                  |
-| `pnpm storybook`      | Storybook on :6006 (theme picker in the toolbar)                          |
-| `pnpm test:storybook` | every story in Chromium: play functions + axe (a11y violations fail)      |
-| `pnpm test:e2e`       | Playwright: isolated production build, every view on desktop + 375px, axe |
-| `pnpm knip`           | unused files, exports and dependencies                                    |
-| `pnpm format`         | Prettier; also sorts Tailwind classes, inside `cx()` too                  |
-| `pnpm format:check`   | Prettier check (CI)                                                       |
-| `pnpm verify`         | everything CI's `check` job runs, building into `.dist-verify`            |
+| Command                | What it does                                                              |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `pnpm dev`             | Vite dev server                                                           |
+| `pnpm build`           | production build into `dist`                                              |
+| `pnpm preview`         | serves `dist` with the production security headers                        |
+| `pnpm lint`            | ESLint (boundary, component, style-file, copy, token and a11y rules)      |
+| `pnpm typecheck`       | `tsc --noEmit`                                                            |
+| `pnpm test`            | Vitest + Testing Library                                                  |
+| `pnpm storybook`       | Storybook on :6006 (theme picker in the toolbar)                          |
+| `pnpm build-storybook` | static Storybook into `storybook-static` (deployed to Vercel)             |
+| `pnpm test:storybook`  | every story in Chromium: play functions + axe (a11y violations fail)      |
+| `pnpm test:e2e`        | Playwright: isolated production build, every view on desktop + 375px, axe |
+| `pnpm knip`            | unused files, exports and dependencies                                    |
+| `pnpm format`          | Prettier; also sorts Tailwind classes, inside `cx()` too                  |
+| `pnpm format:check`    | Prettier check (CI)                                                       |
+| `pnpm verify`          | everything CI's `check` job runs, building into `.dist-verify`            |
 
 ## Workflow
 
-Never commit to `main`; GitHub rejects it. Each stage of work gets its own branch (`feat/<name>`, `fix/<name>`, `refactor/<name>`, `chore/<name>`), stays small (≤ ~20 files) and lands through a pull request that Hugo reviews and squash-merges; the `check` and `e2e` CI jobs must be green. Fill in the PR template. Write the failing test first for anything with logic; run `pnpm verify` and `pnpm test:e2e` before asking for review. Check UI changes on the PR's Vercel preview at 375px and at 1200px.
+Never commit to `main`; GitHub rejects it. Each stage of work gets its own branch (`feat/<name>`, `fix/<name>`, `refactor/<name>`, `chore/<name>`), stays small (≤ ~20 files) and lands through a pull request that Hugo reviews and squash-merges; the `check` and `e2e` CI jobs must be green. Fill in the PR template. Write the failing test first for anything with logic; run `pnpm verify`, `pnpm test:storybook` and `pnpm test:e2e` before asking for review. Check UI changes on the PR's Vercel preview at 375px and at 1200px.
 
 Dependabot opens grouped dependency PRs weekly. Review them like any other PR; CI decides.
 
