@@ -11,6 +11,8 @@ export interface IUseCancelFlowArgs {
   subscription: ISubscriptionView | null;
   dispatch: Dispatch<TOverlayAction>;
   notify: (notice: INotice) => void;
+  /** Clears the page notice when the customer moves to another view. */
+  clearNotice: () => void;
   /** The edit mode's `start`. */
   startEdit: () => void;
 }

@@ -27,6 +27,7 @@ export type TPageModel = { h1Ref: RefObject<HTMLHeadingElement | null> } & (
       editHint: { text: string; cancelLabel: string; onCancel: () => void } | null;
       receipt: IReceiptCardProps;
       notice: INotice | null;
+      dismissNotice: () => void;
       skipSheet: ISkipSheetProps | null;
       pauseSheet: IPauseSheetProps;
       actions: IManageAction[];

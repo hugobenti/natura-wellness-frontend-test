@@ -17,8 +17,11 @@ function setup(snapshot = fixtures.active()) {
   const dispatch = vi.fn();
   const notify = vi.fn();
   const startEdit = vi.fn();
-  const hook = renderHook(() => useCancelFlow({ subscription, dispatch, notify, startEdit }));
-  return { dispatch, notify, startEdit, ...hook };
+  const clearNotice = vi.fn();
+  const hook = renderHook(() =>
+    useCancelFlow({ subscription, dispatch, notify, clearNotice, startEdit }),
+  );
+  return { dispatch, notify, clearNotice, startEdit, ...hook };
 }
 
 describe("useCancelFlow", () => {

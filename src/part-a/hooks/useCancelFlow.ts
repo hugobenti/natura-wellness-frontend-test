@@ -10,6 +10,7 @@ export function useCancelFlow({
   subscription,
   dispatch,
   notify,
+  clearNotice,
   startEdit,
 }: IUseCancelFlowArgs): IUseCancelFlowResult {
   const [view, setView] = useState<TPageView>("subscription");
@@ -31,16 +32,23 @@ export function useCancelFlow({
   const perBox = subscription?.pricing.savingCents ?? 0;
   const cancellable = subscription?.status === "active" || subscription?.status === "paused";
   const open = () => {
-    if (cancellable) setView("cancelConfirm");
+    if (!cancellable) return;
+    clearNotice();
+    setView("cancelConfirm");
   };
-  const back = () => setView("subscription");
+  const back = () => {
+    clearNotice();
+    setView("subscription");
+  };
   const editNextBox = () => {
     keepFocus.current = true;
+    clearNotice();
     setView("subscription");
     startEdit();
   };
   const confirmCancel = () => {
     if (!cancellable) return;
+    clearNotice();
     dispatch({ type: "cancel", now: new Date() });
     setReason("");
     setView("survey");

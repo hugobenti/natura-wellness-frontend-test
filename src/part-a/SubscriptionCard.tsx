@@ -62,6 +62,7 @@ export function SubscriptionCard() {
                   tone={model.notice.tone}
                   title={model.notice.title}
                   className={subscriptionCard.notice}
+                  onDismiss={model.dismissNotice}
                 >
                   <p>{model.notice.body}</p>
                 </Alert>
