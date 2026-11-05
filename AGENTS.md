@@ -65,19 +65,21 @@ Markup and styling never share a file.
 
 ## Commands
 
-| Command             | What it does                                                              |
-| ------------------- | ------------------------------------------------------------------------- |
-| `pnpm dev`          | Vite dev server                                                           |
-| `pnpm build`        | production build into `dist`                                              |
-| `pnpm preview`      | serves `dist` with the production security headers                        |
-| `pnpm lint`         | ESLint (boundary, component, style-file, copy, token and a11y rules)      |
-| `pnpm typecheck`    | `tsc --noEmit`                                                            |
-| `pnpm test`         | Vitest + Testing Library                                                  |
-| `pnpm test:e2e`     | Playwright: isolated production build, every view on desktop + 375px, axe |
-| `pnpm knip`         | unused files, exports and dependencies                                    |
-| `pnpm format`       | Prettier; also sorts Tailwind classes, inside `cx()` too                  |
-| `pnpm format:check` | Prettier check (CI)                                                       |
-| `pnpm verify`       | everything CI's `check` job runs, building into `.dist-verify`            |
+| Command               | What it does                                                              |
+| --------------------- | ------------------------------------------------------------------------- |
+| `pnpm dev`            | Vite dev server                                                           |
+| `pnpm build`          | production build into `dist`                                              |
+| `pnpm preview`        | serves `dist` with the production security headers                        |
+| `pnpm lint`           | ESLint (boundary, component, style-file, copy, token and a11y rules)      |
+| `pnpm typecheck`      | `tsc --noEmit`                                                            |
+| `pnpm test`           | Vitest + Testing Library                                                  |
+| `pnpm storybook`      | Storybook on :6006 (theme picker in the toolbar)                          |
+| `pnpm test:storybook` | every story in Chromium: play functions + axe (a11y violations fail)      |
+| `pnpm test:e2e`       | Playwright: isolated production build, every view on desktop + 375px, axe |
+| `pnpm knip`           | unused files, exports and dependencies                                    |
+| `pnpm format`         | Prettier; also sorts Tailwind classes, inside `cx()` too                  |
+| `pnpm format:check`   | Prettier check (CI)                                                       |
+| `pnpm verify`         | everything CI's `check` job runs, building into `.dist-verify`            |
 
 ## Workflow
 

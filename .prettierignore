@@ -2,6 +2,7 @@ pnpm-lock.yaml
 dist
 .dist-*
 playwright-report
+storybook-static
 test-results
 .superpowers
 # The brief and its mock backend, kept byte-identical to what it ships.
