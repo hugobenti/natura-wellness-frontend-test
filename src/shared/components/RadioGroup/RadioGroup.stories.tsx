@@ -122,6 +122,9 @@ export const PanelOnlyForSelected: TStory = {
     await userEvent.click(canvas.getByRole("radio", { name: /Subscribe/ }));
 
     const select = canvas.getByLabelText("Delivered every");
+    await expect(
+      canvas.getByRole("radio", { name: /Subscribe/ }).closest("label"),
+    ).not.toContainElement(select);
     await userEvent.tab();
     await expect(select).toHaveFocus();
     await userEvent.selectOptions(select, "8");

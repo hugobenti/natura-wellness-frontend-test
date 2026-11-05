@@ -22,7 +22,7 @@ export const radioGroup = {
   radio:
     "mt-0.5 grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded-full border-2 border-control-line bg-surface before:size-2.5 before:rounded-full checked:border-accent checked:before:bg-accent",
   text: "flex min-w-0 flex-1 flex-col gap-1",
-  description: "text-small text-fg",
+  description: "text-small text-muted",
   trailing: "shrink-0",
   badge: "shrink-0",
 } as const;

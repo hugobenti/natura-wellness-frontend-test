@@ -17,6 +17,7 @@
   --brand-lime-50: #f7f9ee;
   --brand-lime-100: #e7efc7;
   --brand-lime-200: #dde5c4;
+  --brand-sage-100: #dde9d3;
   --brand-sage-300: #aec8a4;
   --brand-sage-600: #7e8b63;
   --brand-brown-500: #8a784e;
@@ -55,7 +56,7 @@
 
   /* Soft fills and decoration (decor is for icons and rules, never text) */
   --color-fill-soft: var(--brand-lime-100);
-  --color-fill-selected: var(--brand-sage-300);
+  --color-fill-selected: var(--brand-sage-100);
   --color-decor: var(--brand-brown-500);
 
   /* Status pills: a soft tint with its dark text */
