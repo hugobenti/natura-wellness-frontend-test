@@ -23,17 +23,16 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
         {lines.map((line) => (
           <div
             key={line.sku}
-            className={cx(
-              receiptCard.row,
-              line.edit ? receiptCard.rowEdit : receiptCard.rowRead,
-            )}
+            className={cx(receiptCard.row, line.edit ? receiptCard.rowEdit : receiptCard.rowRead)}
           >
             <ProductThumbnail
               src={line.imageUrl}
               name={line.name}
               size="md"
               decorative
-              className={cx((status === "paused" || line.priceCents === null) && receiptCard.dimmed)}
+              className={cx(
+                (status === "paused" || line.priceCents === null) && receiptCard.dimmed,
+              )}
             />
             <div className={receiptCard.details}>
               <p className={receiptCard.name}>{line.name}</p>

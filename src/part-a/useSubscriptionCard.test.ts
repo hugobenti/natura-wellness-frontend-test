@@ -262,4 +262,31 @@ describe("useSubscriptionCard", () => {
     ).not.toBeNull();
     expect(result.current.receipt.footer).toMatchObject({ kind: "charge", totalCents: 14008 });
   });
+
+  it("a 409 reload keeps a saved product skip while the box has not moved", async () => {
+    const snapshot = fixtures.active();
+    const fresh = { ...snapshot, updatedAt: "2026-12-01T12:00:00.000Z" };
+    vi.mocked(getSubscription).mockResolvedValueOnce(snapshot).mockResolvedValueOnce(fresh);
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(
+      () =>
+        result.current.kind === "ready" &&
+        result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.edit?.skip?.onClick(),
+    );
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.actions[1]?.onClick());
+    await act(async () => {
+      if (result.current.kind === "ready" && result.current.skipSheet) {
+        await result.current.skipSheet.onConfirm();
+      }
+    });
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.skipSheet?.phase).toBe("conflict");
+    expect(
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-VITD-60")?.priceCents,
+    ).toBeNull();
+  });
 });

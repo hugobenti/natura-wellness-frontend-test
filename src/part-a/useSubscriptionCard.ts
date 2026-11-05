@@ -27,7 +27,7 @@ export function useSubscriptionCard(): TPageModel {
     view,
     reload: async () => {
       const fresh = await reload();
-      if (fresh) dispatch({ type: "clearSkipped" });
+      if (fresh && fresh.nextChargeAt !== view!.nextChargeAt) dispatch({ type: "clearSkipped" });
       return fresh;
     },
     onSkipped: (fresh) => {

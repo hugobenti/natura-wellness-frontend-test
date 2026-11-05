@@ -35,7 +35,7 @@ export const subscriptionContent = {
     heading: "Editing next box",
     stepperLabel: (name: string) => `Quantity of ${name}`,
     skipOnce: "Skip once",
-    skipOnceLabel: (name: string) => `Skip ${name} once`,
+    skipOnceLabel: (name: string) => `Skip once: ${name}`,
     undo: "Undo",
     undoLabel: (name: string) => `Undo skipping ${name}`,
     skippedNote: "Skipped in the next box only",
