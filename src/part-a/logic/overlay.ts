@@ -23,6 +23,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
           status: "paused",
           pausedUntil: pauseUntil(action.presetId, action.now),
           presetId: action.presetId,
+          resumeAt: action.resumeAt,
         },
       };
     case "resume":
@@ -30,7 +31,10 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
         ...overlay,
         lifecycle: {
           status: "active",
-          nextChargeAt: resumeChargeAt(action.now, action.originalNextChargeAt),
+          nextChargeAt: resumeChargeAt(
+            action.now,
+            overlay.lifecycle?.status === "paused" ? overlay.lifecycle.resumeAt : null,
+          ),
         },
       };
     case "skipLocally":

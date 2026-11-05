@@ -14,15 +14,13 @@ function setup(snapshot = fixtures.active(), overlay: ILocalOverlay = EMPTY_OVER
   const view = deriveView(snapshot, overlay);
   const dispatch = vi.fn();
   const notify = vi.fn();
-  const hook = renderHook(() =>
-    usePauseFlow({ view, overlay, dispatch, notify, originalNextChargeAt: snapshot.nextChargeAt }),
-  );
+  const hook = renderHook(() => usePauseFlow({ view, overlay, dispatch, notify }));
   return { view, dispatch, notify, ...hook };
 }
 
 describe("usePauseFlow", () => {
   it('openPause starts on 1 month and confirms "Pause for 1 month"', () => {
-    const { result, dispatch, notify } = setup();
+    const { result, dispatch, notify, view } = setup();
     act(() => result.current.openPause());
     expect(result.current.sheet).toMatchObject({
       open: true,
@@ -39,7 +37,12 @@ describe("usePauseFlow", () => {
     ]);
 
     act(() => result.current.sheet.onConfirm());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "pause", presetId: "1m", now });
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+      type: "pause",
+      presetId: "1m",
+      now,
+      resumeAt: view.nextChargeAt,
+    });
     expect(notify).toHaveBeenCalledWith({
       tone: "success",
       title: "Subscription paused",
@@ -49,12 +52,17 @@ describe("usePauseFlow", () => {
   });
 
   it("choosing Until I resume relabels the confirm", () => {
-    const { result, dispatch, notify } = setup();
+    const { result, dispatch, notify, view } = setup();
     act(() => result.current.openPause());
     act(() => result.current.sheet.onChange("open"));
     expect(result.current.sheet.confirmLabel).toBe("Pause until I resume");
     act(() => result.current.sheet.onConfirm());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "pause", presetId: "open", now });
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
+      type: "pause",
+      presetId: "open",
+      now,
+      resumeAt: view.nextChargeAt,
+    });
     expect(notify).toHaveBeenCalledWith({
       tone: "success",
       title: "Subscription paused",
@@ -80,7 +88,12 @@ describe("usePauseFlow", () => {
   it("openChange after a local pause starts from its preset", () => {
     const overlay: ILocalOverlay = {
       ...EMPTY_OVERLAY,
-      lifecycle: { status: "paused", pausedUntil: "2027-01-04T12:00:00.000Z", presetId: "2m" },
+      lifecycle: {
+        status: "paused",
+        pausedUntil: "2027-01-04T12:00:00.000Z",
+        presetId: "2m",
+        resumeAt: null,
+      },
     };
     const { result } = setup(fixtures.active(), overlay);
     act(() => result.current.openChange());
@@ -95,11 +108,7 @@ describe("usePauseFlow", () => {
   it("resume dispatches resume and notifies with the next charge", () => {
     const { result, dispatch, notify } = setup(fixtures.paused());
     act(() => result.current.resume());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({
-      type: "resume",
-      now,
-      originalNextChargeAt: null,
-    });
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "resume", now });
     expect(notify).toHaveBeenCalledWith({
       tone: "success",
       title: "Subscription resumed",

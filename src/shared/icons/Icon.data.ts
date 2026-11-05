@@ -15,6 +15,7 @@ export const iconPaths: Record<TIconName, readonly string[]> = {
   "alert-triangle": ["M12 3.5 22 20.5H2L12 3.5Z", "M12 10v4.5", "M12 17.5v.01"],
   // i in a circle
   info: [circle, "M12 11v5", "M12 8v.01"],
+  "arrow-left": ["M19 12H5", "m11 6-6 6 6 6"],
   "chevron-down": ["m6 9 6 6 6-6"],
   minus: ["M5 12h14"],
   plus: ["M5 12h14", "M12 5v14"],

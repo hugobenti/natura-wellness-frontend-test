@@ -85,4 +85,12 @@ describe("useCancelFlow", () => {
       body: "Thanks for telling us why.",
     });
   });
+
+  it("the first reason does not offer skipping while paused", () => {
+    const active = setup().result.current.confirm.reasons[0]!;
+    const paused = setup(fixtures.paused()).result.current.confirm.reasons[0]!;
+    expect(paused.title).toBe(active.title);
+    expect(paused.body).not.toBe(active.body);
+    expect(paused.body).toContain("stay paused");
+  });
 });

@@ -102,6 +102,7 @@ export const subscriptionContent = {
     tooMuchTitle: "Too much product left? You don't need to cancel",
     tooMuchBody:
       "You can skip your next box, or leave out a single product, from your subscription page whenever you like.",
+    tooMuchBodyPaused: "You can stay paused for as long as you need, and resume whenever you like.",
     editLink: "Edit my next box",
     costTitle: "Subscribing costs you less",
     costBody: (percent: number, perBox: string, perYear: string) =>

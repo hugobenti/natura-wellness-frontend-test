@@ -4,7 +4,13 @@ import type { TPausePresetId } from "./pause.type";
 
 type TLifecycleOverride =
   | { status: "active"; nextChargeAt: string }
-  | { status: "paused"; pausedUntil: string | null; presetId: TPausePresetId | null }
+  | {
+      status: "paused";
+      pausedUntil: string | null;
+      presetId: TPausePresetId | null;
+      /** The charge date to come back to; `null` when the server paused it. */
+      resumeAt: string | null;
+    }
   | { status: "cancelled"; cancelledAt: string };
 
 export interface ILocalOverlay {

@@ -30,7 +30,6 @@ export function useSubscriptionCard(): TPageModel {
     overlay,
     dispatch,
     notify: setNotice,
-    originalNextChargeAt: snapshot?.nextChargeAt ?? null,
   });
   const skipFlow = useSkipFlow({
     view,

@@ -11,7 +11,6 @@ export function usePauseFlow({
   overlay,
   dispatch,
   notify,
-  originalNextChargeAt,
 }: IUsePauseFlowArgs): IUsePauseFlowResult {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<TPausePresetId | "">("");
@@ -40,7 +39,13 @@ export function usePauseFlow({
     if (!selected || !view || (view.status !== "active" && view.status !== "paused")) return;
     const confirmedAt = new Date();
     const until = pauseUntil(selected, confirmedAt);
-    dispatch({ type: "pause", presetId: selected, now: confirmedAt });
+    const resumeAt =
+      view.status === "active"
+        ? view.nextChargeAt
+        : overlay.lifecycle?.status === "paused"
+          ? overlay.lifecycle.resumeAt
+          : null;
+    dispatch({ type: "pause", presetId: selected, now: confirmedAt, resumeAt });
     setOpen(false);
     notify({
       tone: "success",
@@ -51,13 +56,14 @@ export function usePauseFlow({
   const resume = () => {
     if (!paused || !view) return;
     const resumedAt = new Date();
-    dispatch({ type: "resume", now: resumedAt, originalNextChargeAt });
+    const resumeAt = overlay.lifecycle?.status === "paused" ? overlay.lifecycle.resumeAt : null;
+    dispatch({ type: "resume", now: resumedAt });
     notify({
       tone: "success",
       title: copy.resumedTitle,
       body: copy.resumedBody(
         formatMoney(view.pricing.totalCents),
-        formatDay(resumeChargeAt(resumedAt, originalNextChargeAt), resumedAt),
+        formatDay(resumeChargeAt(resumedAt, resumeAt), resumedAt),
       ),
     });
   };

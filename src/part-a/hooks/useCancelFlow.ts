@@ -59,7 +59,10 @@ export function useCancelFlow({
     h1Ref,
     confirm: {
       reasons: [
-        { title: copy.tooMuchTitle, body: copy.tooMuchBody },
+        {
+          title: copy.tooMuchTitle,
+          body: subscription?.status === "paused" ? copy.tooMuchBodyPaused : copy.tooMuchBody,
+        },
         {
           title: copy.costTitle,
           body: copy.costBody(

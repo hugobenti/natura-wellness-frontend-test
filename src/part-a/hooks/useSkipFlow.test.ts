@@ -19,7 +19,9 @@ function deferred<T>() {
 
 beforeEach(() => vi.mocked(skipNextShipment).mockReset());
 
-function setup(successAmount?: (snapshot: Subscription) => number) {
+function setup(
+  successAmount: (snapshot: Subscription) => number = (snapshot) => snapshot.nextChargeTotalCents!,
+) {
   const snapshot = fixtures.active();
   const view = deriveView(snapshot, EMPTY_OVERLAY);
   const reload = vi.fn(async (): Promise<Subscription | null> => fixtures.active());
@@ -181,6 +183,7 @@ describe("useSkipFlow", () => {
         notify,
         skipLocally,
         localSuccessAmount: () => 14008,
+        successAmount: () => 14008,
       }),
     );
     act(() => result.current.open());

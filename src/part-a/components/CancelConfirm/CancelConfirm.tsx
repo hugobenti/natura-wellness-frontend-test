@@ -19,6 +19,7 @@ export function CancelConfirm({
   return (
     <div className={cancelConfirm.page}>
       <Button variant="quiet" className={cancelConfirm.back} onClick={onBack}>
+        <Icon name="arrow-left" />
         {backLabel}
       </Button>
       <h1 ref={h1Ref} tabIndex={-1} className={cancelConfirm.title}>

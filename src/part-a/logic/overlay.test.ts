@@ -6,7 +6,12 @@ describe("overlayReducer", () => {
   it("saveEdits replaces quantities and skippedSkus without replacing the lifecycle", () => {
     const paused = {
       ...EMPTY_OVERLAY,
-      lifecycle: { status: "paused" as const, pausedUntil: null, presetId: null },
+      lifecycle: {
+        status: "paused" as const,
+        pausedUntil: null,
+        presetId: null,
+        resumeAt: null,
+      },
     };
     const draft = { quantities: { "NW-MULTI-30": 3 }, skippedSkus: ["NW-VITD-60"], zeroSkus: [] };
     const updated = overlayReducer(paused, { type: "saveEdits", draft });
@@ -45,6 +50,7 @@ describe("overlayReducer", () => {
       type: "pause",
       presetId: "1m",
       now: new Date("2026-11-05T12:00:00.000Z"),
+      resumeAt: "2026-11-11T12:00:00.000Z",
     });
     expect(paused).toEqual({
       quantities: committed.quantities,
@@ -54,21 +60,26 @@ describe("overlayReducer", () => {
         status: "paused",
         presetId: "1m",
         pausedUntil: "2026-12-05T12:00:00.000Z",
+        resumeAt: "2026-11-11T12:00:00.000Z",
       },
     });
     expect(committed.skippedSkus).toEqual(["NW-VITD-60"]);
   });
 
-  it("resume sets an active lifecycle at resumeChargeAt", () => {
+  it("resume sets an active lifecycle at the stored resume date, or tomorrow", () => {
     const paused = {
       ...EMPTY_OVERLAY,
-      lifecycle: { status: "paused" as const, pausedUntil: null, presetId: "open" as const },
+      lifecycle: {
+        status: "paused" as const,
+        pausedUntil: null,
+        presetId: "open" as const,
+        resumeAt: "2026-11-11T12:00:00.000Z",
+      },
     };
     expect(
       overlayReducer(paused, {
         type: "resume",
         now: new Date("2026-11-05T12:00:00.000Z"),
-        originalNextChargeAt: "2026-11-11T12:00:00.000Z",
       }),
     ).toMatchObject({
       lifecycle: { status: "active", nextChargeAt: "2026-11-11T12:00:00.000Z" },
@@ -109,6 +120,23 @@ describe("overlayReducer", () => {
       quantities: committed.quantities,
       skippedSkus: [],
       lifecycle: { status: "cancelled", cancelledAt: "2026-11-05T12:00:00.000Z" },
+    });
+  });
+
+  it("resume without a stored date schedules tomorrow", () => {
+    const paused = {
+      ...EMPTY_OVERLAY,
+      lifecycle: {
+        status: "paused" as const,
+        pausedUntil: null,
+        presetId: "open" as const,
+        resumeAt: null,
+      },
+    };
+    expect(
+      overlayReducer(paused, { type: "resume", now: new Date("2026-11-05T12:00:00.000Z") }),
+    ).toMatchObject({
+      lifecycle: { status: "active", nextChargeAt: "2026-11-06T12:00:00.000Z" },
     });
   });
 });
