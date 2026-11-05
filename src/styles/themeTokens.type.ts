@@ -10,3 +10,12 @@ export interface ITheme {
   /** Semantic names the block itself declares (`bg`, `font:sans`…). */
   declared: string[];
 }
+
+export interface ITypeStep {
+  /** The step name without `--text-`, as in the utility `text-<name>`. */
+  name: string;
+  size: string;
+  lineHeight: string;
+  letterSpacing: string;
+  fontWeight: string;
+}

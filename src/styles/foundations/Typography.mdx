@@ -1,0 +1,54 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Typography.stories";
+
+<Meta of={Stories} />
+
+# Typography
+
+One typeface, Plus Jakarta Sans (400, 500, 600, 700), in two roles and a five-step scale. Size, line height, weight and letter spacing travel together in each step.
+
+## Family
+
+`font-sans` is for text. `font-heading` is for titles and section headings, so `h1` and `h2` use it. The brand sets both to Plus Jakarta Sans; another theme can set them to different families without touching a component.
+
+<Canvas of={Stories.Family} />
+
+## Scale
+
+Tailwind's default sizes are removed: only `text-title`, `text-section`, `text-body`, `text-small` and `text-eyebrow` exist. Values are read from the live tokens.
+
+<Canvas of={Stories.Scale} />
+
+## Card hierarchy
+
+The subscription card's text stack, from eyebrow to price.
+
+<Canvas of={Stories.Hierarchy} />
+
+## Use when
+
+- `text-title`: the page `h1`.
+- `text-section`: card and section headings.
+- `text-body`: default text and buttons (weight 600).
+- `text-small`: secondary info and fine print.
+- `text-eyebrow`: short uppercase labels above a heading.
+- Prices and any figures that line up: add `tabular-nums` so digits keep the same width.
+
+## Don't use when
+
+- You need a size that isn't in the scale: pick the nearest step instead of `text-[18px]`.
+- Choosing a heading level for its look: keep the outline right and change the look with the utility.
+
+## Accessibility
+
+- Body text is 15px with a 1.5 line height; no step is below 11px, and only the uppercase eyebrow is that small.
+- Heading level and size are independent: choose the level for the outline, the size for the look.
+- Text colors come from tokens whose contrast is tested per theme.
+
+## Do / Don't
+
+| Do                                  | Don't                          |
+| ----------------------------------- | ------------------------------ |
+| `font-heading text-title` on the h1 | `text-[28px]`                  |
+| `tabular-nums` on a price           | A price in proportional digits |
+| `text-small text-muted` for hints   | `text-eyebrow` for a sentence  |

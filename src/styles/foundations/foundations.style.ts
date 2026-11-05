@@ -23,4 +23,21 @@ export const foundation = {
   sample:
     "inline-flex min-w-16 items-center justify-center rounded-sm border border-line px-3 py-1 font-semibold",
   shape: "inline-block h-6 w-16 rounded-sm border-2",
+  step: {
+    title: "text-title",
+    section: "text-section",
+    body: "text-body",
+    small: "text-small",
+    eyebrow: "text-eyebrow uppercase",
+  } as Record<string, string>,
+  family: "flex flex-col gap-1 rounded-lg border border-line bg-surface p-4",
+  familySans: "font-sans text-title",
+  familyHeading: "font-heading text-title",
+  specimen: "flex max-w-sm flex-col gap-1 rounded-lg border border-line bg-surface p-4",
+  specimenEyebrow: "text-eyebrow text-muted uppercase",
+  specimenTitle: "font-heading text-title text-fg",
+  specimenSection: "mt-3 font-heading text-section text-fg",
+  specimenBody: "text-body text-fg",
+  specimenSmall: "text-small text-muted",
+  specimenPrice: "mt-3 text-section tabular-nums text-fg",
 } as const;

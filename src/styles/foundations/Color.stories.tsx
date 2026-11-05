@@ -1,15 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import css from "@/styles/globals.css?raw";
 import { foundationsContent as content } from "@/content/foundations";
 import { StatusIcon } from "@/shared/icons/StatusIcon";
 import { contrastRatio } from "@/shared/utils/colorContrast";
 import { cx } from "@/shared/utils/cx";
 import { contrastPairs, minimumRatio } from "@/styles/contrastPairs";
 import { semanticColorTokens } from "@/styles/themeContract";
-import { readThemes } from "@/styles/themeTokens";
 import { foundation as f } from "./foundations.style";
-
-const themes = readThemes(css);
+import { themeFor } from "./themeFor";
 
 const statuses = ["active", "paused", "cancelled", "danger"] as const;
 
@@ -17,10 +14,6 @@ const meta = { title: "Foundations/Color" } satisfies Meta;
 
 export default meta;
 type TStory = StoryObj<typeof meta>;
-
-function themeFor(name: unknown) {
-  return themes.find((theme) => theme.name === name) ?? themes[0]!;
-}
 
 /** Semantic colors: the only ones components use, through utilities such as `bg-surface`. */
 export const Semantic: TStory = {
