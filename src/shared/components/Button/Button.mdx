@@ -1,0 +1,52 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./Button.stories";
+
+<Meta of={Stories} />
+
+# Button
+
+The action control. It is a native `button`, so keyboard and screen readers work without extra ARIA.
+
+<Canvas of={Stories.Variants} />
+
+## Which variant
+
+- **`primary`**: the one action the view exists for (Save, Confirm). **One primary per view.** Two primaries make the user choose between equals.
+- **`secondary`**: any other real action next to a primary (Back, Edit).
+- **`quiet`**: low-weight actions that should not compete: Cancel, Dismiss, links that act. Text only, underlined.
+- **`destructive`**: an action that removes or cancels something (Cancel subscription). It has a danger-colored outline, not a danger fill, so it never looks like the main call to action. Confirm it in a second step; don't make it the only button on screen.
+
+## Sizes
+
+<Canvas of={Stories.Sizes} />
+
+`md` for most places, `lg` for the main action on a roomy layout. `icon` is a square for a single icon, and it always needs an `aria-label`.
+
+<Canvas of={Stories.IconOnly} />
+
+`fullWidth` fills the container, which suits the mobile layout.
+
+<Canvas of={Stories.FullWidth} />
+
+## Pending
+
+Set `pending` while a request runs. The button shows a spinner, keeps its label, and ignores clicks, Enter and Space. It reports `aria-busy` and `aria-disabled`.
+
+<Canvas of={Stories.PendingIgnoresRepeat} />
+
+`pending` is not `disabled`: the button stays in the tab order and keeps focus, so a keyboard user isn't thrown to the page start when the request begins. Use `disabled` only when the action is unavailable. The spinner stops turning under `prefers-reduced-motion`.
+
+## Accessibility
+
+- Every button has a name: visible text, or `aria-label` for an icon-only one.
+- `type` defaults to `"button"`, so a button inside a form never submits by accident. Pass `type="submit"` on purpose.
+- Focus shows the focus ring; color never carries the meaning alone, the label does.
+
+## Do / Don't
+
+| Do                                       | Don't                              |
+| ---------------------------------------- | ---------------------------------- |
+| One primary per view                     | Several primaries side by side     |
+| `pending` while a request runs           | `disabled` during a request        |
+| `aria-label` on an `icon` button         | An icon button with no name        |
+| `destructive` for removing or cancelling | `primary` for a destructive action |
