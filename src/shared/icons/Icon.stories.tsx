@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { foundation as f } from "@/styles/foundations/foundations.style";
 import { cx } from "@/shared/utils/cx";
+import { foundation as f } from "@/styles/foundations/foundations.style";
 import { Icon } from "./Icon";
 import { iconPaths } from "./Icon.data";
+import { iconStory } from "./Icon.stories.style";
 import type { TIconName } from "./Icon.type";
 
 const names = Object.keys(iconPaths) as TIconName[];
@@ -19,7 +20,7 @@ export const Gallery: TStory = {
     <ul className={f.grid}>
       {names.map((name) => (
         <li key={name} className={f.card}>
-          <Icon name={name} className={f.galleryIcon} />
+          <Icon name={name} className={iconStory.galleryIcon} />
           <span className={f.name}>{name}</span>
         </li>
       ))}
