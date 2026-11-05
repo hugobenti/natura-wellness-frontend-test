@@ -1,0 +1,42 @@
+import { Canvas, Meta } from "@storybook/addon-docs/blocks";
+import * as Stories from "./PriceDisplay.stories";
+
+<Meta of={Stories} />
+
+# PriceDisplay
+
+A price in US dollars, with an optional crossed-out original price when the product is discounted. The amount is in cents and is formatted by `formatMoney` (`2546` shows as `$25.46`).
+
+<Canvas of={Stories.Inline} />
+
+## Layouts
+
+`inline` puts the original price beside the price. `stacked` puts it under the price, right-aligned, for a price column such as a cart line or the checkout summary.
+
+<Canvas of={Stories.Stacked} />
+
+## Sizes
+
+`sm` uses `text-small`, `md` `text-body` and `lg` `text-section`. The price is always semibold with tabular numbers, so columns of prices line up.
+
+<Canvas of={Stories.Large} />
+
+## No discount
+
+Without `compareAtCents`, or when it is not greater than `amountCents`, only the price shows.
+
+<Canvas of={Stories.NoDiscount} />
+
+<Canvas of={Stories.CompareAtNotHigher} />
+
+## Accessibility
+
+- The crossed-out price is hidden from assistive tech, and a visually hidden "Was $29.95" is read instead, because a strike-through alone carries no meaning for a screen reader.
+
+## Do / Don't
+
+| Do                                            | Don't                                         |
+| --------------------------------------------- | --------------------------------------------- |
+| Pass amounts in cents                         | Pass dollars or a pre-formatted string        |
+| Use `formatMoney` for prices inside text      | Format money by hand                          |
+| Use `stacked` in a right-aligned price column | Fake the original price with your own styling |
