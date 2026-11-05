@@ -20,7 +20,10 @@ Put the safe choice first (Keep it), the consequential one after (Skip shipment)
 ## Behavior
 
 - The parent owns `open`. Escape, the close button and the browser's own close all call `onClose`; the dialog closes when the parent sets `open` to `false`.
-- The browser traps focus and makes the page behind inert, and returns focus to the button that opened the dialog.
+- A parent may ignore `onClose` while an action is pending; the dialog stays open, even if the browser closes it after repeated Escape presses.
+
+<Canvas of={Stories.StaysOpenWhilePending} />- The browser traps focus and makes the page behind
+inert, and returns focus to the button that opened the dialog.
 
 <Canvas of={Stories.EscClosesAndReturnsFocus} />
 

@@ -30,11 +30,13 @@ async function atViewport(width: number, height: number, check: () => Promise<vo
   }
 }
 
-type TDemoProps = Pick<IResponsiveDialogProps, "onClose"> &
-  Partial<Pick<IResponsiveDialogProps, "title" | "description">>;
+type TDemoProps = Pick<IResponsiveDialogProps, "onClose"> & {
+  /** Keeps the dialog open on every close request, as a parent with a pending action would. */
+  pending?: boolean;
+} & Partial<Pick<IResponsiveDialogProps, "title" | "description">>;
 
 /** Story-local parent: it owns `open`, as a real screen would. */
-function Demo({ onClose, title: dialogTitle = title, description }: TDemoProps) {
+function Demo({ onClose, title: dialogTitle = title, description, pending }: TDemoProps) {
   const [open, setOpen] = useState(false);
   return (
     <div className={responsiveDialogStory.frame}>
@@ -43,7 +45,7 @@ function Demo({ onClose, title: dialogTitle = title, description }: TDemoProps) 
         open={open}
         onClose={() => {
           onClose();
-          setOpen(false);
+          if (!pending) setOpen(false);
         }}
         title={dialogTitle}
         description={description}
@@ -52,7 +54,7 @@ function Demo({ onClose, title: dialogTitle = title, description }: TDemoProps) 
             <Button variant="secondary" onClick={() => setOpen(false)}>
               Keep it
             </Button>
-            <Button variant="destructive" onClick={() => setOpen(false)}>
+            <Button variant="destructive" pending={pending} onClick={() => setOpen(false)}>
               Skip shipment
             </Button>
           </>
@@ -67,6 +69,7 @@ function Demo({ onClose, title: dialogTitle = title, description }: TDemoProps) 
 const meta = {
   title: "Components/ResponsiveDialog",
   component: ResponsiveDialog,
+  argTypes: { open: { control: false } },
   args: { open: false, onClose: fn(), title },
   render: (args) => (
     <Demo onClose={args.onClose} title={args.title} description={args.description} />
@@ -133,5 +136,27 @@ export const CenteredOnDesktop: TStory = {
         expect(dialog.getBoundingClientRect().bottom).toBeLessThan(window.innerHeight),
       );
     });
+  },
+};
+
+/** While an action is pending the parent ignores `onClose`: repeated Escape never closes the dialog. */
+export const StaysOpenWhilePending: TStory = {
+  render: (args) => <Demo onClose={args.onClose} title={args.title} pending />,
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
+    );
+    const dialog = await within(document.body).findByRole("dialog", { name: title });
+    await waitFor(() => expect(dialog).toBeVisible());
+
+    const browser = await loadBrowserApi();
+    for (let press = 0; press < 3; press += 1) {
+      if (browser) await browser.userEvent.keyboard("{Escape}");
+      else dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+    }
+
+    await waitFor(() => expect(args.onClose).toHaveBeenCalled());
+    await expect(dialog).toHaveAttribute("open");
+    await expect(dialog).toBeVisible();
   },
 };
