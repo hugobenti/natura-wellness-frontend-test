@@ -23,7 +23,7 @@ export function usePauseFlow({
     return {
       value: id,
       label: copy.options[id],
-      description: until ? copy.nextBox(formatDay(until, now)) : copy.openDescription,
+      description: until ? copy.nextCharge(formatDay(until, now)) : copy.openDescription,
     };
   });
   const openPause = () => {

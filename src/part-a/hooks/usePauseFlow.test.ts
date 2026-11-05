@@ -32,9 +32,9 @@ describe("usePauseFlow", () => {
       keepLabel: "Keep it active",
     });
     expect(result.current.sheet.options.map(({ description }) => description)).toEqual([
-      "Next box Sat, Dec 5",
-      "Next box Mon, Jan 4, 2027",
-      "Next box Wed, Feb 3, 2027",
+      "Next charge Sat, Dec 5",
+      "Next charge Mon, Jan 4, 2027",
+      "Next charge Wed, Feb 3, 2027",
       "No boxes or charges until you come back",
     ]);
 

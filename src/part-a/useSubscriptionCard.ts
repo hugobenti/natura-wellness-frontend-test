@@ -124,8 +124,8 @@ export function useSubscriptionCard(): TPageModel {
       label: copy.pausedTotal,
       sublabel: readyView.pausedUntil
         ? copy.pausedNext(
-            formatDay(readyView.pausedUntil, now),
             formatMoney(readyView.pricing.totalCents),
+            formatDay(readyView.pausedUntil, now),
           )
         : copy.pausedOpenNext,
     };
