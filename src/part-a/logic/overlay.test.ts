@@ -119,6 +119,7 @@ describe("overlayReducer", () => {
     ).toEqual({
       quantities: committed.quantities,
       skippedSkus: [],
+      zeroSkus: [],
       lifecycle: { status: "cancelled", cancelledAt: "2026-11-05T12:00:00.000Z" },
     });
   });

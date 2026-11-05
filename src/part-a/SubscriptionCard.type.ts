@@ -24,6 +24,7 @@ export type TPageModel = { h1Ref: RefObject<HTMLHeadingElement | null> } & (
       pageView: TPageView;
       confirm: ICancelConfirmProps;
       survey: ICancelSurveyProps;
+      editHint: { text: string; cancelLabel: string; onCancel: () => void } | null;
       receipt: IReceiptCardProps;
       notice: INotice | null;
       skipSheet: ISkipSheetProps | null;

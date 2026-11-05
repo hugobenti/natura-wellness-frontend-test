@@ -67,7 +67,18 @@ export function SubscriptionCard() {
                 </Alert>
               )}
               <ReceiptCard {...model.receipt} />
-              {model.editHint && <p className={subscriptionCard.editHint}>{model.editHint.text}</p>}
+              {model.editHint && (
+                <div className={subscriptionCard.editHint}>
+                  <p>{model.editHint.text}</p>
+                  <Button
+                    variant="quiet"
+                    className={subscriptionCard.editHintAction}
+                    onClick={model.editHint.onCancel}
+                  >
+                    {model.editHint.cancelLabel}
+                  </Button>
+                </div>
+              )}
             </div>
             {model.actions.length > 0 && (
               <ManagePanel>

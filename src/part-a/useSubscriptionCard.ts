@@ -268,6 +268,17 @@ export function useSubscriptionCard(): TPageModel {
     pageView: cancelFlow.view,
     confirm: cancelFlow.confirm,
     survey: cancelFlow.survey,
+    editHint:
+      edit.editing && edit.emptyBox
+        ? {
+            text: editCopy.stopAllHint,
+            cancelLabel: subscriptionContent.manage.cancel,
+            onCancel: () => {
+              edit.cancel();
+              cancelFlow.open();
+            },
+          }
+        : null,
     receipt,
     notice,
     skipSheet,

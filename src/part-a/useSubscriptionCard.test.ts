@@ -403,4 +403,46 @@ describe("useSubscriptionCard", () => {
       `Charged ${formatDay(snapshot.nextChargeAt!, new Date())}`,
     );
   });
+
+  it("resuming after a local skip and another pause keeps the skipped date", async () => {
+    const snapshot = fixtures.active();
+    vi.mocked(getSubscription).mockResolvedValue(snapshot);
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    const click = (index: number) =>
+      act(() => result.current.kind === "ready" && result.current.actions[index]?.onClick());
+    click(2);
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    click(0);
+    click(1);
+    await act(async () => {
+      if (result.current.kind === "ready") await result.current.skipSheet?.onConfirm();
+    });
+    click(2);
+    act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
+    click(0);
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.receipt.status).toBe("active");
+    expect(result.current.receipt.footer.label).toBe(
+      `Charged ${formatDay(addDays(snapshot.nextChargeAt!, 30), new Date())}`,
+    );
+  });
+
+  it("the stop-all hint links to Before you cancel and discards the draft", async () => {
+    vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+    const { result } = renderHook(useSubscriptionCard);
+    await waitFor(() => expect(result.current.kind).toBe("ready"));
+    act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    for (const sku of ["NW-VITD-60", "NW-MULTI-30"]) {
+      act(
+        () =>
+          result.current.kind === "ready" &&
+          result.current.receipt.lines.find((line) => line.sku === sku)?.edit?.onQuantityChange(0),
+      );
+    }
+    act(() => result.current.kind === "ready" && result.current.editHint?.onCancel());
+    if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
+    expect(result.current.pageView).toBe("cancelConfirm");
+    expect(result.current.receipt.heading).toBe("Next box");
+  });
 });
