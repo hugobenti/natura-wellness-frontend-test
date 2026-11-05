@@ -30,10 +30,7 @@ test("every theme declares the full contract", () => {
     expect(theme.declared, theme.name).toEqual(expect.arrayContaining(contract));
   }
   const brand = themes.find(({ name }) => name === "brand");
-  expect(Object.keys(brand?.colors ?? {})).toEqual(
-    expect.arrayContaining([...semanticColorTokens]),
-  );
-  expect(Object.keys(brand?.fonts ?? {})).toEqual(expect.arrayContaining([...fontRoles]));
+  expect([...(brand?.declared ?? [])].sort()).toEqual([...contract].sort());
 });
 
 test("the theme picker lists every theme", () => {

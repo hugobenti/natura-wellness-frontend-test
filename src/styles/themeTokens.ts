@@ -61,7 +61,7 @@ function buildTheme(
     name,
     colors: { ...inherited?.colors },
     fonts: { ...inherited?.fonts },
-    primitives: { ...inherited?.primitives },
+    primitives: {},
     declared: [],
   };
   for (const property of primitiveProperties) {

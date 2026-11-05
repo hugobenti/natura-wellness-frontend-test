@@ -30,6 +30,7 @@ describe("readThemes", () => {
     expect(alt?.declared).toContain("bg");
     expect(alt?.declared).not.toContain("font:sans");
     expect(alt?.fonts["sans"]).toBe('"X", sans-serif');
+    expect(alt?.primitives).toEqual({ "--p-b": "#000000" });
   });
 
   test("follows var() chains", () => {
