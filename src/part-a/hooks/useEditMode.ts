@@ -2,12 +2,7 @@ import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useEffect, useRef, useState } from "react";
 import { formatDay } from "../logic/dates";
-import {
-  canSkip as canSkipDraft,
-  setDraftQuantity,
-  startDraft,
-  toggleDraftSkip,
-} from "../logic/editDraft";
+import { setDraftQuantity, startDraft, toggleDraftSkip } from "../logic/editDraft";
 import type { IEditDraft } from "../logic/editDraft.type";
 import { deriveView } from "../logic/subscriptionView";
 import type { IUseEditModeArgs, IUseEditModeResult } from "./useEditMode.type";
@@ -39,20 +34,20 @@ export function useEditMode({
     setDraft((current) => current && setDraftQuantity(current, sku, quantity));
   };
   const toggleSkip = (sku: string) => {
-    if (!snapshot) return;
-    const allSkus = snapshot.items.map((item) => item.sku);
-    setDraft((current) => current && toggleDraftSkip(current, sku, allSkus));
+    setDraft((current) => current && toggleDraftSkip(current, sku));
   };
-  const canSkip = (sku: string) =>
-    draft !== null &&
-    snapshot !== null &&
-    canSkipDraft(
-      draft,
-      sku,
-      snapshot.items.map((item) => item.sku),
-    );
-  const save = () => {
-    if (!draft || !draftView || !draftView.nextChargeAt) return;
+  const isZero = (sku: string) => draft?.zeroSkus.includes(sku) ?? false;
+  const allExcluded = draftView !== null && draftView.lines.every(({ skipped }) => skipped);
+  /** Every product is out of the box and at least one was stepped to 0: nothing to save. */
+  const emptyBox = allExcluded && draft !== null && draft.zeroSkus.length > 0;
+  /** Returns true when every product is excluded: the caller then offers the whole-box skip. */
+  const save = (): boolean => {
+    if (!draft || !draftView || !draftView.nextChargeAt || emptyBox) return false;
+    if (allExcluded) {
+      dispatch({ type: "saveEdits", draft: { ...draft, skippedSkus: [...overlay.skippedSkus] } });
+      setDraft(null);
+      return true;
+    }
     dispatch({ type: "saveEdits", draft });
     setDraft(null);
     notify({
@@ -63,6 +58,7 @@ export function useEditMode({
         formatDay(draftView.nextChargeAt, new Date()),
       ),
     });
+    return false;
   };
   const cancel = () => setDraft(null);
 
@@ -74,7 +70,9 @@ export function useEditMode({
     cancel,
     setQuantity,
     toggleSkip,
-    canSkip,
+    isZero,
+    emptyBox,
+    allExcluded,
     headingRef,
     editButtonRef,
   };

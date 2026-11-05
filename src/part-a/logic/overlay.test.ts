@@ -8,9 +8,13 @@ describe("overlayReducer", () => {
       ...EMPTY_OVERLAY,
       lifecycle: { status: "paused" as const, pausedUntil: null },
     };
-    const draft = { quantities: { "NW-MULTI-30": 3 }, skippedSkus: ["NW-VITD-60"] };
+    const draft = { quantities: { "NW-MULTI-30": 3 }, skippedSkus: ["NW-VITD-60"], zeroSkus: [] };
     const updated = overlayReducer(paused, { type: "saveEdits", draft });
-    expect(updated).toEqual({ ...paused, ...draft });
+    expect(updated).toEqual({
+      ...paused,
+      quantities: draft.quantities,
+      skippedSkus: draft.skippedSkus,
+    });
     expect(updated.quantities).not.toBe(draft.quantities);
     expect(updated.skippedSkus).not.toBe(draft.skippedSkus);
   });

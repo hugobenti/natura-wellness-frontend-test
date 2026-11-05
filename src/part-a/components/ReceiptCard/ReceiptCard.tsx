@@ -40,8 +40,8 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
               {line.skippedNote && !line.edit?.undo && (
                 <p className={receiptCard.skippedNote}>{line.skippedNote}</p>
               )}
-              {line.edit?.lastItemHint && (
-                <p className={receiptCard.lastItemHint}>{line.edit.lastItemHint}</p>
+              {line.edit?.zeroNote && (
+                <p className={receiptCard.skippedNote}>{line.edit.zeroNote}</p>
               )}
             </div>
             {line.edit ? (
@@ -50,7 +50,7 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
                   <QuantityStepper
                     value={line.edit.quantity}
                     onChange={line.edit.onQuantityChange}
-                    min={1}
+                    min={0}
                     max={MAX_QUANTITY}
                     label={line.edit.stepperLabel}
                     labelHidden
@@ -111,7 +111,7 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
               size="lg"
               layout="stacked"
             />
-            <Badge tone="highlight">{footer.savingLabel}</Badge>
+            {footer.savingLabel && <Badge tone="highlight">{footer.savingLabel}</Badge>}
           </div>
         )}
       </footer>

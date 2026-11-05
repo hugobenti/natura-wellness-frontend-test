@@ -8,8 +8,9 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
         ...overlay,
         quantities: { ...action.draft.quantities },
         skippedSkus: [...action.draft.skippedSkus],
+        zeroSkus: [...action.draft.zeroSkus],
       };
     case "clearSkipped":
-      return { ...overlay, skippedSkus: [] };
+      return { ...overlay, skippedSkus: [], zeroSkus: [] };
   }
 }

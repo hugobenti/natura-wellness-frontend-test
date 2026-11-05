@@ -8,7 +8,8 @@ interface IReceiptLineEdit {
   skip: { label: string; onClick: () => void } | null;
   undo: { label: string; onClick: () => void } | null;
   skippedNote: string | null;
-  lastItemHint: string | null;
+  /** Shown under the name while the quantity is stepped down to 0. */
+  zeroNote: string | null;
 }
 
 export interface IReceiptLineModel {
@@ -29,7 +30,7 @@ export type TReceiptFooter =
       sublabel: string;
       totalCents: number;
       compareAtCents: number;
-      savingLabel: string;
+      savingLabel: string | null;
     }
   | { kind: "note"; label: string; sublabel: string | null }
   | {
@@ -38,7 +39,7 @@ export type TReceiptFooter =
       sublabel: string;
       totalCents: number;
       compareAtCents: number;
-      savingLabel: string;
+      savingLabel: string | null;
     };
 
 export interface IReceiptCardProps {

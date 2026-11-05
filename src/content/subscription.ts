@@ -39,11 +39,13 @@ export const subscriptionContent = {
     undo: "Undo",
     undoLabel: (name: string) => `Undo skipping ${name}`,
     skippedNote: "Skipped in the next box only",
-    lastItemHint: "To skip everything, use Skip the whole box",
+    notInNextBox: "Not in your next box",
+    stopAllHint: "To stop all your boxes, cancel your subscription.",
     newTotal: "New total",
     currently: (amount: string) => `Currently ${amount}`,
     savedTitle: "Changes saved",
-    savedBody: (amount: string, date: string) => `Your next box: ${amount} on ${date}.`,
+    savedBody: (amount: string, date: string) =>
+      `We'll charge ${amount} on ${date} for your next box.`,
   },
   skip: {
     title: "Skip your next box?",

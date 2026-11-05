@@ -4,4 +4,5 @@ export const subscriptionCard = {
   ready: "lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-8",
   errorActions: "-ml-4 flex items-center gap-4",
   notice: "mb-4",
+  editHint: "mt-4 text-small text-muted",
 } as const;

@@ -5,31 +5,43 @@ import type { ILocalOverlay } from "./subscriptionView.type";
 export const MAX_QUANTITY = 10;
 
 export function startDraft(overlay: ILocalOverlay): IEditDraft {
-  return { quantities: { ...overlay.quantities }, skippedSkus: [...overlay.skippedSkus] };
-}
-
-export function setDraftQuantity(draft: IEditDraft, sku: string, quantity: number): IEditDraft {
   return {
-    ...draft,
-    quantities: { ...draft.quantities, [sku]: clampQuantity(quantity, 1, MAX_QUANTITY) },
+    quantities: { ...overlay.quantities },
+    skippedSkus: [...overlay.skippedSkus],
+    zeroSkus: overlay.zeroSkus.filter((sku) => overlay.skippedSkus.includes(sku)),
   };
 }
 
-export function canSkip(draft: IEditDraft, sku: string, allSkus: readonly string[]): boolean {
-  return (
-    draft.skippedSkus.includes(sku) ||
-    allSkus.some((other) => other !== sku && !draft.skippedSkus.includes(other))
-  );
+/** 0 skips the product for the next box only; its quantity for later boxes is left as it was. */
+export function setDraftQuantity(draft: IEditDraft, sku: string, quantity: number): IEditDraft {
+  const clamped = clampQuantity(quantity, 0, MAX_QUANTITY);
+  if (clamped === 0) {
+    return {
+      ...draft,
+      skippedSkus: draft.skippedSkus.includes(sku)
+        ? draft.skippedSkus
+        : [...draft.skippedSkus, sku],
+      zeroSkus: draft.zeroSkus.includes(sku) ? draft.zeroSkus : [...draft.zeroSkus, sku],
+    };
+  }
+  const wasZero = draft.zeroSkus.includes(sku);
+  return {
+    ...draft,
+    quantities: { ...draft.quantities, [sku]: clamped },
+    skippedSkus: wasZero
+      ? draft.skippedSkus.filter((skipped) => skipped !== sku)
+      : draft.skippedSkus,
+    zeroSkus: wasZero ? draft.zeroSkus.filter((zeroed) => zeroed !== sku) : draft.zeroSkus,
+  };
 }
 
-export function toggleDraftSkip(
-  draft: IEditDraft,
-  sku: string,
-  allSkus: readonly string[],
-): IEditDraft {
+export function toggleDraftSkip(draft: IEditDraft, sku: string): IEditDraft {
   if (draft.skippedSkus.includes(sku)) {
-    return { ...draft, skippedSkus: draft.skippedSkus.filter((skipped) => skipped !== sku) };
+    return {
+      ...draft,
+      skippedSkus: draft.skippedSkus.filter((skipped) => skipped !== sku),
+      zeroSkus: draft.zeroSkus.filter((zeroed) => zeroed !== sku),
+    };
   }
-  if (!canSkip(draft, sku, allSkus)) return draft;
   return { ...draft, skippedSkus: [...draft.skippedSkus, sku] };
 }

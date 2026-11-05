@@ -43,6 +43,7 @@ export function SubscriptionCard() {
                 </Alert>
               )}
               <ReceiptCard {...model.receipt} />
+              {model.editHint && <p className={subscriptionCard.editHint}>{model.editHint.text}</p>}
             </div>
             {model.actions.length > 0 && (
               <ManagePanel>
@@ -53,6 +54,7 @@ export function SubscriptionCard() {
                     variant={action.variant}
                     size="lg"
                     fullWidth
+                    disabled={action.disabled}
                     onClick={action.onClick}
                   >
                     {action.label}

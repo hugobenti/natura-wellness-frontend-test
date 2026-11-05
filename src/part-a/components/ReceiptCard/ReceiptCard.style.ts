@@ -11,7 +11,6 @@ export const receiptCard = {
   mobileQuantity: "mt-1 text-small text-muted lg:hidden",
   desktopQuantity: "hidden text-small text-muted lg:block",
   skippedNote: "mt-1 text-small text-muted",
-  lastItemHint: "mt-1 text-small text-muted",
   editorStepper: "col-span-2 col-start-1 row-start-2 lg:col-span-1 lg:col-start-3 lg:row-start-1",
   editorAction:
     "col-start-3 row-start-2 -mr-4 justify-self-end lg:col-start-2 lg:row-start-2 lg:-ml-4 lg:mr-0 lg:justify-self-start",

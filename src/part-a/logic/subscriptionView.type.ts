@@ -9,6 +9,8 @@ export type TLifecycleOverride =
 export interface ILocalOverlay {
   quantities: Readonly<Record<string, number>>;
   skippedSkus: readonly string[];
+  /** Skipped products whose quantity was stepped down to 0; shown as Qty 0 while skipped. */
+  zeroSkus: readonly string[];
   lifecycle: TLifecycleOverride | null;
 }
 

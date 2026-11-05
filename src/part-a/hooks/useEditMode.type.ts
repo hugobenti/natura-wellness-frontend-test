@@ -15,11 +15,14 @@ export interface IUseEditModeResult {
   editing: boolean;
   draftView: ISubscriptionView | null;
   start: () => void;
-  save: () => void;
+  /** Returns true when every product is excluded and the whole-box skip should open. */
+  save: () => boolean;
   cancel: () => void;
   setQuantity: (sku: string, quantity: number) => void;
   toggleSkip: (sku: string) => void;
-  canSkip: (sku: string) => boolean;
+  isZero: (sku: string) => boolean;
+  emptyBox: boolean;
+  allExcluded: boolean;
   headingRef: RefObject<HTMLHeadingElement | null>;
   editButtonRef: RefObject<HTMLButtonElement | null>;
 }

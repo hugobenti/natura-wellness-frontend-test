@@ -175,8 +175,8 @@ describe("useSubscriptionCard", () => {
       },
     });
     expect(
-      result.current.receipt.lines.find(({ sku }) => sku === "NW-MULTI-30")?.edit?.lastItemHint,
-    ).toBe("To skip everything, use Skip the whole box");
+      result.current.receipt.lines.find(({ sku }) => sku === "NW-MULTI-30")?.edit?.skip,
+    ).not.toBeNull();
   });
 
   it("save commits quantities and a whole-box skip clears only the per-product skips", async () => {

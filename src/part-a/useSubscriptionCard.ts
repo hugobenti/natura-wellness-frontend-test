@@ -66,7 +66,10 @@ export function useSubscriptionCard(): TPageModel {
       sublabel: editCopy.currently(formatMoney(readyView.pricing.totalCents)),
       totalCents: displayed.pricing.totalCents,
       compareAtCents: displayed.pricing.subtotalCents,
-      savingLabel: copy.saving(formatMoney(displayed.pricing.savingCents)),
+      savingLabel:
+        displayed.pricing.savingCents > 0
+          ? copy.saving(formatMoney(displayed.pricing.savingCents))
+          : null,
     };
   } else if (readyView.status === "active") {
     heading = copy.headingActive;
@@ -76,7 +79,10 @@ export function useSubscriptionCard(): TPageModel {
       sublabel: copy.every(readyView.intervalDays),
       totalCents: readyView.pricing.totalCents,
       compareAtCents: readyView.pricing.subtotalCents,
-      savingLabel: copy.saving(formatMoney(readyView.pricing.savingCents)),
+      savingLabel:
+        readyView.pricing.savingCents > 0
+          ? copy.saving(formatMoney(readyView.pricing.savingCents))
+          : null,
     };
   } else if (readyView.status === "paused") {
     heading = readyView.pausedUntil
@@ -99,7 +105,7 @@ export function useSubscriptionCard(): TPageModel {
 
   const lines: IReceiptLineModel[] = displayed.lines.map(
     ({ sku, name, imageUrl, quantity, skipped, priceCents, compareAtCents }) => {
-      const maySkip = edit.editing && !skipped && edit.canSkip(sku);
+      const zero = edit.editing && edit.isZero(sku);
       return {
         sku,
         name,
@@ -107,20 +113,21 @@ export function useSubscriptionCard(): TPageModel {
         quantityLabel: copy.quantity(quantity),
         priceCents,
         compareAtCents,
-        skippedNote: skipped ? editCopy.skippedNote : null,
+        skippedNote: skipped && !zero ? editCopy.skippedNote : null,
         edit: edit.editing
           ? {
-              quantity,
+              quantity: zero ? 0 : quantity,
               onQuantityChange: (value: number) => edit.setQuantity(sku, value),
               stepperLabel: editCopy.stepperLabel(name),
-              skip: maySkip
+              skip: !skipped
                 ? { label: editCopy.skipOnceLabel(name), onClick: () => edit.toggleSkip(sku) }
                 : null,
-              undo: skipped
-                ? { label: editCopy.undoLabel(name), onClick: () => edit.toggleSkip(sku) }
-                : null,
-              skippedNote: skipped ? editCopy.skippedNote : null,
-              lastItemHint: !skipped && !maySkip ? editCopy.lastItemHint : null,
+              undo:
+                skipped && !zero
+                  ? { label: editCopy.undoLabel(name), onClick: () => edit.toggleSkip(sku) }
+                  : null,
+              skippedNote: skipped && !zero ? editCopy.skippedNote : null,
+              zeroNote: zero ? editCopy.notInNextBox : null,
             }
           : undefined,
       };
@@ -139,7 +146,10 @@ export function useSubscriptionCard(): TPageModel {
           key: "save",
           label: subscriptionContent.manage.save,
           variant: "primary",
-          onClick: edit.save,
+          disabled: edit.emptyBox,
+          onClick: () => {
+            if (edit.save()) skipFlow.open();
+          },
         },
         {
           key: "cancelEdit",
@@ -177,7 +187,8 @@ export function useSubscriptionCard(): TPageModel {
       oldDate,
       newDate,
       amount: formatMoney(
-        deriveView(state.snapshot, { ...overlay, skippedSkus: [] }).pricing.totalCents,
+        deriveView(state.snapshot, { ...overlay, skippedSkus: [], zeroSkus: [] }).pricing
+          .totalCents,
       ),
       confirmLabel:
         phase === "pending"
@@ -192,5 +203,13 @@ export function useSubscriptionCard(): TPageModel {
       onClose: skipFlow.close,
     };
   }
-  return { h1Ref, kind: "ready", receipt, notice, skipSheet, actions };
+  return {
+    h1Ref,
+    kind: "ready",
+    editHint: edit.editing && edit.emptyBox ? { text: editCopy.stopAllHint } : null,
+    receipt,
+    notice,
+    skipSheet,
+    actions,
+  };
 }

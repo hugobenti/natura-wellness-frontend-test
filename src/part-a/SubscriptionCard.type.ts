@@ -8,6 +8,7 @@ export interface IManageAction {
   label: string;
   variant: "primary" | "secondary" | "quiet";
   onClick: () => void;
+  disabled?: boolean;
   ref?: Ref<HTMLButtonElement>;
 }
 
@@ -16,6 +17,7 @@ export type TPageModel = { h1Ref: RefObject<HTMLHeadingElement | null> } & (
   | { kind: "error"; onRetry: () => void }
   | {
       kind: "ready";
+      editHint: { text: string } | null;
       receipt: IReceiptCardProps;
       notice: INotice | null;
       skipSheet: ISkipSheetProps | null;
