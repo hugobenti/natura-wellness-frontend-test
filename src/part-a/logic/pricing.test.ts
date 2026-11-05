@@ -39,7 +39,7 @@ describe("priceBox", () => {
         for (let third = 1; third <= 5; third++) {
           const pricedItems = products.map((product, index) => ({
             ...product,
-            quantity: [first, second, third][index],
+            quantity: index === 0 ? first : index === 1 ? second : third,
           }));
           const result = priceBox(pricedItems, 15);
           expect(result.lines.reduce((sum, line) => sum + line.priceCents, 0)).toBe(

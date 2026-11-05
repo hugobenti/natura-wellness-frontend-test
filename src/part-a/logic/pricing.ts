@@ -19,14 +19,12 @@ export function priceBox(
   const totalCents = totalAfterDiscount([...items], discountPercent);
   const remainder = totalCents - allocatedCents;
   if (remainder > 0) {
-    const indices = lines.map((_, index) => index);
-    indices.sort(
-      (a, b) =>
-        ((lines[b].compareAtCents * factor) % 100) - ((lines[a].compareAtCents * factor) % 100) ||
-        a - b,
+    // Stable sorting preserves the original line order for equal remainders.
+    const ranked = [...lines].sort(
+      (a, b) => ((b.compareAtCents * factor) % 100) - ((a.compareAtCents * factor) % 100),
     );
     for (let i = 0; i < remainder; i++) {
-      lines[indices[i]].priceCents++;
+      ranked[i]!.priceCents++;
     }
   }
 
