@@ -9,8 +9,9 @@ export const receiptCard = {
   mobileQuantity: "mt-1 text-small text-muted lg:hidden",
   desktopQuantity: "hidden text-small text-muted lg:block",
   price: "justify-self-end text-right",
-  footer: "flex flex-wrap items-start justify-between gap-3 py-4",
+  footer: "flex items-start justify-between gap-3 py-4",
+  footerText: "min-w-0 flex-1",
   footerLabel: "font-semibold text-body text-fg",
   footerSublabel: "mt-1 text-small text-muted",
-  footerAmount: "flex flex-col items-end gap-2 text-right",
+  footerAmount: "flex shrink-0 flex-col items-end gap-1 text-right",
 } as const;
