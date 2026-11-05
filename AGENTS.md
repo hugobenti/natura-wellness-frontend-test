@@ -17,6 +17,9 @@ Vite, React, TypeScript and Tailwind CSS v4. Deployed on Vercel from `main`; eve
 src/main.tsx           entry: mounts <App /> into index.html and loads the global styles
 src/app                app shell: picks the part from ?part=a|b, renders the nav
 src/part-a             Part A (the brief fixes this path and SubscriptionCard.tsx)
+src/part-a/logic       pure, unit-tested Part A logic: view derivation, pricing, dates, pause, edit drafts
+src/part-a/hooks       Part A behavior hooks: data loading, edit mode, skip, pause and cancel flows
+src/part-a/components  Part A presentation: receipt, manage panel, sheets, cancel views
 src/part-b             Part B (the brief fixes this path, BuyBox.tsx and copy.ts)
 src/shared             shared kernel: UI primitives, hooks, utils
 src/shared/components  shared UI components (Button, Badge, Alert…); Icon lives in src/shared/icons

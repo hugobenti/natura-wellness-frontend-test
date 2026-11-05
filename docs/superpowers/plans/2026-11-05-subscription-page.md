@@ -78,7 +78,7 @@ Every PR ends with the same gate before the controller pushes:
 1. **A double tap on "Skip this box" while the request is pending must send exactly one request.** Escape and the close button must not dismiss the sheet mid-request. Owned by Task 5 (`confirm twice while pending calls the API once`, `close is ignored while pending`).
 2. **A 409 whose reload also fails must not leave the sheet spinning.** It lands in the error state with Try again. A reload that reveals a paused or cancelled subscription closes the sheet. Owned by Task 5.
 3. **On the paused fixture, after "Resume now", skipping must not hit the API.** The API would answer 400. It must move the date locally. Owned by Task 9 (`skipIsLocal` derivation, the `skipLocally` reducer, and `useSkipFlow`'s local branch).
-4. **Local edits must survive a snapshot replacement.** After a whole-box skip or a 409 reload, quantities stay and per-product skips clear. Owned by Task 2 (derivation over a new snapshot) and Task 7 (`clearSkipped`).
+4. **Local edits must survive a snapshot replacement.** After a whole-box skip or a 409 reload, quantities stay; per-product skips clear only when the box moves (whole-box skip, or a reload that moved `nextChargeAt`). Owned by Task 2 (derivation over a new snapshot) and Task 7 (`clearSkipped`).
 5. **Dates across a year boundary or near midnight** must show the year when it differs ("Mon, Jan 4, 2027") and use the user's timezone, not UTC. Owned by Task 1.
 6. **A slow load followed by "Try again" must not let the older response overwrite the newer one.** Owned by Task 3 (`stale response is ignored`).
 

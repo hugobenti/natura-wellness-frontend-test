@@ -1,0 +1,1 @@
+export type TPausePresetId = "1m" | "2m" | "3m" | "open";

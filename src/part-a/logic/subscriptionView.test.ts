@@ -49,7 +49,9 @@ describe("deriveView", () => {
   it("paused override clears the next charge and makes skipping local", () => {
     const view = deriveView(
       fixtures.active(),
-      overlayWith({ lifecycle: { status: "paused", pausedUntil: null } }),
+      overlayWith({
+        lifecycle: { status: "paused", pausedUntil: null, presetId: null, resumeAt: null },
+      }),
     );
 
     expect(view.status).toBe("paused");
