@@ -130,3 +130,18 @@ it("moves focus to the receipt heading after pausing and after resuming", async 
   fireEvent.click(screen.getByRole("button", { name: "Resume now" }));
   expect(screen.getByRole("heading", { name: "Next box" })).toHaveFocus();
 });
+
+it("dismisses the notice and moves focus to the receipt heading", async () => {
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Pause subscription" }));
+  const sheet = screen.getByRole("dialog", { name: "Pause your subscription" });
+  fireEvent.click(within(sheet).getByRole("button", { name: "Pause for 1 month" }));
+  const dismiss = screen.getByRole("button", { name: "Dismiss message" });
+  dismiss.focus();
+  fireEvent.click(dismiss);
+
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /^Paused until/ })).toHaveFocus();
+});

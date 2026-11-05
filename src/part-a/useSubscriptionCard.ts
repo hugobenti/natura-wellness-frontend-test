@@ -24,7 +24,12 @@ export function useSubscriptionCard(): TPageModel {
   const [notice, setNotice] = useState<INotice | null>(null);
   const snapshot = state.status === "ready" ? state.snapshot : null;
   const view = snapshot ? deriveView(snapshot, overlay) : null;
+  const clearNotice = () => setNotice(null);
   const edit = useEditMode({ overlay, snapshot, dispatch, notify: setNotice });
+  const startEdit = () => {
+    clearNotice();
+    edit.start();
+  };
   const pauseFlow = usePauseFlow({
     view,
     overlay,
@@ -58,7 +63,8 @@ export function useSubscriptionCard(): TPageModel {
     subscription: view,
     dispatch,
     notify: setNotice,
-    startEdit: edit.start,
+    clearNotice,
+    startEdit,
   });
   const { h1Ref } = cancelFlow;
   const shownStatus = useRef<string | null>(null);
@@ -184,7 +190,10 @@ export function useSubscriptionCard(): TPageModel {
           variant: "primary",
           disabled: edit.emptyBox,
           onClick: () => {
-            if (edit.save()) skipFlow.open();
+            if (edit.save()) {
+              clearNotice();
+              skipFlow.open();
+            }
           },
         },
         {
@@ -200,20 +209,26 @@ export function useSubscriptionCard(): TPageModel {
             key: "edit",
             label: subscriptionContent.manage.edit,
             variant: "secondary",
-            onClick: edit.start,
+            onClick: startEdit,
             ref: edit.editButtonRef,
           },
           {
             key: "skip",
             label: subscriptionContent.manage.skip,
             variant: "secondary",
-            onClick: skipFlow.open,
+            onClick: () => {
+              clearNotice();
+              skipFlow.open();
+            },
           },
           {
             key: "pause",
             label: subscriptionContent.manage.pause,
             variant: "secondary",
-            onClick: pauseFlow.openPause,
+            onClick: () => {
+              clearNotice();
+              pauseFlow.openPause();
+            },
           },
           cancelAction,
         ]
@@ -229,7 +244,10 @@ export function useSubscriptionCard(): TPageModel {
               key: "changePause",
               label: subscriptionContent.manage.changePause,
               variant: "secondary",
-              onClick: pauseFlow.openChange,
+              onClick: () => {
+                clearNotice();
+                pauseFlow.openChange();
+              },
             },
             cancelAction,
           ]
@@ -281,6 +299,10 @@ export function useSubscriptionCard(): TPageModel {
         : null,
     receipt,
     notice,
+    dismissNotice: () => {
+      clearNotice();
+      edit.headingRef.current?.focus();
+    },
     skipSheet,
     pauseSheet: pauseFlow.sheet,
     actions,
