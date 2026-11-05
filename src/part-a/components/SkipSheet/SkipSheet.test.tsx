@@ -42,4 +42,12 @@ describe("SkipSheet", () => {
     expect(screen.getByRole("button", { name: "Keep my box", hidden: true })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Skipping…", hidden: true })).not.toBeDisabled();
   });
+
+  it("reads the box move as from the old date to the new one", () => {
+    const { container } = render(<SkipSheet {...base} />);
+    const dates = container.querySelector("dl dd")!.cloneNode(true) as HTMLElement;
+    dates.querySelectorAll("[aria-hidden='true']").forEach((node) => node.remove());
+
+    expect(dates.textContent).toBe("from Wed, Nov 11 to Fri, Dec 11");
+  });
 });

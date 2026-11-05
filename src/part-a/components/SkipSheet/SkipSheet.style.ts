@@ -6,6 +6,7 @@ export const skipSheet = {
   dates: "flex flex-wrap items-center justify-end gap-2",
   oldDate: "text-muted line-through",
   newDate: "font-semibold text-fg",
+  srOnly: "sr-only",
   note: "mt-4 text-small text-muted",
   alert: "mb-4",
   alertSupport: "-ml-4",

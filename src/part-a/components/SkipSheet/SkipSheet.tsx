@@ -53,8 +53,10 @@ export function SkipSheet({
         <div className={skipSheet.fact}>
           <dt className={skipSheet.factLabel}>{copy.nextBox}</dt>
           <dd className={skipSheet.dates}>
+            <span className={skipSheet.srOnly}>{copy.from}</span>
             <s className={skipSheet.oldDate}>{oldDate}</s>
             <span aria-hidden="true">{copy.arrow}</span>
+            <span className={skipSheet.srOnly}>{copy.to}</span>
             <strong className={skipSheet.newDate}>{newDate}</strong>
           </dd>
         </div>

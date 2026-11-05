@@ -29,6 +29,8 @@ export const subscriptionContent = {
     title: "Skip your next box?",
     nextBox: "Next box",
     arrow: "→",
+    from: "from ",
+    to: " to ",
     chargedOn: (date: string) => `Charged on ${date}`,
     nothingOn: (date: string) => `Nothing is sent or charged on ${date}.`,
     confirm: "Skip this box",
