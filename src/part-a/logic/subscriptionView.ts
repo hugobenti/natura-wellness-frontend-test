@@ -6,6 +6,9 @@ export const EMPTY_OVERLAY: ILocalOverlay = {
   quantities: {},
   skippedSkus: [],
   zeroSkus: [],
+  intervalDays: null,
+  swappedItems: {},
+  cancelReason: null,
   lifecycle: null,
 };
 
@@ -28,12 +31,18 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
       : null
     : snapshot.cancelledAt;
 
-  const items = snapshot.items
-    .filter((item) => status !== "active" || !overlay.skippedSkus.includes(item.sku))
-    .map((item) => ({ ...item, quantity: overlay.quantities[item.sku] ?? item.quantity }));
+  const allItems = snapshot.items.map((item) => {
+    const replacement = overlay.swappedItems[item.sku];
+    return replacement
+      ? { ...replacement, quantity: overlay.quantities[item.sku] ?? item.quantity }
+      : { ...item, quantity: overlay.quantities[item.sku] ?? item.quantity };
+  });
+  const items = allItems.filter(
+    (item) => status !== "active" || !overlay.skippedSkus.includes(item.sku),
+  );
   const pricing = priceBox(items, snapshot.discountPercent);
   let pricedIndex = 0;
-  const lines = snapshot.items.map((item) => {
+  const lines = allItems.map((item) => {
     const skipped = status === "active" && overlay.skippedSkus.includes(item.sku);
     const priced = skipped ? null : pricing.lines[pricedIndex++];
     return {
@@ -57,10 +66,10 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
     nextChargeAt,
     pausedUntil,
     cancelledAt,
-    intervalDays: snapshot.intervalDays,
+    intervalDays: overlay.intervalDays ?? snapshot.intervalDays,
     discountPercent: snapshot.discountPercent,
     lines,
     pricing,
-    skipIsLocal: lifecycle !== null,
+    skipIsLocal: lifecycle !== null || overlay.intervalDays !== null,
   };
 }

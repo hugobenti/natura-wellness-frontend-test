@@ -1,4 +1,5 @@
 import type { SubscriptionStatus } from "@/api/types";
+import type { CatalogProduct } from "@/api/types";
 import type { IBoxPricing } from "./pricing.type";
 import type { TPausePresetId } from "./pause.type";
 
@@ -18,6 +19,9 @@ export interface ILocalOverlay {
   skippedSkus: readonly string[];
   /** Skipped products whose quantity was stepped down to 0; shown as Qty 0 while skipped. */
   zeroSkus: readonly string[];
+  intervalDays: number | null;
+  swappedItems: Readonly<Record<string, CatalogProduct>>;
+  cancelReason: "tooMuch" | "cost" | "otherProduct" | "noResults" | "other" | null;
   lifecycle: TLifecycleOverride | null;
 }
 

@@ -101,18 +101,6 @@ describe("useSubscriptionCard notices", () => {
     expect(ready().notice).toBeNull();
   });
 
-  it("Edit my next box from the cancel view clears the notice", async () => {
-    const { ready } = await setupWithNotice();
-    act(() =>
-      ready()
-        .actions.find(({ key }) => key === "cancel")
-        ?.onClick(),
-    );
-    act(() => ready().confirm.editLink?.onClick());
-    expect(ready().pageView).toBe("subscription");
-    expect(ready().notice).toBeNull();
-  });
-
   it("the cancel flow's own outcome still sets its notice", async () => {
     const { ready } = await setupWithNotice();
     act(() =>
@@ -121,9 +109,6 @@ describe("useSubscriptionCard notices", () => {
         ?.onClick(),
     );
     act(() => ready().confirm.onCancel());
-    expect(ready().pageView).toBe("survey");
-    expect(ready().notice).toBeNull();
-    act(() => ready().survey.onSkip());
     expect(ready().pageView).toBe("subscription");
     expect(ready().notice).toMatchObject({ tone: "success" });
   });

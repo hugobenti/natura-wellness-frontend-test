@@ -81,8 +81,7 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.getByRole("button", { name: "Resume now" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });
-
-it("walks cancel → survey → no thanks to the cancelled receipt", async () => {
+it("cancels without choosing a reason and returns directly to the receipt", async () => {
   window.scrollTo = vi.fn();
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);
@@ -93,17 +92,10 @@ it("walks cancel → survey → no thanks to the cancelled receipt", async () =>
   expect(screen.queryByRole("heading", { name: "Manage" })).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
-  const surveyHeading = screen.getByRole("heading", {
-    level: 1,
-    name: "Your subscription is cancelled",
-  });
-  expect(surveyHeading).toHaveFocus();
-  expect(screen.getByRole("button", { name: "Send answer" })).toBeDisabled();
-
-  fireEvent.click(screen.getByRole("button", { name: "No thanks" }));
-  expect(screen.getByRole("heading", { level: 1, name: "My subscription" })).toHaveFocus();
+  expect(screen.getByRole("heading", { name: /^Cancelled on / })).toHaveFocus();
   expect(screen.getByText(/^Cancelled on /)).toBeInTheDocument();
   expect(screen.getByText("No more charges")).toBeInTheDocument();
+  expect(screen.getByText("You won't be charged again.")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Cancel subscription" })).not.toBeInTheDocument();
 });
 

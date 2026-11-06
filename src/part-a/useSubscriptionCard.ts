@@ -69,7 +69,8 @@ export function useSubscriptionCard(): TPageModel {
     dispatch,
     notify: setNotice,
     clearNotice,
-    startEdit,
+    openSkip: skipFlow.open,
+    openPause: pauseFlow.openPause,
   });
   const { h1Ref } = cancelFlow;
   const shownStatus = useRef<string | null>(null);
@@ -311,7 +312,6 @@ export function useSubscriptionCard(): TPageModel {
     kind: "ready",
     pageView: cancelFlow.view,
     confirm: cancelFlow.confirm,
-    survey: cancelFlow.survey,
     editHint:
       edit.editing && edit.emptyBox
         ? {

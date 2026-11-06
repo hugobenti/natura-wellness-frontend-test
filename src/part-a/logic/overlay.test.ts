@@ -53,7 +53,7 @@ describe("overlayReducer", () => {
       resumeAt: "2026-11-11T12:00:00.000Z",
     });
     expect(paused).toEqual({
-      quantities: committed.quantities,
+      ...committed,
       skippedSkus: [],
       zeroSkus: [],
       lifecycle: {
@@ -137,6 +137,7 @@ describe("overlayReducer", () => {
         intervalDays: 30,
       }),
     ).toEqual({
+      ...committed,
       quantities: committed.quantities,
       skippedSkus: [],
       zeroSkus: [],
@@ -152,8 +153,14 @@ describe("overlayReducer", () => {
       lifecycle: { status: "active" as const, nextChargeAt: "2026-11-06T12:00:00.000Z" },
     };
     expect(
-      overlayReducer(committed, { type: "cancel", now: new Date("2026-11-05T12:00:00.000Z") }),
+      overlayReducer(committed, {
+        type: "cancel",
+        now: new Date("2026-11-05T12:00:00.000Z"),
+        reason: "cost",
+      }),
     ).toEqual({
+      ...committed,
+      cancelReason: "cost",
       quantities: committed.quantities,
       skippedSkus: [],
       zeroSkus: [],

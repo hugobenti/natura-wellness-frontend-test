@@ -1,9 +1,29 @@
-import { fixtures } from "@/api/fixtures";
+import { catalog, fixtures } from "@/api/fixtures";
 import { describe, expect, it } from "vitest";
 import { addDays } from "./dates";
 import { deriveView, EMPTY_OVERLAY } from "./subscriptionView";
 
 const overlayWith = (changes: Partial<typeof EMPTY_OVERLAY>) => ({ ...EMPTY_OVERLAY, ...changes });
+
+describe("cancellation alternatives", () => {
+  it("cadence updates the receipt and the next-after-skip date", () => {
+    const snapshot = fixtures.active();
+    const cadence = deriveView(snapshot, overlayWith({ intervalDays: 60 }));
+    expect(cadence.intervalDays).toBe(60);
+    expect(cadence.skipIsLocal).toBe(true);
+    expect(addDays(cadence.nextChargeAt!, cadence.intervalDays)).toBe(
+      addDays(snapshot.nextChargeAt!, 60),
+    );
+  });
+  it("swapping a catalog item updates the receipt line and its discounted total", () => {
+    const view = deriveView(
+      fixtures.active(),
+      overlayWith({ swappedItems: { "NW-VITD-60": catalog[2]! } }),
+    );
+    expect(view.lines[0]).toMatchObject({ sku: "NW-MAG-90", name: "Magnesium, 90 capsules" });
+    expect(view.pricing.totalCents).toBe(9762);
+  });
+});
 
 describe("deriveView", () => {
   it("EMPTY_OVERLAY on active matches the API", () => {

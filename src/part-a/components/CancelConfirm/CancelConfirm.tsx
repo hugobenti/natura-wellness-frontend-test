@@ -1,16 +1,18 @@
+import { subscriptionContent } from "@/content/subscription";
 import { Button } from "@/shared/components/Button/Button";
+import { RadioGroup } from "@/shared/components/RadioGroup/RadioGroup";
 import { Icon } from "@/shared/icons/Icon";
 import { cancelConfirm } from "./CancelConfirm.style";
-import type { ICancelConfirmViewProps } from "./CancelConfirm.type";
+import type { ICancelConfirmViewProps, TCancelReason } from "./CancelConfirm.type";
 
 export function CancelConfirm({
   title,
   lead,
   h1Ref,
-  reasons,
-  editLink,
-  keepLabel,
-  onKeep,
+  value,
+  options,
+  onChange,
+  offer,
   cancelLabel,
   onCancel,
   backLabel,
@@ -26,30 +28,59 @@ export function CancelConfirm({
         {title}
       </h1>
       <p className={cancelConfirm.lead}>{lead}</p>
-      <ul className={cancelConfirm.reasons}>
-        {reasons.map(({ title: reasonTitle, body }, index) => (
-          <li key={reasonTitle} className={cancelConfirm.reason}>
-            <Icon name="check-circle" className={cancelConfirm.icon} />
-            <div className={cancelConfirm.reasonText}>
-              <h2 className={cancelConfirm.reasonTitle}>{reasonTitle}</h2>
-              <p className={cancelConfirm.reasonBody}>{body}</p>
-              {index === 0 && editLink && (
-                <Button
-                  variant="quiet"
-                  className={cancelConfirm.editLink}
-                  onClick={editLink.onClick}
-                >
-                  {editLink.label}
-                </Button>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
+      <RadioGroup<TCancelReason | "">
+        legend={subscriptionContent.cancel.legend}
+        name="cancel-reason"
+        appearance="list"
+        value={value}
+        options={options}
+        onChange={(choice) => choice && onChange(choice)}
+        className={cancelConfirm.reasons}
+      />
+      {offer && (
+        <section className={cancelConfirm.offer} aria-live="polite" aria-label={offer.title}>
+          <h2 className={cancelConfirm.offerTitle}>{offer.title}</h2>
+          <p className={cancelConfirm.offerBody}>{offer.body}</p>
+          {offer.fromOptions && offer.onFromChange && offer.fromSku && (
+            <RadioGroup
+              legend={subscriptionContent.cancel.fromLegend}
+              name="swap-from"
+              value={offer.fromSku}
+              options={offer.fromOptions}
+              onChange={offer.onFromChange}
+              appearance="list"
+              className={cancelConfirm.swapOptions}
+            />
+          )}
+          {offer.productOptions && offer.onProductChange && offer.productSku && (
+            <RadioGroup
+              legend={subscriptionContent.cancel.productLegend}
+              name="swap-to"
+              value={offer.productSku}
+              options={offer.productOptions}
+              onChange={offer.onProductChange}
+              appearance="list"
+              className={cancelConfirm.swapOptions}
+            />
+          )}
+          {offer.supportLink && (
+            <a className={cancelConfirm.supportLink} href={offer.supportLink.href}>
+              {offer.supportLink.label}
+            </a>
+          )}
+          {offer.label && (
+            <Button
+              size="lg"
+              fullWidth
+              onClick={offer.onAccept}
+              className={cancelConfirm.offerAction}
+            >
+              {offer.label}
+            </Button>
+          )}
+        </section>
+      )}
       <div className={cancelConfirm.actions}>
-        <Button size="lg" fullWidth onClick={onKeep}>
-          {keepLabel}
-        </Button>
         <Button variant="destructive" size="lg" fullWidth onClick={onCancel}>
           {cancelLabel}
         </Button>

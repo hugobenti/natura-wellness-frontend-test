@@ -1,101 +1,141 @@
+import { catalog } from "@/api/fixtures";
 import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useEffect, useRef, useState } from "react";
-import type { TCancelReason } from "../components/CancelSurvey/CancelSurvey.type";
+import type { ICancelOffer, TCancelReason } from "../components/CancelConfirm/CancelConfirm.type";
+import { addDays, formatDay } from "../logic/dates";
 import type { IUseCancelFlowArgs, IUseCancelFlowResult, TPageView } from "./useCancelFlow.type";
 
-const REASONS = ["tooMuch", "cost", "otherProduct", "noResults", "other"] as const;
+const REASONS: TCancelReason[] = ["tooMuch", "cost", "otherProduct", "noResults", "other"];
 
 export function useCancelFlow({
   subscription,
   dispatch,
   notify,
   clearNotice,
-  startEdit,
+  openSkip,
+  openPause,
 }: IUseCancelFlowArgs): IUseCancelFlowResult {
   const [view, setView] = useState<TPageView>("subscription");
   const [reason, setReason] = useState<TCancelReason | "">("");
+  const [fromSku, setFromSku] = useState("");
+  const [productSku, setProductSku] = useState("");
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const shownView = useRef<TPageView>("subscription");
-  const keepFocus = useRef(false);
   const copy = subscriptionContent.cancel;
-  const surveyCopy = subscriptionContent.survey;
-
+  const now = new Date();
+  const cancellable = subscription?.status === "active" || subscription?.status === "paused";
   useEffect(() => {
     if (shownView.current === view) return;
     shownView.current = view;
     window.scrollTo({ top: 0 });
-    if (keepFocus.current) keepFocus.current = false;
-    else h1Ref.current?.focus();
+    h1Ref.current?.focus();
   }, [view]);
-
-  const perBox = subscription?.pricing.savingCents ?? 0;
-  const cancellable = subscription?.status === "active" || subscription?.status === "paused";
-  const open = () => {
-    if (!cancellable) return;
-    clearNotice();
-    setView("cancelConfirm");
-  };
   const back = () => {
     clearNotice();
     setView("subscription");
   };
-  const editNextBox = () => {
-    keepFocus.current = true;
+  const open = () => {
+    if (!cancellable) return;
     clearNotice();
-    setView("subscription");
-    startEdit();
+    setReason("");
+    setFromSku(subscription?.lines[0]?.sku ?? "");
+    setProductSku(
+      catalog.find((product) => !subscription?.lines.some((line) => line.sku === product.sku))
+        ?.sku ?? "",
+    );
+    setView("cancelConfirm");
   };
+  const finishOffer = (title: string, body: string) => {
+    setView("subscription");
+    notify({ tone: "success", title, body });
+  };
+  const availableProducts = catalog.filter(
+    (product) => !subscription?.lines.some((line) => line.sku === product.sku),
+  );
+  let offer: ICancelOffer | null = null;
+  if (reason === "tooMuch" && subscription?.status === "active" && subscription.nextChargeAt) {
+    const moved = formatDay(addDays(subscription.nextChargeAt, subscription.intervalDays), now);
+    offer = {
+      kind: "skip",
+      title: copy.skipTitle,
+      body: copy.skipBody(moved),
+      label: copy.skipAction,
+      onAccept: () => {
+        setView("subscription");
+        openSkip();
+      },
+    };
+  } else if (reason === "cost" && subscription?.status === "active") {
+    const yearlyDifference = Math.round(subscription.pricing.totalCents * (365 / 30 - 365 / 60));
+    offer = {
+      kind: "cadence",
+      title: copy.cadenceTitle,
+      body: copy.cadenceBody(formatMoney(yearlyDifference)),
+      label: copy.cadenceAction,
+      onAccept: () => {
+        dispatch({ type: "setCadence", intervalDays: 60 });
+        finishOffer(copy.cadenceDone, copy.cadenceDoneBody);
+      },
+    };
+  } else if (
+    reason === "otherProduct" &&
+    subscription?.status === "active" &&
+    availableProducts.length > 0
+  ) {
+    const product = availableProducts.find((item) => item.sku === productSku);
+    offer = {
+      kind: "swap",
+      title: copy.swapTitle,
+      body: copy.swapBody,
+      label: copy.swapAction,
+      fromSku,
+      onFromChange: setFromSku,
+      fromOptions: subscription.lines.map((line) => ({ value: line.sku, label: line.name })),
+      productSku,
+      onProductChange: setProductSku,
+      productOptions: availableProducts.map((item) => ({ value: item.sku, label: item.name })),
+      onAccept: () => {
+        if (!product || !subscription.lines.some((line) => line.sku === fromSku)) return;
+        dispatch({ type: "swapProduct", fromSku, product });
+        finishOffer(copy.swapDone, copy.swapDoneBody);
+      },
+    };
+  } else if (reason === "noResults") {
+    offer = {
+      kind: "support",
+      title: copy.supportTitle,
+      body: copy.supportBody,
+      label: copy.pauseAction,
+      supportLink: { href: subscriptionContent.support.href, label: copy.supportAction },
+      onAccept: () => {
+        if (subscription?.status !== "active") return;
+        setView("subscription");
+        openPause();
+      },
+    };
+    if (subscription?.status !== "active") offer = { ...offer, label: "", onAccept: back };
+  }
   const confirmCancel = () => {
     if (!cancellable) return;
     clearNotice();
-    dispatch({ type: "cancel", now: new Date() });
-    setReason("");
-    setView("survey");
-  };
-  const finishSurvey = (body: string) => {
+    dispatch({ type: "cancel", now: new Date(), reason: reason || null });
     setView("subscription");
-    notify({ tone: "success", title: surveyCopy.doneTitle, body });
+    notify({ tone: "success", title: copy.doneTitle, body: copy.doneBody });
   };
-
   return {
     view,
     open,
-    back,
-    editNextBox,
-    confirmCancel,
     h1Ref,
     confirm: {
-      reasons: [
-        {
-          title: copy.tooMuchTitle,
-          body: subscription?.status === "paused" ? copy.tooMuchBodyPaused : copy.tooMuchBody,
-        },
-        {
-          title: copy.costTitle,
-          body: copy.costBody(
-            subscription?.discountPercent ?? 0,
-            formatMoney(perBox),
-            formatMoney(perBox * 12),
-          ),
-        },
-      ],
-      editLink:
-        subscription?.status === "active" ? { label: copy.editLink, onClick: editNextBox } : null,
-      keepLabel: copy.keep,
-      onKeep: back,
+      value: reason,
+      options: REASONS.map((value) => ({ value, label: copy.reasons[value] })),
+      onChange: setReason,
+      offer,
       cancelLabel: copy.confirm,
       onCancel: confirmCancel,
       backLabel: copy.back,
       onBack: back,
-    },
-    survey: {
-      value: reason,
-      options: REASONS.map((value) => ({ value, label: surveyCopy.reasons[value] })),
-      onChange: setReason,
-      sendDisabled: reason === "",
-      onSend: () => finishSurvey(surveyCopy.doneBodySent),
-      onSkip: () => finishSurvey(surveyCopy.doneBody),
     },
   };
 }
