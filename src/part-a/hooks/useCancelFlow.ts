@@ -2,8 +2,9 @@ import { catalog } from "@/api/fixtures";
 import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useEffect, useRef, useState } from "react";
-import type { ICancelOffer, TCancelReason } from "../components/CancelConfirm/CancelConfirm.type";
+import type { ICancelOffer } from "../components/CancelConfirm/CancelConfirm.type";
 import { addDays, formatDay } from "../logic/dates";
+import type { TCancelReason } from "../logic/cancelReason.type";
 import type { IUseCancelFlowArgs, IUseCancelFlowResult, TPageView } from "./useCancelFlow.type";
 
 const REASONS: TCancelReason[] = ["tooMuch", "cost", "otherProduct", "noResults", "other"];
@@ -41,8 +42,11 @@ export function useCancelFlow({
     setReason("");
     setFromSku(subscription?.lines[0]?.sku ?? "");
     setProductSku(
-      catalog.find((product) => !subscription?.lines.some((line) => line.sku === product.sku))
-        ?.sku ?? "",
+      catalog.find(
+        (product) =>
+          product.sku !== "NW-ESSENTIALS" &&
+          !subscription?.lines.some((line) => line.productSku === product.sku),
+      )?.sku ?? "",
     );
     setView("cancelConfirm");
   };
@@ -51,7 +55,9 @@ export function useCancelFlow({
     notify({ tone: "success", title, body });
   };
   const availableProducts = catalog.filter(
-    (product) => !subscription?.lines.some((line) => line.sku === product.sku),
+    (product) =>
+      product.sku !== "NW-ESSENTIALS" &&
+      !subscription?.lines.some((line) => line.productSku === product.sku),
   );
   let offer: ICancelOffer | null = null;
   if (reason === "tooMuch" && subscription?.status === "active" && subscription.nextChargeAt) {
@@ -66,12 +72,18 @@ export function useCancelFlow({
         openSkip();
       },
     };
-  } else if (reason === "cost" && subscription?.status === "active") {
-    const yearlyDifference = Math.round(subscription.pricing.totalCents * (365 / 30 - 365 / 60));
+  } else if (
+    reason === "cost" &&
+    subscription?.status === "active" &&
+    subscription.intervalDays < 60
+  ) {
+    const yearlyDifference = Math.round(
+      subscription.pricing.totalCents * (365 / subscription.intervalDays - 365 / 60),
+    );
     offer = {
       kind: "cadence",
       title: copy.cadenceTitle,
-      body: copy.cadenceBody(formatMoney(yearlyDifference)),
+      body: copy.cadenceBody(subscription.intervalDays, formatMoney(yearlyDifference)),
       label: copy.cadenceAction,
       onAccept: () => {
         dispatch({ type: "setCadence", intervalDays: 60 });
@@ -102,19 +114,25 @@ export function useCancelFlow({
       },
     };
   } else if (reason === "noResults") {
-    offer = {
-      kind: "support",
-      title: copy.supportTitle,
-      body: copy.supportBody,
-      label: copy.pauseAction,
-      supportLink: { href: subscriptionContent.support.href, label: copy.supportAction },
-      onAccept: () => {
-        if (subscription?.status !== "active") return;
-        setView("subscription");
-        openPause();
-      },
-    };
-    if (subscription?.status !== "active") offer = { ...offer, label: "", onAccept: back };
+    offer =
+      subscription?.status === "active"
+        ? {
+            kind: "support",
+            title: copy.supportTitle,
+            body: copy.supportBody,
+            label: copy.pauseAction,
+            supportLink: { href: subscriptionContent.support.href, label: copy.supportAction },
+            onAccept: () => {
+              setView("subscription");
+              openPause();
+            },
+          }
+        : {
+            kind: "support",
+            title: copy.supportTitle,
+            body: copy.supportBodyPaused,
+            supportLink: { href: subscriptionContent.support.href, label: copy.supportAction },
+          };
   }
   const confirmCancel = () => {
     if (!cancellable) return;

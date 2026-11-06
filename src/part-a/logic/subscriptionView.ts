@@ -34,7 +34,12 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
   const allItems = snapshot.items.map((item) => {
     const replacement = overlay.swappedItems[item.sku];
     return replacement
-      ? { ...replacement, quantity: overlay.quantities[item.sku] ?? item.quantity }
+      ? {
+          ...item,
+          ...replacement,
+          sku: item.sku,
+          quantity: overlay.quantities[item.sku] ?? item.quantity,
+        }
       : { ...item, quantity: overlay.quantities[item.sku] ?? item.quantity };
   });
   const items = allItems.filter(
@@ -47,6 +52,7 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
     const priced = skipped ? null : pricing.lines[pricedIndex++];
     return {
       sku: item.sku,
+      productSku: overlay.swappedItems[item.sku]?.sku ?? item.sku,
       name: item.name,
       imageUrl: item.imageUrl,
       quantity:

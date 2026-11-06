@@ -55,7 +55,7 @@ describe("useCancelFlow", () => {
     const { result, openSkip } = setup();
     act(() => result.current.open());
     act(() => result.current.confirm.onChange("tooMuch"));
-    act(() => result.current.confirm.offer!.onAccept());
+    act(() => result.current.confirm.offer!.onAccept!());
     expect(openSkip).toHaveBeenCalledOnce();
     expect(result.current.view).toBe("subscription");
   });
@@ -64,26 +64,51 @@ describe("useCancelFlow", () => {
     act(() => result.current.open());
     act(() => result.current.confirm.onChange("cost"));
     expect(result.current.confirm.offer!.body).toContain("$619.71");
-    act(() => result.current.confirm.offer!.onAccept());
+    act(() => result.current.confirm.offer!.onAccept!());
     expect(dispatch).toHaveBeenCalledWith({ type: "setCadence", intervalDays: 60 });
     expect(notify).toHaveBeenCalledWith(expect.objectContaining({ tone: "success" }));
+  });
+  it("does not repeat the cadence offer after switching to 60 days", () => {
+    const changed = deriveView(fixtures.active(), { ...EMPTY_OVERLAY, intervalDays: 60 });
+    const dispatch = vi.fn();
+    const { result } = renderHook(() =>
+      useCancelFlow({
+        subscription: changed,
+        dispatch,
+        notify: vi.fn(),
+        clearNotice: vi.fn(),
+        openSkip: vi.fn(),
+        openPause: vi.fn(),
+      }),
+    );
+    act(() => result.current.open());
+    act(() => result.current.confirm.onChange("cost"));
+    expect(result.current.confirm.offer).toBeNull();
+  });
+  it("does not offer bundle products as a single-item swap", () => {
+    const { result } = setup();
+    act(() => result.current.open());
+    act(() => result.current.confirm.onChange("otherProduct"));
+    expect(result.current.confirm.offer?.productOptions?.map((option) => option.value)).toEqual([
+      "NW-MAG-90",
+    ]);
   });
   it("swaps a selected item with a different catalog product", () => {
     const { result, dispatch } = setup();
     act(() => result.current.open());
     act(() => result.current.confirm.onChange("otherProduct"));
-    act(() => result.current.confirm.offer!.onAccept());
+    act(() => result.current.confirm.offer!.onAccept!());
     expect(dispatch).toHaveBeenCalledWith({
       type: "swapProduct",
       fromSku: "NW-VITD-60",
       product: catalog[2],
     });
   });
-  it("offers support and existing pause flow without efficacy claims", () => {
+  it("hands the no-results alternative to the existing pause flow", () => {
     const { result, openPause } = setup();
     act(() => result.current.open());
     act(() => result.current.confirm.onChange("noResults"));
-    act(() => result.current.confirm.offer!.onAccept());
+    act(() => result.current.confirm.offer!.onAccept!());
     expect(openPause).toHaveBeenCalledOnce();
   });
   it("does not offer skip or pause on a paused subscription", () => {

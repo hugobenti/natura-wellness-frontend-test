@@ -1,5 +1,5 @@
-import type { SubscriptionStatus } from "@/api/types";
-import type { CatalogProduct } from "@/api/types";
+import type { CatalogProduct, SubscriptionStatus } from "@/api/types";
+import type { TCancelReason } from "./cancelReason.type";
 import type { IBoxPricing } from "./pricing.type";
 import type { TPausePresetId } from "./pause.type";
 
@@ -21,12 +21,15 @@ export interface ILocalOverlay {
   zeroSkus: readonly string[];
   intervalDays: number | null;
   swappedItems: Readonly<Record<string, CatalogProduct>>;
-  cancelReason: "tooMuch" | "cost" | "otherProduct" | "noResults" | "other" | null;
+  cancelReason: TCancelReason | null;
   lifecycle: TLifecycleOverride | null;
 }
 
 interface IViewLine {
+  /** Stable original SKU keys edit drafts and local overlay state. */
   sku: string;
+  /** The currently displayed catalog product, which may differ after a swap. */
+  productSku: string;
   name: string;
   imageUrl: string | null;
   quantity: number;

@@ -64,15 +64,29 @@ export function useSubscriptionCard(): TPageModel {
       deriveView(fresh, overlayReducer(overlay, { type: "clearSkipped" })).pricing.totalCents,
     notify: setNotice,
   });
+  const offerHandoff = useRef<"skip" | "pause" | null>(null);
   const cancelFlow = useCancelFlow({
     subscription: view,
     dispatch,
     notify: setNotice,
     clearNotice,
-    openSkip: skipFlow.open,
-    openPause: pauseFlow.openPause,
+    openSkip: () => {
+      offerHandoff.current = "skip";
+      skipFlow.open();
+    },
+    openPause: () => {
+      offerHandoff.current = "pause";
+      pauseFlow.openPause();
+    },
   });
   const { h1Ref } = cancelFlow;
+  useEffect(() => {
+    if (offerHandoff.current === "skip" && skipFlow.phase !== null) return;
+    if (offerHandoff.current === "pause" && pauseFlow.sheet.open) return;
+    if (offerHandoff.current === null) return;
+    offerHandoff.current = null;
+    queueMicrotask(() => h1Ref.current?.focus());
+  }, [skipFlow.phase, pauseFlow.sheet.open, h1Ref]);
   const shownStatus = useRef<string | null>(null);
   const status = view?.status ?? null;
   useEffect(() => {

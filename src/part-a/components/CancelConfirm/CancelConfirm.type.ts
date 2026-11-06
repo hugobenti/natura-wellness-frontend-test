@@ -1,13 +1,13 @@
 import type { RefObject } from "react";
 import type { IRadioOption } from "@/shared/components/RadioGroup/RadioGroup.type";
+import type { TCancelReason } from "../../logic/cancelReason.type";
 
-export type TCancelReason = "tooMuch" | "cost" | "otherProduct" | "noResults" | "other";
 export interface ICancelOffer {
   kind: "skip" | "cadence" | "swap" | "support";
   title: string;
   body: string;
-  label: string;
-  onAccept: () => void;
+  label?: string;
+  onAccept?: () => void;
   supportLink?: { href: string; label: string };
   fromOptions?: IRadioOption[];
   fromSku?: string;

@@ -1,6 +1,6 @@
 import type { IEditDraft } from "./editDraft.type";
 import type { CatalogProduct } from "@/api/types";
-import type { TCancelReason } from "../components/CancelConfirm/CancelConfirm.type";
+import type { TCancelReason } from "./cancelReason.type";
 import type { TPausePresetId } from "./pause.type";
 
 export type TOverlayAction =

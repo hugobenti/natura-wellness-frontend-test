@@ -1,6 +1,6 @@
 import { fixtures } from "@/api/fixtures";
 import { getSubscription } from "@/api/mockApi";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { SubscriptionCard } from "./SubscriptionCard";
 
@@ -97,6 +97,106 @@ it("cancels without choosing a reason and returns directly to the receipt", asyn
   expect(screen.getByText("No more charges")).toBeInTheDocument();
   expect(screen.getByText("You won't be charged again.")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Cancel subscription" })).not.toBeInTheDocument();
+});
+
+it("shows the moved date in the skip alternative", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  expect(screen.getByText(/Move your next charge to/)).toHaveTextContent("Dec");
+});
+
+it("shows a 60-day receipt after accepting the cadence offer, without repeating that offer", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  fireEvent.click(screen.getByRole("button", { name: "Switch to every 60 days" }));
+  expect(screen.getByText("Every 60 days")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  expect(screen.queryByRole("button", { name: "Switch to every 60 days" })).not.toBeInTheDocument();
+});
+
+it("updates the receipt total and preserves the selected line through a second swap and edit", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
+  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
+  expect(screen.getAllByText("$97.62").length).toBeGreaterThan(0);
+  expect(screen.getByText("Magnesium, 90 capsules")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
+  expect(screen.getByRole("radio", { name: "Magnesium, 90 capsules" })).toBeChecked();
+  fireEvent.click(screen.getByRole("radio", { name: "Vitamin D, 60 softgels" }));
+  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
+  expect(screen.getAllByText("$101.87").length).toBeGreaterThan(0);
+  fireEvent.click(screen.getByRole("button", { name: "Edit products" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip once: Vitamin D, 60 softgels" }));
+  expect(screen.getByText("Skipped in the next box only")).toBeInTheDocument();
+});
+
+it("prices an edited quantity of the replacement product", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
+  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
+  fireEvent.click(screen.getByRole("button", { name: "Edit products" }));
+  const quantity = screen.getByRole("group", { name: "Quantity of Magnesium, 90 capsules" });
+  fireEvent.click(within(quantity).getByRole("button", { name: "Increase quantity" }));
+  expect(screen.getAllByText("$118.83").length).toBeGreaterThan(0);
+  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+  expect(screen.getAllByText("$118.83").length).toBeGreaterThan(0);
+});
+
+it("restores focus after dismissing an offer handoff sheet", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip my next box" }));
+  fireEvent.click(screen.getByRole("button", { name: "Keep my box" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I didn't see results" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause instead" }));
+  fireEvent.click(screen.getByRole("button", { name: "Keep it active" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+});
+
+it("restores focus after confirming locally simulated skip and pause offers", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  fireEvent.click(screen.getByRole("button", { name: "Switch to every 60 days" }));
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip my next box" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip this box" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I didn't see results" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause instead" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause for 1 month" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
 });
 
 it("moves focus to the page heading when retrying a failed load", async () => {

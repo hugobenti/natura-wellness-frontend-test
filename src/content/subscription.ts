@@ -124,8 +124,8 @@ export const subscriptionContent = {
     skipBody: (date: string) => `Move your next charge to ${date}.`,
     skipAction: "Skip my next box",
     cadenceTitle: "Ship less often",
-    cadenceBody: (difference: string) =>
-      `Every 60 days instead of 30. At today's box price, that's about ${difference} less per year.`,
+    cadenceBody: (intervalDays: number, difference: string) =>
+      `Every 60 days instead of ${intervalDays}. At today's box price, that's about ${difference} less per year.`,
     cadenceAction: "Switch to every 60 days",
     cadenceDone: "Delivery schedule updated",
     cadenceDoneBody: "Your box now ships every 60 days.",
@@ -138,6 +138,7 @@ export const subscriptionContent = {
     swapDoneBody: "Your next box has been updated.",
     supportTitle: "We're here to listen",
     supportBody: "Talk to our team, or take a break if you'd prefer.",
+    supportBodyPaused: "Talk to our team whenever you're ready.",
     supportAction: "Talk to our team",
     pauseAction: "Pause instead",
     confirm: "Cancel subscription",
