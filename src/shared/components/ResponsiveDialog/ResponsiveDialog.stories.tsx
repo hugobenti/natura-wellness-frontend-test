@@ -30,6 +30,13 @@ async function atViewport(width: number, height: number, check: () => Promise<vo
   }
 }
 
+/** A press and release at one viewport point, as the browser reports a click on the modal backdrop. */
+function clickAt(target: Element, x: number, y: number) {
+  const point = { clientX: x, clientY: y, bubbles: true, cancelable: true };
+  target.dispatchEvent(new PointerEvent("pointerdown", point));
+  target.dispatchEvent(new MouseEvent("click", point));
+}
+
 type TDemoProps = Pick<IResponsiveDialogProps, "onClose"> & {
   /** Keeps the dialog open on every close request, as a parent with a pending action would. */
   pending?: boolean;
@@ -108,6 +115,52 @@ export const EscClosesAndReturnsFocus: TStory = {
     await userEvent.click(trigger);
     const reopened = await within(document.body).findByRole("dialog", { name: title });
     await waitFor(() => expect(reopened).toBeVisible());
+  },
+};
+
+/** A click on the backdrop closes the dialog through `onClose` and focus returns to the trigger. */
+export const BackdropClickCloses: TStory = {
+  play: async ({ args, canvasElement }) => {
+    const trigger = within(canvasElement).getByRole("button", { name: "Skip next shipment" });
+    await userEvent.click(trigger);
+    const dialog = await within(document.body).findByRole("dialog", { name: title });
+    await waitFor(() => expect(dialog).toBeVisible());
+
+    const box = dialog.getBoundingClientRect();
+    clickAt(dialog, box.left / 2, box.top / 2);
+
+    await waitFor(() =>
+      expect(within(document.body).queryByRole("dialog", { name: title })).toBeNull(),
+    );
+    await expect(args.onClose).toHaveBeenCalledTimes(1);
+    await expect(document.activeElement).toBe(trigger);
+  },
+};
+
+/** Clicks inside, and a press inside released over the backdrop, keep the dialog open. */
+export const InsideClickStaysOpen: TStory = {
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole("button", { name: "Skip next shipment" }),
+    );
+    const dialog = await within(document.body).findByRole("dialog", { name: title });
+    await waitFor(() => expect(dialog).toBeVisible());
+
+    await userEvent.click(within(dialog).getByText(/Your next box will not be sent/));
+    const box = dialog.getBoundingClientRect();
+    dialog.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        clientX: box.left + box.width / 2,
+        clientY: box.top + box.height / 2,
+        bubbles: true,
+      }),
+    );
+    dialog.dispatchEvent(
+      new MouseEvent("click", { clientX: box.left / 2, clientY: box.top / 2, bubbles: true }),
+    );
+
+    await expect(args.onClose).not.toHaveBeenCalled();
+    await expect(dialog).toHaveAttribute("open");
   },
 };
 
