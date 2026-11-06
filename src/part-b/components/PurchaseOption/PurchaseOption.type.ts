@@ -8,6 +8,6 @@ export interface IPurchaseOptionProps {
   label: ReactNode;
   badge?: ReactNode;
   price: ReactNode;
-  /** Shown inside the card only while it is selected. */
+  /** Expands inside the card while it is selected; collapsed and inert otherwise. */
   children?: ReactNode;
 }
