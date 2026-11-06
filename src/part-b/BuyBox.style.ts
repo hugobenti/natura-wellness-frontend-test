@@ -1,0 +1,21 @@
+export const buyBox = {
+  page: "mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-8 px-4 py-6 lg:grid-cols-[minmax(0,540fr)_minmax(0,468fr)] lg:gap-16 lg:px-16 lg:py-14",
+  info: "flex min-w-0 flex-col",
+  eyebrow: "text-eyebrow text-muted uppercase",
+  rating: "mt-2.5",
+  title: "mt-[11px] font-heading text-title text-accent",
+  subtitle: "mt-3 max-w-[28rem] text-body text-muted",
+  divider: "mt-7 border-t border-line",
+  options: "mt-6 flex min-w-0 flex-col gap-3 border-0 p-0",
+  legend: "sr-only",
+  perks: "mt-3 flex flex-col gap-1",
+  perk: "flex items-center gap-2 text-small text-fg",
+  perkIcon: "stroke-[3] text-accent",
+  purchase: "mt-6 flex gap-3",
+  addToCart:
+    "flex min-w-0 flex-1 cursor-pointer items-center justify-center gap-2.5 rounded-control bg-accent text-body font-semibold text-on-accent hover:bg-accent-hover",
+  trust: "mt-[19px] flex flex-wrap gap-x-6 gap-y-2",
+  trustItem: "inline-flex items-center gap-1.5 text-caption font-medium text-muted",
+  trustIcon: "stroke-[2.5] text-accent",
+  finePrint: "mt-[15px] text-fine text-muted",
+} as const;
