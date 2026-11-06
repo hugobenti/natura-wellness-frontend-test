@@ -7,6 +7,7 @@ export type TSkipPhase = "confirm" | "pending" | "conflict" | "error";
 
 export interface IUseSkipFlowArgs {
   view: ISubscriptionView | null;
+  comparisonView: ISubscriptionView | null;
   reload: () => Promise<Subscription | null>;
   deriveFresh: (snapshot: Subscription) => ISubscriptionView;
   onSkipped: (snapshot: Subscription) => void;

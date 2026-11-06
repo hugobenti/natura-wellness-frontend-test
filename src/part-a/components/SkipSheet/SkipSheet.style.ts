@@ -12,7 +12,5 @@ export const skipSheet = {
   alertSupport: "-ml-4",
   changes: "mt-2 list-disc space-y-1 pl-5 text-small",
   changedLabel: "font-semibold text-fg",
-  changedOldDate:
-    "font-semibold text-fg line-through underline decoration-accent decoration-2 underline-offset-4",
   changedValue: "font-semibold text-fg underline decoration-accent decoration-2 underline-offset-4",
 } as const;

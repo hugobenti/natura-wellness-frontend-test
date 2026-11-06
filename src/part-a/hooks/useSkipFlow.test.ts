@@ -30,6 +30,7 @@ function setup(
   const hook = renderHook(() =>
     useSkipFlow({
       view,
+      comparisonView: view,
       reload,
       deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
       onSkipped,
@@ -130,6 +131,50 @@ describe("useSkipFlow", () => {
     expect(skipNextShipment).toHaveBeenCalledTimes(2);
   });
 
+  it("clears the prior conflict when the sheet is closed and reopened", async () => {
+    const { result } = setup();
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict).not.toBeNull();
+    act(() => {
+      result.current.close();
+      result.current.open();
+    });
+    expect(result.current.phase).toBe("confirm");
+    expect(result.current.conflict).toBeNull();
+  });
+
+  it("compares the full box even when a product was locally skipped", async () => {
+    const snapshot = fixtures.active();
+    const sku = snapshot.items[0]!.sku;
+    const overlay = { ...EMPTY_OVERLAY, skippedSkus: [sku] };
+    const fresh = fixtures.active();
+    fresh.items = fresh.items.map((item) => (item.sku === sku ? { ...item, quantity: 2 } : item));
+    const view = deriveView(snapshot, overlay);
+    const { result } = renderHook(() =>
+      useSkipFlow({
+        view,
+        comparisonView: deriveView(snapshot, EMPTY_OVERLAY),
+        deriveFresh: (updated) => deriveView(updated, EMPTY_OVERLAY),
+        reload: async () => fresh,
+        onSkipped: vi.fn(),
+        skipLocally: vi.fn(),
+        localSuccessAmount: () => 0,
+        successAmount: () => 0,
+        notify: vi.fn(),
+      }),
+    );
+    act(() => result.current.open());
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual(
+      expect.arrayContaining([
+        "Vitamin D, 60 softgels quantity changed from 1 to 2",
+        "Total changed from $101.87 to $127.33",
+      ]),
+    );
+  });
+
   it("reports changed charge and line items on a conflicting reload", async () => {
     const { result, reload } = setup();
     const fresh = fixtures.active();
@@ -221,6 +266,7 @@ describe("useSkipFlow", () => {
     const { result } = renderHook(() =>
       useSkipFlow({
         view,
+        comparisonView: view,
         reload,
         deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
         onSkipped,

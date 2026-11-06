@@ -1,5 +1,5 @@
 import { fixtures } from "@/api/fixtures";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { addDays } from "./dates";
 import { deriveView, EMPTY_OVERLAY } from "./subscriptionView";
 import { diffSubscription } from "./subscriptionDiff";
@@ -26,6 +26,32 @@ describe("diffSubscription", () => {
     ]);
     expect(compare(fresh).nextDateChanged).toBe(true);
     expect(compare(fresh).skipDateChanged).toBe(true);
+  });
+  it("ignores a UTC date change that is the same displayed local day", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    try {
+      const original = before();
+      original.nextChargeAt = "2026-11-11T23:00:00Z";
+      const refreshed = { ...original, nextChargeAt: "2026-11-12T01:00:00Z" };
+      expect(
+        diffSubscription(original, refreshed, new Date("2026-11-05T12:00:00Z")).nextDateChanged,
+      ).toBe(false);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+  it("detects a displayed local-day change within one UTC date", () => {
+    vi.stubEnv("TZ", "America/Los_Angeles");
+    try {
+      const original = before();
+      original.nextChargeAt = "2026-11-11T01:00:00Z";
+      const refreshed = { ...original, nextChargeAt: "2026-11-11T10:00:00Z" };
+      expect(
+        diffSubscription(original, refreshed, new Date("2026-11-05T12:00:00Z")).nextDateChanged,
+      ).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
   it("names a changed charge total", () => {
     const fresh = before();

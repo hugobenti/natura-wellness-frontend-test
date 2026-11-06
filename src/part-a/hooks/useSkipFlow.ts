@@ -10,6 +10,7 @@ import type { IUseSkipFlowArgs, IUseSkipFlowResult, TSkipPhase } from "./useSkip
 
 export function useSkipFlow({
   view,
+  comparisonView,
   reload,
   deriveFresh,
   onSkipped,
@@ -51,6 +52,7 @@ export function useSkipFlow({
       return;
     }
     pendingRef.current = true;
+    setConflict(null);
     setPhase("pending");
     try {
       const snapshot = await skipNextShipment({
@@ -81,7 +83,7 @@ export function useSkipFlow({
               body: fresh.status === "paused" ? copy.pausedElsewhere : copy.cancelledElsewhere,
             });
           } else {
-            setConflict(diffSubscription(view, deriveFresh(fresh), new Date()));
+            setConflict(diffSubscription(comparisonView!, deriveFresh(fresh), new Date()));
             setPhase("conflict");
           }
         } catch {

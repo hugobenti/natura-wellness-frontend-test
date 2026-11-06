@@ -11,10 +11,14 @@ export function diffSubscription(
 ): ISubscriptionDiff {
   const copy = subscriptionContent.skip;
   const messages: string[] = [];
-  const nextDateChanged = before.nextChargeAt?.slice(0, 10) !== after.nextChargeAt?.slice(0, 10);
+  const nextDateChanged =
+    (before.nextChargeAt ? formatDay(before.nextChargeAt, now) : null) !==
+    (after.nextChargeAt ? formatDay(after.nextChargeAt, now) : null);
   const beforeSkip = before.nextChargeAt && addDays(before.nextChargeAt, before.intervalDays);
   const afterSkip = after.nextChargeAt && addDays(after.nextChargeAt, after.intervalDays);
-  const skipDateChanged = beforeSkip?.slice(0, 10) !== afterSkip?.slice(0, 10);
+  const skipDateChanged =
+    (beforeSkip ? formatDay(beforeSkip, now) : null) !==
+    (afterSkip ? formatDay(afterSkip, now) : null);
   const totalChanged = before.pricing.totalCents !== after.pricing.totalCents;
   if (before.status !== after.status) messages.push(copy.statusChanged(after.status));
   if (nextDateChanged && before.nextChargeAt && after.nextChargeAt) {

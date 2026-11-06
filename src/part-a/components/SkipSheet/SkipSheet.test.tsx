@@ -2,11 +2,20 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { SkipSheet } from "./SkipSheet";
 import type { ISkipSheetProps } from "./SkipSheet.type";
+import { skipSheet } from "./SkipSheet.style";
 
 const base: ISkipSheetProps = {
   open: false,
   phase: "confirm",
   conflict: null,
+  changeItems: [],
+  factStyles: {
+    nextBoxLabel: skipSheet.factLabel,
+    oldDate: skipSheet.oldDate,
+    newDate: skipSheet.newDate,
+    chargeLabel: skipSheet.factLabel,
+    amount: skipSheet.factValue,
+  },
   oldDate: "Wed, Nov 11",
   newDate: "Fri, Dec 11",
   amount: "$101.87",
@@ -50,5 +59,51 @@ describe("SkipSheet", () => {
     dates.querySelectorAll("[aria-hidden='true']").forEach((node) => node.remove());
 
     expect(dates.textContent).toBe("from Wed, Nov 11 to Fri, Dec 11");
+  });
+  it("shows the unchanged message when the refreshed box has no visible differences", () => {
+    render(
+      <SkipSheet
+        {...base}
+        phase="conflict"
+        conflict={{
+          messages: [],
+          nextDateChanged: false,
+          skipDateChanged: false,
+          totalChanged: false,
+        }}
+      />,
+    );
+    expect(screen.getByRole("status", { hidden: true })).toHaveTextContent(
+      "nothing about this box changed",
+    );
+  });
+
+  it("lists each changed value in the live conflict notice", () => {
+    render(
+      <SkipSheet
+        {...base}
+        phase="conflict"
+        changeItems={[
+          { key: "0-next", message: "Next charge moved from Wed, Nov 11 to Fri, Nov 13" },
+          { key: "1-total", message: "Total changed from $101.87 to $76.41" },
+        ]}
+        conflict={{
+          messages: [
+            "Next charge moved from Wed, Nov 11 to Fri, Nov 13",
+            "Total changed from $101.87 to $76.41",
+          ],
+          nextDateChanged: true,
+          skipDateChanged: true,
+          totalChanged: true,
+        }}
+      />,
+    );
+    expect(screen.getByRole("list", { hidden: true })).toHaveTextContent(
+      "Next charge moved from Wed, Nov 11 to Fri, Nov 13",
+    );
+    expect(screen.getByRole("list", { hidden: true })).toHaveTextContent(
+      "Total changed from $101.87 to $76.41",
+    );
+    expect(screen.queryByText(/nothing about this box changed/)).toBeNull();
   });
 });

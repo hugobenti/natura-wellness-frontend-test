@@ -107,7 +107,6 @@ export const subscriptionContent = {
     successTitle: "Next box skipped",
     successBody: (amount: string, date: string) => `Your next charge is ${amount} on ${date}.`,
     changedTitle: "Your subscription changed somewhere else",
-    changedBody: "We loaded the latest version.",
   },
   cancel: {
     title: "Before you cancel",
