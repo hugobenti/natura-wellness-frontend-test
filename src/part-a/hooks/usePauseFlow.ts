@@ -17,8 +17,14 @@ export function usePauseFlow({
   const copy = subscriptionContent.pause;
   const now = new Date();
   const paused = view?.status === "paused";
+  const originalNextChargeAt =
+    view?.status === "active"
+      ? view.nextChargeAt
+      : overlay.lifecycle?.status === "paused"
+        ? overlay.lifecycle.resumeAt
+        : null;
   const options = PAUSE_PRESETS.map(({ id }) => {
-    const until = pauseUntil(id, now);
+    const until = pauseUntil(id, originalNextChargeAt, now);
     return {
       value: id,
       label: copy.options[id],
@@ -38,13 +44,8 @@ export function usePauseFlow({
   const onConfirm = () => {
     if (!selected || !view || (view.status !== "active" && view.status !== "paused")) return;
     const confirmedAt = new Date();
-    const until = pauseUntil(selected, confirmedAt);
-    const resumeAt =
-      view.status === "active"
-        ? view.nextChargeAt
-        : overlay.lifecycle?.status === "paused"
-          ? overlay.lifecycle.resumeAt
-          : null;
+    const until = pauseUntil(selected, originalNextChargeAt, confirmedAt);
+    const resumeAt = originalNextChargeAt;
     dispatch({ type: "pause", presetId: selected, now: confirmedAt, resumeAt });
     setOpen(false);
     notify({
