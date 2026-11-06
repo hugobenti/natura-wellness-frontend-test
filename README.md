@@ -30,10 +30,10 @@ pnpm dev
 
 Vite prints the local URL when the server starts. Both experiences are selected by query string rather than separate routes:
 
-| Experience | URL |
-|---|---|
+| Experience                       | URL                       |
+| -------------------------------- | ------------------------- |
 | Part A — subscription management | `/?part=a&fixture=active` |
-| Part B — product buy box | `/?part=b` |
+| Part B — product buy box         | `/?part=b`                |
 
 Part A supports these mock subscription fixtures: `active`, `paused`, `cancelled`, and `error`. Add `&conflict=always` to force a simulated conflict during an update. For example: `/?part=a&fixture=active&conflict=always`.
 
@@ -71,23 +71,23 @@ Dependencies flow in one direction: shared kernel (`shared`, `content`, `styles`
 
 ## Available commands
 
-| Command | Purpose |
-|---|---|
-| `pnpm dev` | Start the Vite development server |
-| `pnpm build` | Build the application for production |
-| `pnpm preview` | Preview the production build locally |
-| `pnpm storybook` | Start Storybook at `http://localhost:6006` |
-| `pnpm build-storybook` | Build the static Storybook site |
-| `pnpm test` | Run unit and component tests |
-| `pnpm test:watch` | Run unit tests in watch mode |
-| `pnpm test:storybook` | Run Storybook story tests in Chromium, including axe checks |
-| `pnpm test:e2e` | Run browser smoke and accessibility tests |
-| `pnpm lint` | Run ESLint |
-| `pnpm typecheck` | Run TypeScript without emitting files |
-| `pnpm format` | Format files with Prettier |
-| `pnpm format:check` | Check formatting without writing changes |
-| `pnpm knip` | Find unused files, exports, and dependencies |
-| `pnpm verify` | Run format check, lint, typecheck, unit tests, Knip, app build, and Storybook build |
+| Command                | Purpose                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------- |
+| `pnpm dev`             | Start the Vite development server                                                   |
+| `pnpm build`           | Build the application for production                                                |
+| `pnpm preview`         | Preview the production build locally                                                |
+| `pnpm storybook`       | Start Storybook at `http://localhost:6006`                                          |
+| `pnpm build-storybook` | Build the static Storybook site                                                     |
+| `pnpm test`            | Run unit and component tests                                                        |
+| `pnpm test:watch`      | Run unit tests in watch mode                                                        |
+| `pnpm test:storybook`  | Run Storybook story tests in Chromium, including axe checks                         |
+| `pnpm test:e2e`        | Run browser smoke and accessibility tests                                           |
+| `pnpm lint`            | Run ESLint                                                                          |
+| `pnpm typecheck`       | Run TypeScript without emitting files                                               |
+| `pnpm format`          | Format files with Prettier                                                          |
+| `pnpm format:check`    | Check formatting without writing changes                                            |
+| `pnpm knip`            | Find unused files, exports, and dependencies                                        |
+| `pnpm verify`          | Run format check, lint, typecheck, unit tests, Knip, app build, and Storybook build |
 
 For the first Playwright run, install Chromium:
 
