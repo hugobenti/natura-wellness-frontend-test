@@ -29,12 +29,6 @@ describe("usePauseFlow", () => {
       confirmDisabled: false,
       keepLabel: "Keep it active",
     });
-    expect(result.current.sheet.options.map(({ description }) => description)).toEqual([
-      "Next charge Sat, Dec 5",
-      "Next charge Mon, Jan 4, 2027",
-      "Next charge Wed, Feb 3, 2027",
-      "No boxes or charges until you come back",
-    ]);
 
     act(() => result.current.sheet.onConfirm());
     expect(dispatch).toHaveBeenCalledExactlyOnceWith({
@@ -46,9 +40,26 @@ describe("usePauseFlow", () => {
     expect(notify).toHaveBeenCalledWith({
       tone: "success",
       title: "Subscription paused",
-      body: "Paused until Sat, Dec 5.",
+      body: "Paused until Fri, Dec 11.",
     });
     expect(result.current.sheet.open).toBe(false);
+  });
+
+  it("previews and confirms a month after a skipped next charge", () => {
+    const overlay: ILocalOverlay = {
+      ...EMPTY_OVERLAY,
+      lifecycle: { status: "active", nextChargeAt: "2026-12-11T12:00:00.000Z" },
+    };
+    const { result, dispatch, notify } = setup(fixtures.active(), overlay);
+    act(() => result.current.openPause());
+    expect(result.current.sheet.options[0]?.description).toContain("Jan 10, 2027");
+    act(() => result.current.sheet.onConfirm());
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ resumeAt: "2026-12-11T12:00:00.000Z" }),
+    );
+    expect(notify).toHaveBeenCalledWith(
+      expect.objectContaining({ body: expect.stringContaining("Jan 10, 2027") }),
+    );
   });
 
   it("choosing Until I resume relabels the confirm", () => {

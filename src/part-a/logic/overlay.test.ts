@@ -59,11 +59,48 @@ describe("overlayReducer", () => {
       lifecycle: {
         status: "paused",
         presetId: "1m",
-        pausedUntil: "2026-12-05T12:00:00.000Z",
+        pausedUntil: "2026-12-11T12:00:00.000Z",
         resumeAt: "2026-11-11T12:00:00.000Z",
       },
     });
     expect(committed.skippedSkus).toEqual(["NW-VITD-60"]);
+  });
+
+  it("keeps the skipped charge through pause, change and resume", () => {
+    const now = new Date("2026-11-05T12:00:00.000Z");
+    const skipped = overlayReducer(EMPTY_OVERLAY, {
+      type: "skipLocally",
+      nextChargeAt: "2026-11-11T12:00:00.000Z",
+      intervalDays: 30,
+    });
+    expect(skipped.lifecycle).toEqual({
+      status: "active",
+      nextChargeAt: "2026-12-11T12:00:00.000Z",
+    });
+    const paused = overlayReducer(skipped, {
+      type: "pause",
+      presetId: "2m",
+      now,
+      resumeAt: "2026-12-11T12:00:00.000Z",
+    });
+    expect(paused.lifecycle).toMatchObject({
+      pausedUntil: "2027-02-09T12:00:00.000Z",
+      resumeAt: "2026-12-11T12:00:00.000Z",
+    });
+    const changed = overlayReducer(paused, {
+      type: "pause",
+      presetId: "1m",
+      now,
+      resumeAt: "2026-12-11T12:00:00.000Z",
+    });
+    expect(changed.lifecycle).toMatchObject({
+      pausedUntil: "2027-01-10T12:00:00.000Z",
+      resumeAt: "2026-12-11T12:00:00.000Z",
+    });
+    expect(overlayReducer(changed, { type: "resume", now }).lifecycle).toEqual({
+      status: "active",
+      nextChargeAt: "2026-12-11T12:00:00.000Z",
+    });
   });
 
   it("resume sets an active lifecycle at the stored resume date, or tomorrow", () => {

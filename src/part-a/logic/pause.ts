@@ -8,9 +8,18 @@ export const PAUSE_PRESETS: ReadonlyArray<{ id: TPausePresetId; days: number | n
   { id: "open", days: null },
 ];
 
-export function pauseUntil(presetId: TPausePresetId, now: Date): string | null {
+export function pauseUntil(
+  presetId: TPausePresetId,
+  originalNextChargeAt: string | null,
+  now: Date,
+): string | null {
   const days = PAUSE_PRESETS.find(({ id }) => id === presetId)!.days;
-  return days === null ? null : addDays(now.toISOString(), days);
+  if (days === null) return null;
+  const base =
+    originalNextChargeAt && Date.parse(originalNextChargeAt) > now.getTime()
+      ? originalNextChargeAt
+      : now.toISOString();
+  return addDays(base, days);
 }
 
 /** Tomorrow, or the subscription's original next charge when that is later. */

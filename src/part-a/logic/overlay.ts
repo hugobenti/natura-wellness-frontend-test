@@ -21,7 +21,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
         zeroSkus: [],
         lifecycle: {
           status: "paused",
-          pausedUntil: pauseUntil(action.presetId, action.now),
+          pausedUntil: pauseUntil(action.presetId, action.resumeAt, action.now),
           presetId: action.presetId,
           resumeAt: action.resumeAt,
         },

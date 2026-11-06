@@ -13,9 +13,9 @@ describe("pause dates", () => {
     ]);
   });
 
-  it("pauseUntil moves one month 30 days and leaves open pauses undated", () => {
-    expect(pauseUntil("1m", now)).toBe("2026-12-05T12:00:00.000Z");
-    expect(pauseUntil("open", now)).toBeNull();
+  it("counts a timed pause from the effective next charge, not today", () => {
+    expect(pauseUntil("1m", "2026-12-11T12:00:00.000Z", now)).toBe("2027-01-10T12:00:00.000Z");
+    expect(pauseUntil("open", "2026-12-11T12:00:00.000Z", now)).toBeNull();
   });
 
   it("resumeChargeAt schedules tomorrow rather than charging immediately", () => {
