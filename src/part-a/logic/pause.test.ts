@@ -18,6 +18,16 @@ describe("pause dates", () => {
     expect(pauseUntil("open", "2026-12-11T12:00:00.000Z", now)).toBeNull();
   });
 
+  it("counts from today when the original charge has passed or is missing", () => {
+    expect(pauseUntil("1m", "2026-11-01T12:00:00.000Z", now)).toBe("2026-12-05T12:00:00.000Z");
+    expect(pauseUntil("1m", null, now)).toBe("2026-12-05T12:00:00.000Z");
+    expect(pauseUntil("open", null, now)).toBeNull();
+  });
+
+  it("counts from today when the original charge is exactly now", () => {
+    expect(pauseUntil("2m", now.toISOString(), now)).toBe("2027-01-04T12:00:00.000Z");
+  });
+
   it("resumeChargeAt schedules tomorrow rather than charging immediately", () => {
     expect(resumeChargeAt(now, null)).toBe("2026-11-06T12:00:00.000Z");
   });

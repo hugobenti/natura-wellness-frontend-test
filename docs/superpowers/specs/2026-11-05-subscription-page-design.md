@@ -93,7 +93,7 @@ Reviewers judge product and design decisions more than layout. The page should r
    - **Error:** a generic `Alert` with "Try again" and "Contact support".
 9. **Generic error copy** everywhere (decision made on the load error).
 10. **Pause, with a chosen duration:**
-    - **Pausing from active:** a "Pause subscription" button opens a bottom sheet with a radio list of 1 month, 2 months, 3 months (each showing the date of the next box) and "Until I resume". The confirm button names the choice ("Pause for 1 month").
+    - **Pausing from active:** a "Pause subscription" button opens a bottom sheet with a radio list of 1 month, 2 months, 3 months (each showing its resulting next-charge date) and "Until I resume". The confirm button names the choice ("Pause for 1 month").
     - **The paused page:**
       - an amber "Paused" badge
       - a header reading "Paused until Sun, Nov 29" or "Paused until you resume"
@@ -115,7 +115,7 @@ Reviewers judge product and design decisions more than layout. The page should r
 - **"Contact support"** is a `mailto:` link to a reserved, fictional address, `support@naturawellness.example`, since the brand isn't real.
 - **"Skip the whole box" from anywhere** (the page, or reached after the cancel page) always goes through the same confirmation sheet.
 - **Local actions** (save edits, pause, change pause, resume, cancel) apply instantly with no simulated latency and no simulated failure, and each confirms with a success `Alert` above the card. Only the real API call (the skip) has a pending state.
-- **Pause durations** count from today: 1, 2 or 3 months are 30, 60 or 90 days, matching the 30-day cycle. When a pause ends, the next charge is on the end date. "Resume now" sets the next charge to tomorrow, so tapping it never charges on the spot.
+- **Pause durations** are 30, 60 or 90 days, matching the 30-day cycle, counted from the current effective next charge (including a skipped charge). Changing an existing pause counts from its stored original next charge, not its paused-until date. If that original charge has passed, count from today. The next charge is on the pause end date. "Resume now" schedules tomorrow or the original next charge if later, so a skipped date survives a pause and resuming never charges on the spot.
 - **Paused fixture total:** the API sends no total for a paused subscription. The page computes it with `totalAfterDiscount` and shows "Your next box: Sun, Nov 29 · $101.87".
 - **The action area follows the mode.** The action area is the buttons under the card on a phone, and the "Manage" panel on desktop. It always shows the current mode's actions:
   - active: the four actions
