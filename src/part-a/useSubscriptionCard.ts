@@ -44,6 +44,7 @@ export function useSubscriptionCard(): TPageModel {
       if (fresh && fresh.nextChargeAt !== view!.nextChargeAt) dispatch({ type: "clearSkipped" });
       return fresh;
     },
+    deriveFresh: (fresh) => deriveView(fresh, overlay),
     onSkipped: (fresh) => {
       replace(fresh);
       dispatch({ type: "clearSkipped" });
@@ -265,6 +266,7 @@ export function useSubscriptionCard(): TPageModel {
     skipSheet = {
       open: skipFlow.phase !== null,
       phase,
+      conflict: skipFlow.conflict,
       oldDate,
       newDate,
       amount: formatMoney(

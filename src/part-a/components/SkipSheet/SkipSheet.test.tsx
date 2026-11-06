@@ -6,6 +6,7 @@ import type { ISkipSheetProps } from "./SkipSheet.type";
 const base: ISkipSheetProps = {
   open: false,
   phase: "confirm",
+  conflict: null,
   oldDate: "Wed, Nov 11",
   newDate: "Fri, Dec 11",
   amount: "$101.87",

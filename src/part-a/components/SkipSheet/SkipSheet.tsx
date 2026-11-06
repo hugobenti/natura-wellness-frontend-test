@@ -9,6 +9,7 @@ import type { ISkipSheetProps } from "./SkipSheet.type";
 export function SkipSheet({
   open,
   phase,
+  conflict,
   oldDate,
   newDate,
   amount,
@@ -38,7 +39,18 @@ export function SkipSheet({
     >
       {phase === "conflict" && (
         <Alert tone="info" title={copy.conflictTitle} className={skipSheet.alert}>
-          <p>{copy.conflictBody}</p>
+          {conflict?.messages.length ? (
+            <>
+              <p>{copy.conflictBody}</p>
+              <ul className={skipSheet.changes}>
+                {conflict.messages.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>{copy.conflictUnchanged}</p>
+          )}
         </Alert>
       )}
       {phase === "error" && (
@@ -51,18 +63,30 @@ export function SkipSheet({
       )}
       <dl className={skipSheet.facts}>
         <div className={skipSheet.fact}>
-          <dt className={skipSheet.factLabel}>{copy.nextBox}</dt>
+          <dt className={conflict?.nextDateChanged ? skipSheet.changedLabel : skipSheet.factLabel}>
+            {copy.nextBox}
+          </dt>
           <dd className={skipSheet.dates}>
             <span className={skipSheet.srOnly}>{copy.from}</span>
-            <s className={skipSheet.oldDate}>{oldDate}</s>
+            <s className={conflict?.nextDateChanged ? skipSheet.changedOldDate : skipSheet.oldDate}>
+              {oldDate}
+            </s>
             <span aria-hidden="true">{copy.arrow}</span>
             <span className={skipSheet.srOnly}>{copy.to}</span>
-            <strong className={skipSheet.newDate}>{newDate}</strong>
+            <strong
+              className={conflict?.skipDateChanged ? skipSheet.changedValue : skipSheet.newDate}
+            >
+              {newDate}
+            </strong>
           </dd>
         </div>
         <div className={skipSheet.fact}>
-          <dt className={skipSheet.factLabel}>{chargeLabel}</dt>
-          <dd className={skipSheet.factValue}>{amount}</dd>
+          <dt className={conflict?.skipDateChanged ? skipSheet.changedLabel : skipSheet.factLabel}>
+            {chargeLabel}
+          </dt>
+          <dd className={conflict?.totalChanged ? skipSheet.changedValue : skipSheet.factValue}>
+            {amount}
+          </dd>
         </div>
       </dl>
       <p className={skipSheet.note}>{nothingNote}</p>

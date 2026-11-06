@@ -4,11 +4,14 @@ import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useRef, useState } from "react";
 import { addDays, formatDay } from "../logic/dates";
+import { diffSubscription } from "../logic/subscriptionDiff";
+import type { ISubscriptionDiff } from "../logic/subscriptionDiff.type";
 import type { IUseSkipFlowArgs, IUseSkipFlowResult, TSkipPhase } from "./useSkipFlow.type";
 
 export function useSkipFlow({
   view,
   reload,
+  deriveFresh,
   onSkipped,
   skipLocally,
   localSuccessAmount,
@@ -16,13 +19,20 @@ export function useSkipFlow({
   notify,
 }: IUseSkipFlowArgs): IUseSkipFlowResult {
   const [phase, setPhase] = useState<TSkipPhase | null>(null);
+  const [conflict, setConflict] = useState<ISubscriptionDiff | null>(null);
   const pendingRef = useRef(false);
   const copy = subscriptionContent.skip;
   const open = () => {
-    if (view?.status === "active" && !pendingRef.current) setPhase("confirm");
+    if (view?.status === "active" && !pendingRef.current) {
+      setConflict(null);
+      setPhase("confirm");
+    }
   };
   const close = () => {
-    if (!pendingRef.current) setPhase(null);
+    if (!pendingRef.current) {
+      setConflict(null);
+      setPhase(null);
+    }
   };
 
   const confirm = async () => {
@@ -65,8 +75,13 @@ export function useSkipFlow({
             setPhase("error");
           } else if (fresh.status !== "active") {
             setPhase(null);
-            notify({ tone: "info", title: copy.changedTitle, body: copy.changedBody });
+            notify({
+              tone: "info",
+              title: copy.changedTitle,
+              body: fresh.status === "paused" ? copy.pausedElsewhere : copy.cancelledElsewhere,
+            });
           } else {
+            setConflict(diffSubscription(view, deriveFresh(fresh), new Date()));
             setPhase("conflict");
           }
         } catch {
@@ -80,5 +95,5 @@ export function useSkipFlow({
     }
   };
 
-  return { phase, open, close, confirm };
+  return { phase, conflict, open, close, confirm };
 }

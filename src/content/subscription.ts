@@ -87,8 +87,20 @@ export const subscriptionContent = {
     pending: "Skipping…",
     retry: "Try again",
     keep: "Keep my box",
-    conflictTitle: "Your subscription changed somewhere else",
-    conflictBody: "We loaded the latest version below. Check it and confirm again.",
+    conflictTitle: "We checked your subscription again",
+    conflictBody: "Your box changed. Review what changed before skipping:",
+    conflictUnchanged: "We checked again and nothing about this box changed. Skip it?",
+    nextChargeChanged: (from: string, to: string) => `Next charge moved from ${from} to ${to}`,
+    skipChargeChanged: (from: string, to: string) =>
+      `Charge after skipping moved from ${from} to ${to}`,
+    totalChanged: (from: string, to: string) => `Total changed from ${from} to ${to}`,
+    itemAdded: (name: string) => `${name} added`,
+    itemRemoved: (name: string) => `${name} removed`,
+    quantityChanged: (name: string, from: number, to: number) =>
+      `${name} quantity changed from ${from} to ${to}`,
+    statusChanged: (status: string) => `Subscription is now ${status}`,
+    pausedElsewhere: "Your subscription is now paused, so this box can't be skipped.",
+    cancelledElsewhere: "Your subscription is now cancelled, so this box can't be skipped.",
     errorTitle: "We couldn't skip your box",
     errorBody: (date: string) =>
       `Nothing changed: you'll still be charged on ${date}. Try again, or contact support.`,

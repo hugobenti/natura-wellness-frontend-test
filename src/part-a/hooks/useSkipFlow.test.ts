@@ -31,6 +31,7 @@ function setup(
     useSkipFlow({
       view,
       reload,
+      deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
       onSkipped,
       notify,
       successAmount,
@@ -116,6 +117,35 @@ describe("useSkipFlow", () => {
     expect(result.current.phase).toBe("conflict");
   });
 
+  it("explains an unchanged reload and explains again after a second conflict", async () => {
+    const { result } = setup();
+    vi.mocked(skipNextShipment)
+      .mockRejectedValueOnce(new ApiError(409, "changed"))
+      .mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual([]);
+    await act(async () => result.current.confirm());
+    expect(result.current.phase).toBe("conflict");
+    expect(result.current.conflict?.messages).toEqual([]);
+    expect(skipNextShipment).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports changed charge and line items on a conflicting reload", async () => {
+    const { result, reload } = setup();
+    const fresh = fixtures.active();
+    fresh.nextChargeTotalCents = 7641;
+    fresh.items = fresh.items.slice(0, 1);
+    reload.mockResolvedValueOnce(fresh);
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual(
+      expect.arrayContaining([
+        "Total changed from $101.87 to $25.46",
+        expect.stringMatching(/ removed$/),
+      ]),
+    );
+  });
+
   it("409 with a failed reload moves to error", async () => {
     const { result, reload } = setup();
     reload.mockResolvedValueOnce(null);
@@ -137,7 +167,20 @@ describe("useSkipFlow", () => {
     expect(notify).toHaveBeenCalledWith({
       tone: "info",
       title: "Your subscription changed somewhere else",
-      body: "We loaded the latest version.",
+      body: "Your subscription is now paused, so this box can't be skipped.",
+    });
+  });
+
+  it("409 whose reload is cancelled closes and explains that skipping is unavailable", async () => {
+    const { result, reload, notify } = setup();
+    reload.mockResolvedValueOnce(fixtures.cancelled());
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.phase).toBeNull();
+    expect(notify).toHaveBeenCalledWith({
+      tone: "info",
+      title: "Your subscription changed somewhere else",
+      body: "Your subscription is now cancelled, so this box can't be skipped.",
     });
   });
 
@@ -179,6 +222,7 @@ describe("useSkipFlow", () => {
       useSkipFlow({
         view,
         reload,
+        deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
         onSkipped,
         notify,
         skipLocally,
