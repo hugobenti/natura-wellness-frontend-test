@@ -89,7 +89,7 @@ export const subscriptionContent = {
     keep: "Keep my box",
     conflictTitle: "We checked your subscription again",
     conflictBody: "Your box changed. Review what changed before skipping:",
-    conflictUnchanged: "We checked again and nothing about this box changed. Skip it?",
+    conflictUnchanged: "Nothing about this box changed. Skip it?",
     nextChargeChanged: (from: string, to: string) => `Next charge moved from ${from} to ${to}`,
     skipChargeChanged: (from: string, to: string) =>
       `Charge after skipping moved from ${from} to ${to}`,

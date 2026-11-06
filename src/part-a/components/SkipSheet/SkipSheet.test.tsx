@@ -74,7 +74,7 @@ describe("SkipSheet", () => {
       />,
     );
     expect(screen.getByRole("status", { hidden: true })).toHaveTextContent(
-      "nothing about this box changed",
+      "Nothing about this box changed",
     );
   });
 
@@ -104,6 +104,6 @@ describe("SkipSheet", () => {
     expect(screen.getByRole("list", { hidden: true })).toHaveTextContent(
       "Total changed from $101.87 to $76.41",
     );
-    expect(screen.queryByText(/nothing about this box changed/)).toBeNull();
+    expect(screen.queryByText(/Nothing about this box changed/)).toBeNull();
   });
 });
