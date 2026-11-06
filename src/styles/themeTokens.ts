@@ -125,7 +125,9 @@ export function readThemes(css: string): ITheme[] {
         brand,
         { ...brandVars, ...own },
         properties.filter((property) => semanticName(property) !== undefined),
-        properties.filter((property) => semanticName(property) === undefined),
+        properties.filter(
+          (property) => semanticName(property) === undefined && !property.startsWith("--text-"),
+        ),
       ),
     );
   }
@@ -134,14 +136,21 @@ export function readThemes(css: string): ITheme[] {
 
 const TYPE_STEP = /^--text-([\w-]+)$/;
 
-/** The `--text-<step>` family of every `@theme` block, in source order. Skips the `--text-*` reset. */
-export function readTypeScale(css: string): ITypeStep[] {
+/**
+ * The `--text-<step>` family of every `@theme` block, in source order, with the overrides of the
+ * `[data-theme="themeName"]` block applied when one is named. Skips the `--text-*` reset.
+ */
+export function readTypeScale(css: string, themeName?: string): ITypeStep[] {
   const vars: Record<string, string> = {};
-  for (const [, selector = "", , body = ""] of css.replace(COMMENT, "").matchAll(BLOCK)) {
+  const overrides: Record<string, string> = {};
+  for (const [, selector = "", name, body = ""] of css.replace(COMMENT, "").matchAll(BLOCK)) {
     if (selector.startsWith("@theme")) {
       Object.assign(vars, declarations(body));
+    } else if (themeName !== undefined && name === themeName) {
+      Object.assign(overrides, declarations(body));
     }
   }
+  Object.assign(vars, overrides);
   const part = (step: string, suffix: string) => {
     const value = vars[`--text-${step}--${suffix}`];
     if (value === undefined) {
