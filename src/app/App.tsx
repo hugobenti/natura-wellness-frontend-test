@@ -6,9 +6,9 @@ import { app } from "./App.style";
 import { useApp } from "./useApp";
 
 export function App() {
-  const { part, links } = useApp();
+  const { part, theme, links } = useApp();
   return (
-    <>
+    <div data-theme={theme} className={app.shell}>
       <nav className={app.nav}>
         {links.map((link) => (
           <a
@@ -22,6 +22,6 @@ export function App() {
         ))}
       </nav>
       <main>{part === "a" ? <SubscriptionCard /> : <BuyBox />}</main>
-    </>
+    </div>
   );
 }

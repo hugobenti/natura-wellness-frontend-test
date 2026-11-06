@@ -6,7 +6,6 @@ import { foundation as f } from "./foundations.style";
 import { themeFor } from "./themeFor";
 
 const content = foundationsContent.typography;
-const scale = readTypeScale(css);
 
 const meta = { title: "Foundations/Typography" } satisfies Meta;
 
@@ -36,49 +35,52 @@ export const Family: TStory = {
 
 /** Every step of the scale: size, line height, weight and tracking travel together. */
 export const Scale: TStory = {
-  render: () => (
-    <table className={f.table}>
-      <caption className={f.caption}>{content.scaleCaption}</caption>
-      <thead>
-        <tr>
-          <th scope="col" className={f.headCell}>
-            {content.step}
-          </th>
-          <th scope="col" className={f.headCell}>
-            {content.size}
-          </th>
-          <th scope="col" className={f.headCell}>
-            {content.lineHeight}
-          </th>
-          <th scope="col" className={f.headCell}>
-            {content.weight}
-          </th>
-          <th scope="col" className={f.headCell}>
-            {content.tracking}
-          </th>
-          <th scope="col" className={f.headCell}>
-            {content.preview}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {scale.map((step) => (
-          <tr key={step.name}>
-            <th scope="row" className={f.cellName}>
-              {step.name}
+  render: (_args, context) => {
+    const scale = readTypeScale(css, String(context.globals.theme));
+    return (
+      <table className={f.table}>
+        <caption className={f.caption}>{content.scaleCaption}</caption>
+        <thead>
+          <tr>
+            <th scope="col" className={f.headCell}>
+              {content.step}
             </th>
-            <td className={f.cell}>{step.size}</td>
-            <td className={f.cell}>{step.lineHeight}</td>
-            <td className={f.cell}>{step.fontWeight}</td>
-            <td className={f.cell}>{step.letterSpacing}</td>
-            <td className={f.cell}>
-              <span className={f.step[step.name]}>{content.pangram}</span>
-            </td>
+            <th scope="col" className={f.headCell}>
+              {content.size}
+            </th>
+            <th scope="col" className={f.headCell}>
+              {content.lineHeight}
+            </th>
+            <th scope="col" className={f.headCell}>
+              {content.weight}
+            </th>
+            <th scope="col" className={f.headCell}>
+              {content.tracking}
+            </th>
+            <th scope="col" className={f.headCell}>
+              {content.preview}
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  ),
+        </thead>
+        <tbody>
+          {scale.map((step) => (
+            <tr key={step.name}>
+              <th scope="row" className={f.cellName}>
+                {step.name}
+              </th>
+              <td className={f.cell}>{step.size}</td>
+              <td className={f.cell}>{step.lineHeight}</td>
+              <td className={f.cell}>{step.fontWeight}</td>
+              <td className={f.cell}>{step.letterSpacing}</td>
+              <td className={f.cell}>
+                <span className={f.step[step.name]}>{content.pangram}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  },
 };
 
 /** The subscription card's text stack. The price uses `tabular-nums`. */

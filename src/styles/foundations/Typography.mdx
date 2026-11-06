@@ -5,11 +5,11 @@ import * as Stories from "./Typography.stories";
 
 # Typography
 
-One typeface, Plus Jakarta Sans (400, 500, 600, 700), in two roles and a five-step scale. Size, line height, weight and letter spacing travel together in each step.
+The brand uses one typeface, Plus Jakarta Sans (400, 500, 600, 700), in two roles and a five-step scale. The `part-b` theme sets them to Fraunces (headings) over Inter (text) and resizes the steps to match the buy box. Size, line height, weight and letter spacing travel together in each step.
 
 ## Family
 
-`font-sans` is for text. `font-heading` is for titles and section headings, so `h1` and `h2` use it. The brand sets both to Plus Jakarta Sans; another theme can set them to different families without touching a component.
+`font-sans` is for text. `font-heading` is for titles and section headings, so `h1` and `h2` use it. The brand sets both to Plus Jakarta Sans; `part-b` sets them to different families without touching a component. Pick a theme in the Storybook toolbar to see its fonts.
 
 <Canvas of={Stories.Family} />
 
@@ -41,7 +41,7 @@ The subscription card's text stack, from eyebrow to price.
 
 ## Accessibility
 
-- Body text is 15px with a 1.5 line height; no step is below 11px, and only the uppercase eyebrow is that small.
+- Brand body text is 15px (16px in `part-b`) with a 1.5 line height; no step is below 11px, and only the uppercase eyebrow is that small.
 - Heading level and size are independent: choose the level for the outline, the size for the look.
 - Text colors come from tokens whose contrast is tested per theme.
 
