@@ -9,6 +9,7 @@ import { usePauseFlow } from "./hooks/usePauseFlow";
 import { useSkipFlow } from "./hooks/useSkipFlow";
 import { addDays, formatDay } from "./logic/dates";
 import { overlayReducer } from "./logic/overlay";
+import { deriveReceiptPresentation } from "./logic/receiptPresentation";
 import { deriveView, EMPTY_OVERLAY } from "./logic/subscriptionView";
 import type { IManageAction, TPageModel } from "./SubscriptionCard.type";
 import type {
@@ -139,8 +140,9 @@ export function useSubscriptionCard(): TPageModel {
     footer = { kind: "note", label: copy.cancelledTotal, sublabel: null };
   }
 
-  const lines: IReceiptLineModel[] = displayed.lines.map(
-    ({ sku, name, imageUrl, quantity, skipped, priceCents, compareAtCents }) => {
+  const presentation = deriveReceiptPresentation(displayed);
+  const lines: IReceiptLineModel[] = presentation.lines.map(
+    ({ sku, name, imageUrl, quantity, skipped, priceCents, compareAtCents, mutedPrice }) => {
       const zero = edit.editing && edit.isZero(sku);
       return {
         sku,
@@ -149,6 +151,7 @@ export function useSubscriptionCard(): TPageModel {
         quantityLabel: copy.quantity(quantity),
         priceCents,
         compareAtCents,
+        mutedPrice,
         skippedNote: skipped && !zero ? editCopy.skippedNote : null,
         edit: edit.editing
           ? {
@@ -173,6 +176,7 @@ export function useSubscriptionCard(): TPageModel {
     heading,
     status: displayed.status,
     lines,
+    groupLabel: presentation.groupLabel,
     footer,
     headingRef: edit.headingRef,
   };

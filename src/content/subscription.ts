@@ -14,6 +14,8 @@ export const subscriptionContent = {
     headingActive: "Next box",
     headingPaused: (date: string) => `Paused until ${date}`,
     headingPausedOpen: "Paused until you resume",
+    pausedGroup: "Box when you resume",
+    cancelledGroup: "Last box",
     headingCancelled: (date: string) => `Cancelled on ${date}`,
     quantity: (quantity: number) => `Qty ${quantity}`,
     charged: (date: string) => `Charged ${date}`,

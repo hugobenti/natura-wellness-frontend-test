@@ -19,6 +19,7 @@ export interface IReceiptLineModel {
   quantityLabel: string;
   priceCents: number | null;
   compareAtCents: number | null;
+  mutedPrice: string | null;
   skippedNote?: string | null;
   edit?: IReceiptLineEdit;
 }
@@ -46,6 +47,7 @@ export interface IReceiptCardProps {
   heading: string;
   status: SubscriptionStatus;
   lines: IReceiptLineModel[];
+  groupLabel: string | null;
   footer: TReceiptFooter;
   headingRef?: Ref<HTMLHeadingElement>;
 }

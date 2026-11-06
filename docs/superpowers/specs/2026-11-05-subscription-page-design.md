@@ -97,8 +97,8 @@ Reviewers judge product and design decisions more than layout. The page should r
     - **The paused page:**
       - an amber "Paused" badge
       - a header reading "Paused until Sun, Nov 29" or "Paused until you resume"
-      - slightly dimmed products
-      - "No charges while paused" in place of the total
+      - "No charges while paused" directly below the heading, before the items; timed pauses also show the next-charge amount and date there
+      - a "Box when you resume" label above the listed products, whose names and prices use muted text tokens and regular weight, without compare-at prices or a savings line
       - no skip and no edit
       - actions: "Resume now" (primary), "Change pause" (the same sheet, starting from the current choice), and a quiet "Cancel subscription"
 11. **Keep all four extras:** quantity, skip one product, pause, cancellation flow. Hugo accepted the breadth-versus-depth risk.
@@ -153,18 +153,18 @@ The server snapshot (from `getSubscription` or `skipNextShipment`) stays the sou
 
 ## States and views
 
-| View              | Reached by                                                | Shows                                                          | Actions                                                                                  |
-| ----------------- | --------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Loading           | first load, "Try again"                                   | static receipt skeleton                                        | —                                                                                        |
-| Load error        | `?fixture=error`, any load failure                        | error `Alert`                                                  | Try again, Contact support                                                               |
-| Active            | `?fixture=active`, after resume                           | receipt card with date, totals and savings                     | Edit products, Skip the whole box, Pause subscription, Cancel subscription (quiet)       |
-| Editing           | Edit products, or "Edit my next box" from the cancel page | receipt with steppers, Skip once / Undo, live new total        | Save changes, Cancel                                                                     |
-| Skip sheet        | Skip the whole box                                        | confirm → pending → (closes on success) / 409 info / error     | Skip this box / Try again, Keep my box, Contact support (on error)                       |
-| Pause sheet       | Pause subscription, Change pause                          | radio list: 1, 2, 3 months, Until I resume                     | Pause for …, Keep it active / Keep {date}                                                |
-| Paused            | `?fixture=paused`, after pausing                          | amber badge, "Paused until …", dimmed products, no total       | Resume now, Change pause, Cancel subscription (quiet)                                    |
-| Before you cancel | Cancel subscription (active or paused)                    | two reasons to stay, real savings figures                      | ← Back, Edit my next box (quiet; active only), Keep my subscription, Cancel subscription |
-| Survey            | right after cancelling locally                            | optional radio list of the five reasons                        | Send answer, No thanks                                                                   |
-| Cancelled         | `?fixture=cancelled`, after the survey                    | grey badge, "Cancelled on {date}", products, "No more charges" | none                                                                                     |
+| View              | Reached by                                                | Shows                                                                                                                                                                         | Actions                                                                                  |
+| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Loading           | first load, "Try again"                                   | static receipt skeleton                                                                                                                                                       | —                                                                                        |
+| Load error        | `?fixture=error`, any load failure                        | error `Alert`                                                                                                                                                                 | Try again, Contact support                                                               |
+| Active            | `?fixture=active`, after resume                           | receipt card with date, totals and savings                                                                                                                                    | Edit products, Skip the whole box, Pause subscription, Cancel subscription (quiet)       |
+| Editing           | Edit products, or "Edit my next box" from the cancel page | receipt with steppers, Skip once / Undo, live new total                                                                                                                       | Save changes, Cancel                                                                     |
+| Skip sheet        | Skip the whole box                                        | confirm → pending → (closes on success) / 409 info / error                                                                                                                    | Skip this box / Try again, Keep my box, Contact support (on error)                       |
+| Pause sheet       | Pause subscription, Change pause                          | radio list: 1, 2, 3 months, Until I resume                                                                                                                                    | Pause for …, Keep it active / Keep {date}                                                |
+| Paused            | `?fixture=paused`, after pausing                          | amber badge, "Paused until …", "No charges while paused" first (plus next-charge line when timed), muted "Box when you resume" products with prices but no compare-at/savings | Resume now, Change pause, Cancel subscription (quiet)                                    |
+| Before you cancel | Cancel subscription (active or paused)                    | two reasons to stay, real savings figures                                                                                                                                     | ← Back, Edit my next box (quiet; active only), Keep my subscription, Cancel subscription |
+| Survey            | right after cancelling locally                            | optional radio list of the five reasons                                                                                                                                       | Send answer, No thanks                                                                   |
+| Cancelled         | `?fixture=cancelled`, after the survey                    | grey badge, "Cancelled on {date}", "No more charges" first, muted "Last box" products with prices but no compare-at/savings                                                   | none                                                                                     |
 
 Success `Alert`s (above the card, `role="status"`, replaced by the next one): box skipped (with the new date and amount), changes saved, paused (until when), resumed (next charge date). After the survey, a short thank-you shows above the cancelled card.
 
@@ -178,7 +178,7 @@ Success `Alert`s (above the card, `role="status"`, replaced by the next one): bo
 - **Status changes:**
   - Success, info and error alerts are announced: `role="status"` for success and info, `role="alert"` for errors.
   - The skeleton has an accessible loading label.
-- **Dimming** (paused items, skipped rows) uses opacity only and never carries meaning alone. The text ("Skipped in the next box only", the "Paused" badge) says it too.
+- **Dimming:** inactive product names and prices use the contrast-tested muted text token, not opacity; their status line explicitly says no charges are due. Only the thumbnails of skipped active rows use opacity, alongside the "Skipped in the next box only" note.
 
 ## Testing
 

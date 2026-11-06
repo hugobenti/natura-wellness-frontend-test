@@ -10,7 +10,14 @@ import { MAX_QUANTITY } from "../../logic/editDraft";
 import { receiptCard } from "./ReceiptCard.style";
 import type { IReceiptCardProps } from "./ReceiptCard.type";
 
-export function ReceiptCard({ heading, status, lines, footer, headingRef }: IReceiptCardProps) {
+export function ReceiptCard({
+  heading,
+  status,
+  lines,
+  groupLabel,
+  footer,
+  headingRef,
+}: IReceiptCardProps) {
   return (
     <section className={receiptCard.card}>
       <header className={receiptCard.header}>
@@ -19,23 +26,34 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
         </h2>
         <StatusBadge status={status} />
       </header>
+      {footer.kind === "note" && (
+        <div className={receiptCard.inactiveStatus}>
+          <p className={receiptCard.inactiveStatusLabel}>{footer.label}</p>
+          {footer.sublabel && <p className={receiptCard.footerSublabel}>{footer.sublabel}</p>}
+        </div>
+      )}
+      {groupLabel && <h3 className={receiptCard.groupLabel}>{groupLabel}</h3>}
       <div>
         {lines.map((line) => (
           <div
             key={line.sku}
-            className={cx(receiptCard.row, line.edit ? receiptCard.rowEdit : receiptCard.rowRead)}
+            className={cx(
+              receiptCard.row,
+              line.edit ? receiptCard.rowEdit : receiptCard.rowRead,
+              status !== "active" && receiptCard.inactiveRow,
+            )}
           >
             <ProductThumbnail
               src={line.imageUrl}
               name={line.name}
               size="md"
               decorative
-              className={cx(
-                (status === "paused" || line.priceCents === null) && receiptCard.dimmed,
-              )}
+              className={cx(line.priceCents === null && receiptCard.dimmed)}
             />
             <div className={receiptCard.details}>
-              <p className={receiptCard.name}>{line.name}</p>
+              <p className={status === "active" ? receiptCard.name : receiptCard.inactiveName}>
+                {line.name}
+              </p>
               {!line.edit && <p className={receiptCard.mobileQuantity}>{line.quantityLabel}</p>}
               {line.skippedNote && !line.edit?.undo && (
                 <p className={receiptCard.skippedNote}>{line.skippedNote}</p>
@@ -60,14 +78,19 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
             ) : (
               <span className={receiptCard.desktopQuantity}>{line.quantityLabel}</span>
             )}
-            {line.priceCents !== null && (
-              <PriceDisplay
-                amountCents={line.priceCents}
-                compareAtCents={line.compareAtCents ?? undefined}
-                layout="stacked"
-                className={receiptCard.price}
-              />
-            )}
+            {line.priceCents !== null &&
+              (line.mutedPrice ? (
+                <span className={cx(receiptCard.price, receiptCard.inactivePrice)}>
+                  {line.mutedPrice}
+                </span>
+              ) : (
+                <PriceDisplay
+                  amountCents={line.priceCents}
+                  compareAtCents={line.compareAtCents ?? undefined}
+                  layout="stacked"
+                  className={receiptCard.price}
+                />
+              ))}
             {line.edit?.skip && (
               <div className={receiptCard.editorAction}>
                 <Button
@@ -98,12 +121,12 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
           </div>
         ))}
       </div>
-      <footer className={receiptCard.footer}>
-        <div className={receiptCard.footerText}>
-          <p className={receiptCard.footerLabel}>{footer.label}</p>
-          {footer.sublabel && <p className={receiptCard.footerSublabel}>{footer.sublabel}</p>}
-        </div>
-        {footer.kind !== "note" && (
+      {footer.kind !== "note" && (
+        <footer className={receiptCard.footer}>
+          <div className={receiptCard.footerText}>
+            <p className={receiptCard.footerLabel}>{footer.label}</p>
+            {footer.sublabel && <p className={receiptCard.footerSublabel}>{footer.sublabel}</p>}
+          </div>
           <div className={receiptCard.footerAmount}>
             <PriceDisplay
               amountCents={footer.totalCents}
@@ -113,8 +136,8 @@ export function ReceiptCard({ heading, status, lines, footer, headingRef }: IRec
             />
             {footer.savingLabel && <Badge tone="highlight">{footer.savingLabel}</Badge>}
           </div>
-        )}
-      </footer>
+        </footer>
+      )}
     </section>
   );
 }
