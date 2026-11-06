@@ -37,6 +37,10 @@ Vite prints the local URL when the server starts. Both experiences are selected 
 
 Part A supports these mock subscription fixtures: `active`, `paused`, `cancelled`, and `error`. Add `&conflict=always` to force a simulated conflict during an update. For example: `/?part=a&fixture=active&conflict=always`.
 
+In Part A, the **Subscription fixture** selector switches between `active`, `paused`, `cancelled`, and `error`; the current fixture is reflected in the URL. The **Theme** selector works independently of the current part and adds an optional `theme=brand|part-b` override.
+
+Without a theme override, Part A uses `brand` and Part B uses `part-b`. Switching parts clears the override and uses that part's default theme. Switching from Part B to Part A starts with the `active` fixture.
+
 Part B is matched to [`public/reference/buy-box.png`](./public/reference/buy-box.png), a 2× reference capture at a 1200px viewport. Its copy is kept in [`src/part-b/copy.ts`](./src/part-b/copy.ts); the product image is `public/product.jpg`.
 
 ## Theme strategy
