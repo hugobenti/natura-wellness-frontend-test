@@ -2,9 +2,10 @@ import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { useSubscription } from "./hooks/useSubscription";
+import { useActivationFlow } from "./hooks/useActivationFlow";
+import { useCancelFlow } from "./hooks/useCancelFlow";
 import { useEditMode } from "./hooks/useEditMode";
 import type { INotice } from "./hooks/notice.type";
-import { useCancelFlow } from "./hooks/useCancelFlow";
 import { usePauseFlow } from "./hooks/usePauseFlow";
 import { useSkipFlow } from "./hooks/useSkipFlow";
 import { addDays, formatDay } from "./logic/dates";
@@ -34,6 +35,12 @@ export function useSubscriptionCard(): TPageModel {
     edit.start();
   };
   const pauseFlow = usePauseFlow({
+    view,
+    overlay,
+    dispatch,
+    notify: setNotice,
+  });
+  const activationFlow = useActivationFlow({
     view,
     overlay,
     dispatch,
@@ -261,7 +268,10 @@ export function useSubscriptionCard(): TPageModel {
               key: "resume",
               label: subscriptionContent.manage.resume,
               variant: "primary",
-              onClick: pauseFlow.resume,
+              onClick: () => {
+                clearNotice();
+                activationFlow.open();
+              },
             },
             {
               key: "changePause",
@@ -274,7 +284,17 @@ export function useSubscriptionCard(): TPageModel {
             },
             cancelAction,
           ]
-        : [];
+        : [
+            {
+              key: "reactivate",
+              label: subscriptionContent.manage.reactivate,
+              variant: "primary",
+              onClick: () => {
+                clearNotice();
+                activationFlow.open();
+              },
+            },
+          ];
   let skipSheet: ISkipSheetProps | null = null;
   if (readyView.status === "active" && readyView.nextChargeAt) {
     const oldDate = formatDay(readyView.nextChargeAt, now);
@@ -337,6 +357,13 @@ export function useSubscriptionCard(): TPageModel {
             },
           }
         : null,
+    editFrequency: edit.editing
+      ? {
+          value: edit.frequencyValue,
+          options: [...editCopy.frequencyOptions],
+          onChange: edit.setFrequency,
+        }
+      : null,
     receipt,
     notice,
     dismissNotice: () => {
@@ -345,6 +372,7 @@ export function useSubscriptionCard(): TPageModel {
     },
     skipSheet,
     pauseSheet: pauseFlow.sheet,
+    activationDialog: activationFlow.dialog,
     actions,
   };
 }

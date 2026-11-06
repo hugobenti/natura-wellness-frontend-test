@@ -9,6 +9,7 @@ export function startDraft(overlay: ILocalOverlay): IEditDraft {
     quantities: { ...overlay.quantities },
     skippedSkus: [...overlay.skippedSkus],
     zeroSkus: overlay.zeroSkus.filter((sku) => overlay.skippedSkus.includes(sku)),
+    intervalDays: overlay.intervalDays,
   };
 }
 

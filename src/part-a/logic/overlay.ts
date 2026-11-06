@@ -11,6 +11,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
         quantities: { ...action.draft.quantities },
         skippedSkus: [...action.draft.skippedSkus],
         zeroSkus: [...action.draft.zeroSkus],
+        intervalDays: action.draft.intervalDays,
       };
     case "clearSkipped":
       return { ...overlay, skippedSkus: [], zeroSkus: [] };

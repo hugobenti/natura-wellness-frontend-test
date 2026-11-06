@@ -15,5 +15,4 @@ export interface IUsePauseFlowResult {
   sheet: IPauseSheetProps;
   openPause: () => void;
   openChange: () => void;
-  resume: () => void;
 }

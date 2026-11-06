@@ -36,6 +36,13 @@ export function useEditMode({
   const toggleSkip = (sku: string) => {
     setDraft((current) => current && toggleDraftSkip(current, sku));
   };
+  const setFrequency = (value: string) => {
+    const days = Number(value);
+    setDraft(
+      (current) =>
+        current && { ...current, intervalDays: days === snapshot?.intervalDays ? null : days },
+    );
+  };
   const isZero = (sku: string) => draft?.zeroSkus.includes(sku) ?? false;
   const allExcluded = draftView !== null && draftView.lines.every(({ skipped }) => skipped);
   /** Every product is out of the box and at least one was stepped to 0: nothing to save. */
@@ -70,6 +77,8 @@ export function useEditMode({
     cancel,
     setQuantity,
     toggleSkip,
+    frequencyValue: String(draft?.intervalDays ?? snapshot?.intervalDays ?? 30),
+    setFrequency,
     isZero,
     emptyBox,
     allExcluded,

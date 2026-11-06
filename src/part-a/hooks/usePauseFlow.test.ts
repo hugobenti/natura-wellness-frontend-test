@@ -74,24 +74,6 @@ describe("usePauseFlow", () => {
     );
   });
 
-  it("resumes a skipped charge after pausing", () => {
-    const overlay: ILocalOverlay = {
-      ...EMPTY_OVERLAY,
-      lifecycle: {
-        status: "paused",
-        pausedUntil: "2027-01-10T12:00:00.000Z",
-        presetId: "1m",
-        resumeAt: "2026-12-11T12:00:00.000Z",
-      },
-    };
-    const { result, dispatch, notify } = setup(fixtures.active(), overlay);
-    act(() => result.current.resume());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "resume", now });
-    expect(notify).toHaveBeenCalledWith(
-      expect.objectContaining({ body: "Your next charge is $101.87 on Fri, Dec 11." }),
-    );
-  });
-
   it("choosing Until I resume relabels the confirm", () => {
     const { result, dispatch, notify, view } = setup();
     act(() => result.current.openPause());
@@ -216,16 +198,5 @@ describe("usePauseFlow", () => {
     expect(dispatch).toHaveBeenCalledWith(
       expect.objectContaining({ resumeAt: "2026-11-01T12:00:00.000Z" }),
     );
-  });
-
-  it("resume dispatches resume and notifies with the next charge", () => {
-    const { result, dispatch, notify } = setup(fixtures.paused());
-    act(() => result.current.resume());
-    expect(dispatch).toHaveBeenCalledExactlyOnceWith({ type: "resume", now });
-    expect(notify).toHaveBeenCalledWith({
-      tone: "success",
-      title: "Subscription resumed",
-      body: "Your next charge is $101.87 on Fri, Nov 6.",
-    });
   });
 });

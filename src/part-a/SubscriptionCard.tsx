@@ -1,6 +1,8 @@
 import { subscriptionContent } from "@/content/subscription";
 import { Alert } from "@/shared/components/Alert/Alert";
 import { Button } from "@/shared/components/Button/Button";
+import { Select } from "@/shared/components/Select/Select";
+import { ActivationDialog } from "./components/ActivationDialog/ActivationDialog";
 import { CancelConfirm } from "./components/CancelConfirm/CancelConfirm";
 import { ManagePanel } from "./components/ManagePanel/ManagePanel";
 import { PauseSheet } from "./components/PauseSheet/PauseSheet";
@@ -72,6 +74,14 @@ export function SubscriptionCard() {
             </div>
             {model.actions.length > 0 && (
               <ManagePanel>
+                {model.editFrequency && (
+                  <Select
+                    label={subscriptionContent.edit.deliveryFrequency}
+                    value={model.editFrequency.value}
+                    options={model.editFrequency.options}
+                    onChange={model.editFrequency.onChange}
+                  />
+                )}
                 {model.actions.map((action) => (
                   <Button
                     key={action.key}
@@ -90,6 +100,7 @@ export function SubscriptionCard() {
           </div>
           {model.skipSheet && <SkipSheet {...model.skipSheet} />}
           <PauseSheet {...model.pauseSheet} />
+          <ActivationDialog {...model.activationDialog} />
         </>
       )}
     </div>
