@@ -8,3 +8,5 @@ test-results
 # The brief and its mock backend, kept byte-identical to what it ships.
 INSTRUCTIONS.md
 src/api
+# Unedited AI conversation export; must stay byte-identical.
+public/omp-session.html
