@@ -6,6 +6,7 @@ export const receiptCard = {
   inactiveStatusLabel: "font-semibold text-body text-fg",
   groupLabel: "pt-4 font-semibold text-small text-muted",
   row: "grid grid-cols-[56px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 border-b border-line py-4 lg:items-center",
+  inactiveRow: "last:border-b-0",
   rowRead: "lg:grid-cols-[56px_minmax(0,1fr)_96px_120px]",
   rowEdit: "lg:grid-cols-[56px_minmax(0,1fr)_144px_120px]",
   dimmed: "opacity-60",

@@ -37,19 +37,21 @@ export function ReceiptCard({
         {lines.map((line) => (
           <div
             key={line.sku}
-            className={cx(receiptCard.row, line.edit ? receiptCard.rowEdit : receiptCard.rowRead)}
+            className={cx(
+              receiptCard.row,
+              line.edit ? receiptCard.rowEdit : receiptCard.rowRead,
+              status !== "active" && receiptCard.inactiveRow,
+            )}
           >
             <ProductThumbnail
               src={line.imageUrl}
               name={line.name}
               size="md"
               decorative
-              className={cx(
-                (status === "paused" || line.priceCents === null) && receiptCard.dimmed,
-              )}
+              className={cx(line.priceCents === null && receiptCard.dimmed)}
             />
             <div className={receiptCard.details}>
-              <p className={groupLabel ? receiptCard.inactiveName : receiptCard.name}>
+              <p className={status === "active" ? receiptCard.name : receiptCard.inactiveName}>
                 {line.name}
               </p>
               {!line.edit && <p className={receiptCard.mobileQuantity}>{line.quantityLabel}</p>}
