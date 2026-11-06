@@ -30,7 +30,9 @@ function setup(
   const hook = renderHook(() =>
     useSkipFlow({
       view,
+      comparisonView: view,
       reload,
+      deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
       onSkipped,
       notify,
       successAmount,
@@ -116,6 +118,79 @@ describe("useSkipFlow", () => {
     expect(result.current.phase).toBe("conflict");
   });
 
+  it("explains an unchanged reload and explains again after a second conflict", async () => {
+    const { result } = setup();
+    vi.mocked(skipNextShipment)
+      .mockRejectedValueOnce(new ApiError(409, "changed"))
+      .mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual([]);
+    await act(async () => result.current.confirm());
+    expect(result.current.phase).toBe("conflict");
+    expect(result.current.conflict?.messages).toEqual([]);
+    expect(skipNextShipment).toHaveBeenCalledTimes(2);
+  });
+
+  it("clears the prior conflict when the sheet is closed and reopened", async () => {
+    const { result } = setup();
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict).not.toBeNull();
+    act(() => {
+      result.current.close();
+      result.current.open();
+    });
+    expect(result.current.phase).toBe("confirm");
+    expect(result.current.conflict).toBeNull();
+  });
+
+  it("compares the full box even when a product was locally skipped", async () => {
+    const snapshot = fixtures.active();
+    const sku = snapshot.items[0]!.sku;
+    const overlay = { ...EMPTY_OVERLAY, skippedSkus: [sku] };
+    const fresh = fixtures.active();
+    fresh.items = fresh.items.map((item) => (item.sku === sku ? { ...item, quantity: 2 } : item));
+    const view = deriveView(snapshot, overlay);
+    const { result } = renderHook(() =>
+      useSkipFlow({
+        view,
+        comparisonView: deriveView(snapshot, EMPTY_OVERLAY),
+        deriveFresh: (updated) => deriveView(updated, EMPTY_OVERLAY),
+        reload: async () => fresh,
+        onSkipped: vi.fn(),
+        skipLocally: vi.fn(),
+        localSuccessAmount: () => 0,
+        successAmount: () => 0,
+        notify: vi.fn(),
+      }),
+    );
+    act(() => result.current.open());
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual(
+      expect.arrayContaining([
+        "Vitamin D, 60 softgels quantity changed from 1 to 2",
+        "Total changed from $101.87 to $127.33",
+      ]),
+    );
+  });
+
+  it("reports changed charge and line items on a conflicting reload", async () => {
+    const { result, reload } = setup();
+    const fresh = fixtures.active();
+    fresh.nextChargeTotalCents = 7641;
+    fresh.items = fresh.items.slice(0, 1);
+    reload.mockResolvedValueOnce(fresh);
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.conflict?.messages).toEqual(
+      expect.arrayContaining([
+        "Total changed from $101.87 to $25.46",
+        expect.stringMatching(/ removed$/),
+      ]),
+    );
+  });
+
   it("409 with a failed reload moves to error", async () => {
     const { result, reload } = setup();
     reload.mockResolvedValueOnce(null);
@@ -137,7 +212,20 @@ describe("useSkipFlow", () => {
     expect(notify).toHaveBeenCalledWith({
       tone: "info",
       title: "Your subscription changed somewhere else",
-      body: "We loaded the latest version.",
+      body: "Your subscription is now paused, so this box can't be skipped.",
+    });
+  });
+
+  it("409 whose reload is cancelled closes and explains that skipping is unavailable", async () => {
+    const { result, reload, notify } = setup();
+    reload.mockResolvedValueOnce(fixtures.cancelled());
+    vi.mocked(skipNextShipment).mockRejectedValueOnce(new ApiError(409, "changed"));
+    await act(async () => result.current.confirm());
+    expect(result.current.phase).toBeNull();
+    expect(notify).toHaveBeenCalledWith({
+      tone: "info",
+      title: "Your subscription changed somewhere else",
+      body: "Your subscription is now cancelled, so this box can't be skipped.",
     });
   });
 
@@ -178,7 +266,9 @@ describe("useSkipFlow", () => {
     const { result } = renderHook(() =>
       useSkipFlow({
         view,
+        comparisonView: view,
         reload,
+        deriveFresh: (fresh) => deriveView(fresh, EMPTY_OVERLAY),
         onSkipped,
         notify,
         skipLocally,

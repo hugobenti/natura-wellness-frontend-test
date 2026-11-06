@@ -9,6 +9,9 @@ import type { ISkipSheetProps } from "./SkipSheet.type";
 export function SkipSheet({
   open,
   phase,
+  conflict,
+  changeItems,
+  factStyles,
   oldDate,
   newDate,
   amount,
@@ -38,7 +41,18 @@ export function SkipSheet({
     >
       {phase === "conflict" && (
         <Alert tone="info" title={copy.conflictTitle} className={skipSheet.alert}>
-          <p>{copy.conflictBody}</p>
+          {conflict?.messages.length ? (
+            <>
+              <p>{copy.conflictBody}</p>
+              <ul className={skipSheet.changes}>
+                {changeItems.map((change) => (
+                  <li key={change.key}>{change.message}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>{copy.conflictUnchanged}</p>
+          )}
         </Alert>
       )}
       {phase === "error" && (
@@ -51,18 +65,18 @@ export function SkipSheet({
       )}
       <dl className={skipSheet.facts}>
         <div className={skipSheet.fact}>
-          <dt className={skipSheet.factLabel}>{copy.nextBox}</dt>
+          <dt className={factStyles.nextBoxLabel}>{copy.nextBox}</dt>
           <dd className={skipSheet.dates}>
             <span className={skipSheet.srOnly}>{copy.from}</span>
-            <s className={skipSheet.oldDate}>{oldDate}</s>
+            <s className={factStyles.oldDate}>{oldDate}</s>
             <span aria-hidden="true">{copy.arrow}</span>
             <span className={skipSheet.srOnly}>{copy.to}</span>
-            <strong className={skipSheet.newDate}>{newDate}</strong>
+            <strong className={factStyles.newDate}>{newDate}</strong>
           </dd>
         </div>
         <div className={skipSheet.fact}>
-          <dt className={skipSheet.factLabel}>{chargeLabel}</dt>
-          <dd className={skipSheet.factValue}>{amount}</dd>
+          <dt className={factStyles.chargeLabel}>{chargeLabel}</dt>
+          <dd className={factStyles.amount}>{amount}</dd>
         </div>
       </dl>
       <p className={skipSheet.note}>{nothingNote}</p>

@@ -18,12 +18,14 @@ import type {
   TReceiptFooter,
 } from "./components/ReceiptCard/ReceiptCard.type";
 import type { ISkipSheetProps } from "./components/SkipSheet/SkipSheet.type";
+import { skipSheet as skipSheetStyles } from "./components/SkipSheet/SkipSheet.style";
 
 export function useSubscriptionCard(): TPageModel {
   const { state, retry, reload, replace } = useSubscription();
   const [overlay, dispatch] = useReducer(overlayReducer, EMPTY_OVERLAY);
   const [notice, setNotice] = useState<INotice | null>(null);
   const snapshot = state.status === "ready" ? state.snapshot : null;
+  const comparisonOverlay = { ...overlay, skippedSkus: [], zeroSkus: [] };
   const view = snapshot ? deriveView(snapshot, overlay) : null;
   const clearNotice = () => setNotice(null);
   const edit = useEditMode({ overlay, snapshot, dispatch, notify: setNotice });
@@ -39,11 +41,13 @@ export function useSubscriptionCard(): TPageModel {
   });
   const skipFlow = useSkipFlow({
     view,
+    comparisonView: snapshot ? deriveView(snapshot, comparisonOverlay) : null,
     reload: async () => {
       const fresh = await reload();
       if (fresh && fresh.nextChargeAt !== view!.nextChargeAt) dispatch({ type: "clearSkipped" });
       return fresh;
     },
+    deriveFresh: (fresh) => deriveView(fresh, comparisonOverlay),
     onSkipped: (fresh) => {
       replace(fresh);
       dispatch({ type: "clearSkipped" });
@@ -265,12 +269,30 @@ export function useSubscriptionCard(): TPageModel {
     skipSheet = {
       open: skipFlow.phase !== null,
       phase,
+      conflict: skipFlow.conflict,
+      changeItems:
+        skipFlow.conflict?.messages.map((message, index) => ({
+          key: `${index}-${message}`,
+          message,
+        })) ?? [],
+      factStyles: {
+        nextBoxLabel: skipFlow.conflict?.nextDateChanged
+          ? skipSheetStyles.changedLabel
+          : skipSheetStyles.factLabel,
+        oldDate: skipSheetStyles.oldDate,
+        newDate: skipFlow.conflict?.skipDateChanged
+          ? skipSheetStyles.changedValue
+          : skipSheetStyles.newDate,
+        chargeLabel: skipFlow.conflict?.skipDateChanged
+          ? skipSheetStyles.changedLabel
+          : skipSheetStyles.factLabel,
+        amount: skipFlow.conflict?.totalChanged
+          ? skipSheetStyles.changedValue
+          : skipSheetStyles.factValue,
+      },
       oldDate,
       newDate,
-      amount: formatMoney(
-        deriveView(state.snapshot, { ...overlay, skippedSkus: [], zeroSkus: [] }).pricing
-          .totalCents,
-      ),
+      amount: formatMoney(deriveView(state.snapshot, comparisonOverlay).pricing.totalCents),
       confirmLabel:
         phase === "pending"
           ? skipCopy.pending
