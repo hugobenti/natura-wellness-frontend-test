@@ -111,6 +111,20 @@ describe("useCancelFlow", () => {
     act(() => result.current.confirm.offer!.onAccept!());
     expect(openPause).toHaveBeenCalledOnce();
   });
+  it("shows support alone for no results while already paused", () => {
+    const { result, openPause } = setup(fixtures.paused());
+    act(() => result.current.open());
+    act(() => result.current.confirm.onChange("noResults"));
+    expect(result.current.confirm.offer).toMatchObject({
+      kind: "support",
+      title: "We're here to listen",
+      body: "Talk to our team whenever you're ready.",
+      supportLink: expect.objectContaining({ label: "Talk to our team" }),
+    });
+    expect(result.current.confirm.offer?.label).toBeUndefined();
+    expect(result.current.confirm.offer?.onAccept).toBeUndefined();
+    expect(openPause).not.toHaveBeenCalled();
+  });
   it("does not offer skip or pause on a paused subscription", () => {
     const { result } = setup(fixtures.paused());
     act(() => result.current.open());

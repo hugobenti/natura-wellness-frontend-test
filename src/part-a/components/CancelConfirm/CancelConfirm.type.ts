@@ -1,5 +1,5 @@
-import type { RefObject } from "react";
 import type { IRadioOption } from "@/shared/components/RadioGroup/RadioGroup.type";
+import type { RefObject } from "react";
 import type { TCancelReason } from "../../logic/cancelReason.type";
 
 export interface ICancelOffer {
@@ -16,6 +16,7 @@ export interface ICancelOffer {
   productSku?: string;
   onProductChange?: (value: string) => void;
 }
+
 export interface ICancelConfirmProps {
   value: TCancelReason | "";
   options: IRadioOption<TCancelReason>[];
@@ -26,6 +27,7 @@ export interface ICancelConfirmProps {
   backLabel: string;
   onBack: () => void;
 }
+
 export interface ICancelConfirmViewProps extends ICancelConfirmProps {
   title: string;
   lead: string;

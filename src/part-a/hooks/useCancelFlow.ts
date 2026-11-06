@@ -26,16 +26,19 @@ export function useCancelFlow({
   const copy = subscriptionContent.cancel;
   const now = new Date();
   const cancellable = subscription?.status === "active" || subscription?.status === "paused";
+
   useEffect(() => {
     if (shownView.current === view) return;
     shownView.current = view;
     window.scrollTo({ top: 0 });
     h1Ref.current?.focus();
   }, [view]);
+
   const back = () => {
     clearNotice();
     setView("subscription");
   };
+
   const open = () => {
     if (!cancellable) return;
     clearNotice();
@@ -50,15 +53,18 @@ export function useCancelFlow({
     );
     setView("cancelConfirm");
   };
+
   const finishOffer = (title: string, body: string) => {
     setView("subscription");
     notify({ tone: "success", title, body });
   };
+
   const availableProducts = catalog.filter(
     (product) =>
       product.sku !== "NW-ESSENTIALS" &&
       !subscription?.lines.some((line) => line.productSku === product.sku),
   );
+
   let offer: ICancelOffer | null = null;
   if (reason === "tooMuch" && subscription?.status === "active" && subscription.nextChargeAt) {
     const moved = formatDay(addDays(subscription.nextChargeAt, subscription.intervalDays), now);
@@ -134,6 +140,7 @@ export function useCancelFlow({
             supportLink: { href: subscriptionContent.support.href, label: copy.supportAction },
           };
   }
+
   const confirmCancel = () => {
     if (!cancellable) return;
     clearNotice();
@@ -141,6 +148,7 @@ export function useCancelFlow({
     setView("subscription");
     notify({ tone: "success", title: copy.doneTitle, body: copy.doneBody });
   };
+
   return {
     view,
     open,

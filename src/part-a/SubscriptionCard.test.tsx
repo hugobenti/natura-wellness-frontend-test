@@ -3,6 +3,7 @@ import { getSubscription } from "@/api/mockApi";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { SubscriptionCard } from "./SubscriptionCard";
+import { addDays, formatDay } from "./logic/dates";
 
 vi.mock("@/api/mockApi", () => ({ getSubscription: vi.fn() }));
 
@@ -81,6 +82,7 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.getByRole("button", { name: "Resume now" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });
+
 it("cancels without choosing a reason and returns directly to the receipt", async () => {
   window.scrollTo = vi.fn();
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
@@ -101,11 +103,14 @@ it("cancels without choosing a reason and returns directly to the receipt", asyn
 
 it("shows the moved date in the skip alternative", async () => {
   window.scrollTo = vi.fn();
-  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  const snapshot = fixtures.active();
+  vi.mocked(getSubscription).mockResolvedValue(snapshot);
   render(<SubscriptionCard />);
   fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
   fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
-  expect(screen.getByText(/Move your next charge to/)).toHaveTextContent("Dec");
+  expect(screen.getByText(/Move your next charge to/)).toHaveTextContent(
+    formatDay(addDays(snapshot.nextChargeAt!, snapshot.intervalDays), new Date()),
+  );
 });
 
 it("shows a 60-day receipt after accepting the cadence offer, without repeating that offer", async () => {

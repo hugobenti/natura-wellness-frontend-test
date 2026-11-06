@@ -5,6 +5,7 @@ import type { ISubscriptionView } from "../logic/subscriptionView.type";
 import type { INotice } from "./notice.type";
 
 export type TPageView = "subscription" | "cancelConfirm";
+
 export interface IUseCancelFlowArgs {
   subscription: ISubscriptionView | null;
   dispatch: Dispatch<TOverlayAction>;
@@ -14,6 +15,7 @@ export interface IUseCancelFlowArgs {
   openSkip: () => void;
   openPause: () => void;
 }
+
 export interface IUseCancelFlowResult {
   view: TPageView;
   open: () => void;

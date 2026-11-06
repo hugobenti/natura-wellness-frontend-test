@@ -1,10 +1,11 @@
 import { subscriptionContent } from "@/content/subscription";
 import { Button } from "@/shared/components/Button/Button";
-import type { TCancelReason } from "../../logic/cancelReason.type";
 import { RadioGroup } from "@/shared/components/RadioGroup/RadioGroup";
 import { Icon } from "@/shared/icons/Icon";
+import type { TCancelReason } from "../../logic/cancelReason.type";
 import { cancelConfirm } from "./CancelConfirm.style";
 import type { ICancelConfirmViewProps } from "./CancelConfirm.type";
+
 export function CancelConfirm({
   title,
   lead,
