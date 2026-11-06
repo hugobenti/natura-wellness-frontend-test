@@ -93,7 +93,7 @@ describe("useCancelFlow", () => {
     expect(offer).toMatchObject({
       kind: "browse",
       title: "Try a different product",
-      body: "The product list isn't available here yet.",
+      body: "Choose a different product from the list.",
       label: "Browse products",
     });
     act(() => offer.onAccept!());
