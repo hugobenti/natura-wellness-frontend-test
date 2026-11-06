@@ -19,5 +19,7 @@ export const iconPaths: Record<TIconName, readonly string[]> = {
   "chevron-down": ["m6 9 6 6 6-6"],
   minus: ["M5 12h14"],
   plus: ["M5 12h14", "M12 5v14"],
+  // five-point star; pass `filled` to paint it solid
+  star: ["m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z"],
   close: ["M18 6 6 18", "m6 6 12 12"],
 };

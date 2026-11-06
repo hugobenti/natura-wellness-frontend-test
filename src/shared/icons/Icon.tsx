@@ -4,11 +4,11 @@ import { icon } from "./Icon.style";
 import type { IIconProps } from "./Icon.type";
 
 /** A decorative stroke icon in `currentColor`. Pair it with a visible word; never the only signal. */
-export function Icon({ name, className }: IIconProps) {
+export function Icon({ name, filled, className }: IIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
-      fill="none"
+      fill={filled ? "currentColor" : "none"}
       stroke="currentColor"
       strokeWidth={2}
       strokeLinecap="round"

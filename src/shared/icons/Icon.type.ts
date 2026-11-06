@@ -9,9 +9,12 @@ export type TIconName =
   | "chevron-down"
   | "minus"
   | "plus"
+  | "star"
   | "close";
 
 export interface IIconProps {
   name: TIconName;
+  /** Paints the shape solid in `currentColor` instead of drawing only its outline. */
+  filled?: boolean;
   className?: string;
 }
