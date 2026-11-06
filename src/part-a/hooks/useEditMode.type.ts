@@ -20,6 +20,8 @@ export interface IUseEditModeResult {
   cancel: () => void;
   setQuantity: (sku: string, quantity: number) => void;
   toggleSkip: (sku: string) => void;
+  frequencyValue: string;
+  setFrequency: (value: string) => void;
   isZero: (sku: string) => boolean;
   emptyBox: boolean;
   allExcluded: boolean;

@@ -65,6 +65,29 @@ it("edits the receipt, hides a skipped price and restores focus after cancelling
   expect(screen.getByText("$25.46")).toBeInTheDocument();
 });
 
+it("saves or discards the delivery frequency with the rest of the edit", async () => {
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "Edit products" }));
+  const frequency = screen.getByRole("combobox", { name: "Delivery frequency" });
+  expect(
+    within(frequency)
+      .getAllByRole("option")
+      .map(({ textContent }) => textContent),
+  ).toEqual(["30 days", "60 days", "90 days"]);
+  fireEvent.change(frequency, { target: { value: "90" } });
+  fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(screen.getByText("Every 30 days")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Edit products" }));
+  fireEvent.change(screen.getByRole("combobox", { name: "Delivery frequency" }), {
+    target: { value: "90" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+  expect(screen.getByText("Every 90 days")).toBeInTheDocument();
+});
+
 it("requires a radio selection when changing a server pause and offers an open-ended pause", async () => {
   vi.mocked(getSubscription).mockResolvedValue(fixtures.paused());
   render(<SubscriptionCard />);
@@ -83,7 +106,7 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });
 
-it("cancels without choosing a reason and returns directly to the receipt", async () => {
+it("cancels, then confirms reactivation before scheduling the next charge", async () => {
   window.scrollTo = vi.fn();
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);
@@ -98,7 +121,38 @@ it("cancels without choosing a reason and returns directly to the receipt", asyn
   expect(screen.getByText(/^Cancelled on /)).toBeInTheDocument();
   expect(screen.getByText("No more charges")).toBeInTheDocument();
   expect(screen.getByText("You won't be charged again.")).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: "Cancel subscription" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Reactivate subscription" }));
+  const dialog = screen.getByRole("dialog", { name: "Reactivate your subscription?" });
+  expect(within(dialog).getByText(/Your next charge will be \$101\.87 on /)).toBeInTheDocument();
+  fireEvent.click(within(dialog).getByRole("button", { name: "Keep it cancelled" }));
+  expect(screen.getByRole("heading", { name: /^Cancelled on / })).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Reactivate subscription" }));
+  fireEvent.click(
+    within(screen.getByRole("dialog", { name: "Reactivate your subscription?" })).getByRole(
+      "button",
+      { name: "Reactivate subscription" },
+    ),
+  );
+  expect(screen.getByRole("heading", { name: "Next box" })).toHaveFocus();
+  expect(screen.getByText("Subscription reactivated")).toBeInTheDocument();
+});
+
+it("shows a text field for Something else and hides it for listed reasons", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  expect(screen.queryByRole("textbox", { name: "Tell us more" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("radio", { name: "Something else" }));
+  const note = screen.getByRole("textbox", { name: "Tell us more" });
+  fireEvent.change(note, { target: { value: "Moving abroad" } });
+  expect(note).toHaveValue("Moving abroad");
+
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  expect(screen.queryByRole("textbox", { name: "Tell us more" })).not.toBeInTheDocument();
 });
 
 it("shows the moved date in the skip alternative", async () => {
@@ -194,16 +248,28 @@ it("moves focus to the page heading when retrying a failed load", async () => {
   await screen.findByRole("heading", { name: "Next box" });
 });
 
-it("moves focus to the receipt heading after pausing and after resuming", async () => {
+it("confirms resume before activating the subscription and returning focus", async () => {
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);
 
   fireEvent.click(await screen.findByRole("button", { name: "Pause subscription" }));
   const sheet = screen.getByRole("dialog", { name: "Pause your subscription" });
   fireEvent.click(within(sheet).getByRole("button", { name: "Pause for 1 month" }));
-  expect(screen.getByRole("heading", { name: /^Paused until/ })).toHaveFocus();
+  const pausedHeading = screen.getByRole("heading", { name: /^Paused until/ });
+  expect(pausedHeading).toHaveFocus();
 
   fireEvent.click(screen.getByRole("button", { name: "Resume now" }));
+  const dialog = screen.getByRole("dialog", { name: "Resume your subscription?" });
+  expect(within(dialog).getByText(/Your next charge will be \$101\.87 on /)).toBeInTheDocument();
+  fireEvent.click(within(dialog).getByRole("button", { name: "Keep it paused" }));
+  expect(pausedHeading).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "Resume now" }));
+  fireEvent.click(
+    within(screen.getByRole("dialog", { name: "Resume your subscription?" })).getByRole("button", {
+      name: "Resume subscription",
+    }),
+  );
   expect(screen.getByRole("heading", { name: "Next box" })).toHaveFocus();
 });
 

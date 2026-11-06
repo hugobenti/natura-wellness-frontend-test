@@ -1,8 +1,7 @@
 import { subscriptionContent } from "@/content/subscription";
-import { formatMoney } from "@/shared/logic/money";
 import { useState } from "react";
 import { formatDay } from "../logic/dates";
-import { PAUSE_PRESETS, pauseUntil, resumeChargeAt } from "../logic/pause";
+import { PAUSE_PRESETS, pauseUntil } from "../logic/pause";
 import type { TPausePresetId } from "../logic/pause.type";
 import type { IUsePauseFlowArgs, IUsePauseFlowResult } from "./usePauseFlow.type";
 
@@ -54,20 +53,6 @@ export function usePauseFlow({
       body: until ? copy.pausedBody(formatDay(until, confirmedAt)) : copy.pausedBodyOpen,
     });
   };
-  const resume = () => {
-    if (!paused || !view) return;
-    const resumedAt = new Date();
-    const resumeAt = overlay.lifecycle?.status === "paused" ? overlay.lifecycle.resumeAt : null;
-    dispatch({ type: "resume", now: resumedAt });
-    notify({
-      tone: "success",
-      title: copy.resumedTitle,
-      body: copy.resumedBody(
-        formatMoney(view.pricing.totalCents),
-        formatDay(resumeChargeAt(resumedAt, resumeAt), resumedAt),
-      ),
-    });
-  };
   const confirmLabel = selected
     ? selected === "open"
       ? copy.confirmOpen
@@ -100,6 +85,5 @@ export function usePauseFlow({
     },
     openPause,
     openChange,
-    resume,
   };
 }

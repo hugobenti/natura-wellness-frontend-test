@@ -21,6 +21,8 @@ export interface ILocalOverlay {
   zeroSkus: readonly string[];
   intervalDays: number | null;
   cancelReason: TCancelReason | null;
+  /** Free text typed for "Something else"; `null` for listed reasons. */
+  cancelNote: string | null;
   lifecycle: TLifecycleOverride | null;
 }
 

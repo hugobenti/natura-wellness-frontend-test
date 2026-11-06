@@ -11,6 +11,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
         quantities: { ...action.draft.quantities },
         skippedSkus: [...action.draft.skippedSkus],
         zeroSkus: [...action.draft.zeroSkus],
+        intervalDays: action.draft.intervalDays,
       };
     case "clearSkipped":
       return { ...overlay, skippedSkus: [], zeroSkus: [] };
@@ -53,6 +54,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
       return {
         ...overlay,
         cancelReason: action.reason,
+        cancelNote: action.note,
         skippedSkus: [],
         zeroSkus: [],
         lifecycle: { status: "cancelled", cancelledAt: action.now.toISOString() },

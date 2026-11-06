@@ -11,7 +11,7 @@ export const radioGroup = {
       frameChecked: "",
       label: "min-h-11 py-2",
       labelChecked: "min-h-11 py-2",
-      panel: "pl-8",
+      panel: "",
     },
     card: {
       list: "gap-3",

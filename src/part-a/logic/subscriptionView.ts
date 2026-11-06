@@ -8,6 +8,7 @@ export const EMPTY_OVERLAY: ILocalOverlay = {
   zeroSkus: [],
   intervalDays: null,
   cancelReason: null,
+  cancelNote: null,
   lifecycle: null,
 };
 

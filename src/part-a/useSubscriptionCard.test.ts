@@ -79,7 +79,7 @@ describe("useSubscriptionCard", () => {
     await act(async () => resolveRetry(fixtures.active()));
     expect(result.current.kind).toBe("ready");
   });
-  it("active offers edit, skip and pause; paused offers resume and change pause", async () => {
+  it("active offers edit, skip and pause; paused offers resume and change pause; cancelled offers reactivate", async () => {
     for (const status of ["active", "paused", "cancelled"] as const) {
       vi.mocked(getSubscription).mockResolvedValue(fixtures[status]());
       const { result, unmount } = renderHook(useSubscriptionCard);
@@ -90,7 +90,7 @@ describe("useSubscriptionCard", () => {
           ? ["edit", "skip", "pause", "cancel"]
           : status === "paused"
             ? ["resume", "changePause", "cancel"]
-            : [],
+            : ["reactivate"],
       );
       unmount();
     }
@@ -360,6 +360,7 @@ describe("useSubscriptionCard", () => {
     });
     act(() => result.current.kind === "ready" && result.current.pauseSheet.onClose());
     act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.activationDialog.onConfirm());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
     expect(result.current.receipt.status).toBe("active");
     expect(result.current.notice).toMatchObject({ title: "Subscription resumed" });
@@ -397,6 +398,7 @@ describe("useSubscriptionCard", () => {
     act(() => result.current.kind === "ready" && result.current.actions[2]?.onClick());
     act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
     act(() => result.current.kind === "ready" && result.current.actions[0]?.onClick());
+    act(() => result.current.kind === "ready" && result.current.activationDialog.onConfirm());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
     expect(result.current.receipt.status).toBe("active");
     expect(result.current.receipt.footer.label).toBe(
@@ -414,6 +416,7 @@ describe("useSubscriptionCard", () => {
     click(2);
     act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
     click(0);
+    act(() => result.current.kind === "ready" && result.current.activationDialog.onConfirm());
     click(1);
     await act(async () => {
       if (result.current.kind === "ready") await result.current.skipSheet?.onConfirm();
@@ -421,6 +424,7 @@ describe("useSubscriptionCard", () => {
     click(2);
     act(() => result.current.kind === "ready" && result.current.pauseSheet.onConfirm());
     click(0);
+    act(() => result.current.kind === "ready" && result.current.activationDialog.onConfirm());
     if (result.current.kind !== "ready") throw new Error("Expected a ready receipt");
     expect(result.current.receipt.status).toBe("active");
     expect(result.current.receipt.footer.label).toBe(

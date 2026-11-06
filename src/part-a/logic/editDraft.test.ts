@@ -16,6 +16,7 @@ describe("edit drafts", () => {
       quantities: { "NW-VITD-60": 2 },
       skippedSkus: ["NW-MULTI-30"],
       zeroSkus: [],
+      intervalDays: null,
     });
     expect(draft.quantities).not.toBe(overlay.quantities);
     expect(draft.skippedSkus).not.toBe(overlay.skippedSkus);

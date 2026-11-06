@@ -38,7 +38,12 @@ describe("useEditMode", () => {
     expect(result.current.editing).toBe(false);
     expect(dispatch).toHaveBeenCalledWith({
       type: "saveEdits",
-      draft: { quantities: { "NW-MULTI-30": 3 }, skippedSkus: [], zeroSkus: [] },
+      draft: {
+        quantities: { "NW-MULTI-30": 3 },
+        skippedSkus: [],
+        zeroSkus: [],
+        intervalDays: null,
+      },
     });
     expect(notify).toHaveBeenCalledWith({
       tone: "success",

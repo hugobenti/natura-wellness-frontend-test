@@ -3,7 +3,7 @@ import { overlayReducer } from "./overlay";
 import { EMPTY_OVERLAY } from "./subscriptionView";
 
 describe("overlayReducer", () => {
-  it("saveEdits replaces quantities and skippedSkus without replacing the lifecycle", () => {
+  it("saveEdits replaces draft fields without replacing the lifecycle", () => {
     const paused = {
       ...EMPTY_OVERLAY,
       lifecycle: {
@@ -13,12 +13,18 @@ describe("overlayReducer", () => {
         resumeAt: null,
       },
     };
-    const draft = { quantities: { "NW-MULTI-30": 3 }, skippedSkus: ["NW-VITD-60"], zeroSkus: [] };
+    const draft = {
+      quantities: { "NW-MULTI-30": 3 },
+      skippedSkus: ["NW-VITD-60"],
+      zeroSkus: [],
+      intervalDays: 90,
+    };
     const updated = overlayReducer(paused, { type: "saveEdits", draft });
     expect(updated).toEqual({
       ...paused,
       quantities: draft.quantities,
       skippedSkus: draft.skippedSkus,
+      intervalDays: 90,
     });
     expect(updated.quantities).not.toBe(draft.quantities);
     expect(updated.skippedSkus).not.toBe(draft.skippedSkus);
@@ -156,11 +162,13 @@ describe("overlayReducer", () => {
       overlayReducer(committed, {
         type: "cancel",
         now: new Date("2026-11-05T12:00:00.000Z"),
-        reason: "cost",
+        reason: "other",
+        note: "Moving abroad",
       }),
     ).toEqual({
       ...committed,
-      cancelReason: "cost",
+      cancelReason: "other",
+      cancelNote: "Moving abroad",
       quantities: committed.quantities,
       skippedSkus: [],
       zeroSkus: [],
