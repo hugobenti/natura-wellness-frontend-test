@@ -15,6 +15,9 @@ export interface ICancelConfirmProps {
   value: TCancelReason | "";
   options: IRadioOption<TCancelReason>[];
   onChange: (value: TCancelReason) => void;
+  /** Free text for the "other" reason. */
+  note: string;
+  onNoteChange: (note: string) => void;
   offer: ICancelOffer | null;
   cancelLabel: string;
   onCancel: () => void;

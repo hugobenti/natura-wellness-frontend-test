@@ -1,5 +1,7 @@
 import { subscriptionContent } from "@/content/subscription";
 import { Button } from "@/shared/components/Button/Button";
+import { FormField } from "@/shared/components/FormField/FormField";
+import { useFormField } from "@/shared/components/FormField/useFormField";
 import { RadioGroup } from "@/shared/components/RadioGroup/RadioGroup";
 import { Icon } from "@/shared/icons/Icon";
 import type { TCancelReason } from "../../logic/cancelReason.type";
@@ -13,12 +15,40 @@ export function CancelConfirm({
   value,
   options,
   onChange,
+  note,
+  onNoteChange,
   offer,
   cancelLabel,
   onCancel,
   backLabel,
   onBack,
 }: ICancelConfirmViewProps) {
+  const copy = subscriptionContent.cancel;
+  const noteField = useFormField({ hint: copy.otherNoteHint });
+  const reasonOptions = options.map((option) =>
+    option.value === "other"
+      ? {
+          ...option,
+          panel: (
+            <FormField
+              field={noteField}
+              label={copy.otherNoteLabel}
+              hint={copy.otherNoteHint}
+              className={cancelConfirm.note}
+            >
+              <textarea
+                id={noteField.controlId}
+                aria-describedby={noteField.describedBy}
+                aria-invalid={noteField.invalid}
+                value={note}
+                onChange={(event) => onNoteChange(event.target.value)}
+                className={cancelConfirm.noteControl}
+              />
+            </FormField>
+          ),
+        }
+      : option,
+  );
   return (
     <div className={cancelConfirm.page}>
       <Button variant="quiet" className={cancelConfirm.back} onClick={onBack}>
@@ -34,7 +64,7 @@ export function CancelConfirm({
         name="cancel-reason"
         appearance="list"
         value={value}
-        options={options}
+        options={reasonOptions}
         onChange={(choice) => choice && onChange(choice)}
         className={cancelConfirm.reasons}
       />

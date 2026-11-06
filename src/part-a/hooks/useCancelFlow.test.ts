@@ -28,11 +28,38 @@ describe("useCancelFlow", () => {
     const { result, dispatch, notify } = setup();
     act(() => result.current.open());
     act(() => result.current.confirm.onCancel());
-    expect(dispatch).toHaveBeenCalledWith({ type: "cancel", now, reason: null });
+    expect(dispatch).toHaveBeenCalledWith({ type: "cancel", now, reason: null, note: null });
     expect(result.current.view).toBe("subscription");
     expect(notify).toHaveBeenCalledWith(
       expect.objectContaining({ body: "You won't be charged again." }),
     );
+  });
+  it("saves the typed reason only while Something else is selected", () => {
+    const { result, dispatch } = setup();
+    act(() => result.current.open());
+    act(() => result.current.confirm.onChange("other"));
+    act(() => result.current.confirm.onNoteChange("  Moving abroad  "));
+    act(() => result.current.confirm.onCancel());
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "cancel",
+      now,
+      reason: "other",
+      note: "Moving abroad",
+    });
+  });
+  it("drops the typed reason after switching to a listed reason", () => {
+    const { result, dispatch } = setup();
+    act(() => result.current.open());
+    act(() => result.current.confirm.onChange("other"));
+    act(() => result.current.confirm.onNoteChange("Moving abroad"));
+    act(() => result.current.confirm.onChange("noResults"));
+    act(() => result.current.confirm.onCancel());
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "cancel",
+      now,
+      reason: "noResults",
+      note: null,
+    });
   });
   it.each(["tooMuch", "cost", "otherProduct", "noResults", "other"] as const)(
     "maps %s to its matched offer",

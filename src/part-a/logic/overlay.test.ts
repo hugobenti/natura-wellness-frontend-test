@@ -162,11 +162,13 @@ describe("overlayReducer", () => {
       overlayReducer(committed, {
         type: "cancel",
         now: new Date("2026-11-05T12:00:00.000Z"),
-        reason: "cost",
+        reason: "other",
+        note: "Moving abroad",
       }),
     ).toEqual({
       ...committed,
-      cancelReason: "cost",
+      cancelReason: "other",
+      cancelNote: "Moving abroad",
       quantities: committed.quantities,
       skippedSkus: [],
       zeroSkus: [],

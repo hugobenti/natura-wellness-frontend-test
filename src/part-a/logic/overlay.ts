@@ -54,6 +54,7 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
       return {
         ...overlay,
         cancelReason: action.reason,
+        cancelNote: action.note,
         skippedSkus: [],
         zeroSkus: [],
         lifecycle: { status: "cancelled", cancelledAt: action.now.toISOString() },

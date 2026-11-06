@@ -139,6 +139,22 @@ it("cancels, then confirms reactivation before scheduling the next charge", asyn
   expect(screen.getByText("Subscription reactivated")).toBeInTheDocument();
 });
 
+it("shows a text field for Something else and hides it for listed reasons", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  expect(screen.queryByRole("textbox", { name: "Tell us more" })).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("radio", { name: "Something else" }));
+  const note = screen.getByRole("textbox", { name: "Tell us more" });
+  fireEvent.change(note, { target: { value: "Moving abroad" } });
+  expect(note).toHaveValue("Moving abroad");
+
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  expect(screen.queryByRole("textbox", { name: "Tell us more" })).not.toBeInTheDocument();
+});
+
 it("shows the moved date in the skip alternative", async () => {
   window.scrollTo = vi.fn();
   const snapshot = fixtures.active();

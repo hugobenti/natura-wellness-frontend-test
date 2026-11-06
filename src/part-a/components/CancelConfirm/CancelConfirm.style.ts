@@ -4,6 +4,9 @@ export const cancelConfirm = {
   title: "font-heading text-title text-fg",
   lead: "mt-2 text-body text-muted",
   reasons: "mt-6",
+  note: "mt-2",
+  noteControl:
+    "min-h-24 w-full rounded-control border border-control-line bg-surface px-3 py-2 text-body text-fg",
   offer: "mt-6 rounded-card border border-line bg-surface p-4",
   offerTitle: "font-heading text-section text-fg",
   offerBody: "mt-2 text-body text-muted",

@@ -18,6 +18,7 @@ export function useCancelFlow({
 }: IUseCancelFlowArgs): IUseCancelFlowResult {
   const [view, setView] = useState<TPageView>("subscription");
   const [reason, setReason] = useState<TCancelReason | "">("");
+  const [note, setNote] = useState("");
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const shownView = useRef<TPageView>("subscription");
   const copy = subscriptionContent.cancel;
@@ -40,6 +41,7 @@ export function useCancelFlow({
     if (!cancellable) return;
     clearNotice();
     setReason("");
+    setNote("");
     setView("cancelConfirm");
   };
 
@@ -112,7 +114,8 @@ export function useCancelFlow({
   const confirmCancel = () => {
     if (!cancellable) return;
     clearNotice();
-    dispatch({ type: "cancel", now: new Date(), reason: reason || null });
+    const typedNote = reason === "other" ? note.trim() : "";
+    dispatch({ type: "cancel", now: new Date(), reason: reason || null, note: typedNote || null });
     setView("subscription");
     notify({ tone: "success", title: copy.doneTitle, body: copy.doneBody });
   };
@@ -125,6 +128,8 @@ export function useCancelFlow({
       value: reason,
       options: REASONS.map((value) => ({ value, label: copy.reasons[value] })),
       onChange: setReason,
+      note,
+      onNoteChange: setNote,
       offer,
       cancelLabel: copy.confirm,
       onCancel: confirmCancel,

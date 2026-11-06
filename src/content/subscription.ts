@@ -137,6 +137,8 @@ export const subscriptionContent = {
       noResults: "I didn't see results",
       other: "Something else",
     },
+    otherNoteLabel: "Tell us more",
+    otherNoteHint: "Optional. This helps us improve.",
     skipTitle: "Skip your next box",
     skipBody: (date: string) => `Move your next charge to ${date}.`,
     skipAction: "Skip my next box",

@@ -9,4 +9,4 @@ export type TOverlayAction =
   | { type: "resume"; now: Date }
   | { type: "skipLocally"; nextChargeAt: string; intervalDays: number }
   | { type: "setCadence"; intervalDays: number }
-  | { type: "cancel"; now: Date; reason: TCancelReason | null };
+  | { type: "cancel"; now: Date; reason: TCancelReason | null; note: string | null };
