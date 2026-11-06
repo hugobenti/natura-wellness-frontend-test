@@ -126,39 +126,18 @@ it("shows a 60-day receipt after accepting the cadence offer, without repeating 
   expect(screen.queryByRole("button", { name: "Switch to every 60 days" })).not.toBeInTheDocument();
 });
 
-it("updates the receipt total and preserves the selected line through a second swap and edit", async () => {
+it("offers the product list without suggesting a replacement", async () => {
   window.scrollTo = vi.fn();
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);
   fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
   fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
-  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
-  expect(screen.getAllByText("$97.62").length).toBeGreaterThan(0);
-  expect(screen.getByText("Magnesium, 90 capsules")).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
-  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
-  expect(screen.getByRole("radio", { name: "Magnesium, 90 capsules" })).toBeChecked();
-  fireEvent.click(screen.getByRole("radio", { name: "Vitamin D, 60 softgels" }));
-  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
-  expect(screen.getAllByText("$101.87").length).toBeGreaterThan(0);
-  fireEvent.click(screen.getByRole("button", { name: "Edit products" }));
-  fireEvent.click(screen.getByRole("button", { name: "Skip once: Vitamin D, 60 softgels" }));
-  expect(screen.getByText("Skipped in the next box only")).toBeInTheDocument();
-});
 
-it("prices an edited quantity of the replacement product", async () => {
-  window.scrollTo = vi.fn();
-  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
-  render(<SubscriptionCard />);
-  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
-  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
-  fireEvent.click(screen.getByRole("button", { name: "Swap product" }));
-  fireEvent.click(screen.getByRole("button", { name: "Edit products" }));
-  const quantity = screen.getByRole("group", { name: "Quantity of Magnesium, 90 capsules" });
-  fireEvent.click(within(quantity).getByRole("button", { name: "Increase quantity" }));
-  expect(screen.getAllByText("$118.83").length).toBeGreaterThan(0);
-  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
-  expect(screen.getAllByText("$118.83").length).toBeGreaterThan(0);
+  expect(screen.queryByRole("radio", { name: "Magnesium, 90 capsules" })).not.toBeInTheDocument();
+  const browse = screen.getByRole("button", { name: "Browse products" });
+  fireEvent.click(browse);
+  expect(screen.getByRole("heading", { name: "Before you cancel" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Browse products" })).toBeInTheDocument();
 });
 
 it("restores focus after dismissing an offer handoff sheet", async () => {

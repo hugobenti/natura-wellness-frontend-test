@@ -1,4 +1,4 @@
-import { catalog, fixtures } from "@/api/fixtures";
+import { fixtures } from "@/api/fixtures";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EMPTY_OVERLAY, deriveView } from "../logic/subscriptionView";
@@ -44,7 +44,7 @@ describe("useCancelFlow", () => {
         {
           tooMuch: "skip",
           cost: "cadence",
-          otherProduct: "swap",
+          otherProduct: "browse",
           noResults: "support",
           other: null,
         }[reason],
@@ -85,24 +85,21 @@ describe("useCancelFlow", () => {
     act(() => result.current.confirm.onChange("cost"));
     expect(result.current.confirm.offer).toBeNull();
   });
-  it("does not offer bundle products as a single-item swap", () => {
-    const { result } = setup();
+  it("shows a product-list action for the different-product reason", () => {
+    const { result, dispatch, notify } = setup();
     act(() => result.current.open());
     act(() => result.current.confirm.onChange("otherProduct"));
-    expect(result.current.confirm.offer?.productOptions?.map((option) => option.value)).toEqual([
-      "NW-MAG-90",
-    ]);
-  });
-  it("swaps a selected item with a different catalog product", () => {
-    const { result, dispatch } = setup();
-    act(() => result.current.open());
-    act(() => result.current.confirm.onChange("otherProduct"));
-    act(() => result.current.confirm.offer!.onAccept!());
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "swapProduct",
-      fromSku: "NW-VITD-60",
-      product: catalog[2],
+    const offer = result.current.confirm.offer!;
+    expect(offer).toMatchObject({
+      kind: "browse",
+      title: "Try a different product",
+      body: "The product list isn't available here yet.",
+      label: "Browse products",
     });
+    act(() => offer.onAccept!());
+    expect(result.current.view).toBe("cancelConfirm");
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(notify).not.toHaveBeenCalled();
   });
   it("hands the no-results alternative to the existing pause flow", () => {
     const { result, openPause } = setup();

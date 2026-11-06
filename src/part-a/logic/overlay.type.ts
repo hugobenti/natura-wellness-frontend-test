@@ -1,5 +1,4 @@
 import type { IEditDraft } from "./editDraft.type";
-import type { CatalogProduct } from "@/api/types";
 import type { TCancelReason } from "./cancelReason.type";
 import type { TPausePresetId } from "./pause.type";
 
@@ -10,5 +9,4 @@ export type TOverlayAction =
   | { type: "resume"; now: Date }
   | { type: "skipLocally"; nextChargeAt: string; intervalDays: number }
   | { type: "setCadence"; intervalDays: number }
-  | { type: "swapProduct"; fromSku: string; product: CatalogProduct }
   | { type: "cancel"; now: Date; reason: TCancelReason | null };

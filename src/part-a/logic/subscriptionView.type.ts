@@ -1,4 +1,4 @@
-import type { CatalogProduct, SubscriptionStatus } from "@/api/types";
+import type { SubscriptionStatus } from "@/api/types";
 import type { TCancelReason } from "./cancelReason.type";
 import type { IBoxPricing } from "./pricing.type";
 import type { TPausePresetId } from "./pause.type";
@@ -20,7 +20,6 @@ export interface ILocalOverlay {
   /** Skipped products whose quantity was stepped down to 0; shown as Qty 0 while skipped. */
   zeroSkus: readonly string[];
   intervalDays: number | null;
-  swappedItems: Readonly<Record<string, CatalogProduct>>;
   cancelReason: TCancelReason | null;
   lifecycle: TLifecycleOverride | null;
 }
@@ -28,8 +27,6 @@ export interface ILocalOverlay {
 interface IViewLine {
   /** Stable original SKU keys edit drafts and local overlay state. */
   sku: string;
-  /** The currently displayed catalog product, which may differ after a swap. */
-  productSku: string;
   name: string;
   imageUrl: string | null;
   quantity: number;

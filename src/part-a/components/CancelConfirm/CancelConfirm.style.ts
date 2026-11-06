@@ -8,7 +8,6 @@ export const cancelConfirm = {
   offerTitle: "font-heading text-section text-fg",
   offerBody: "mt-2 text-body text-muted",
   offerAction: "mt-4",
-  swapOptions: "mt-4",
   supportLink: "mt-4 inline-block text-body text-accent underline underline-offset-4",
   actions: "mt-6",
 } as const;

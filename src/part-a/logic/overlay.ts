@@ -49,11 +49,6 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
       };
     case "setCadence":
       return { ...overlay, intervalDays: action.intervalDays };
-    case "swapProduct":
-      return {
-        ...overlay,
-        swappedItems: { ...overlay.swappedItems, [action.fromSku]: action.product },
-      };
     case "cancel":
       return {
         ...overlay,

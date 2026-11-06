@@ -1,4 +1,3 @@
-import { catalog } from "@/api/fixtures";
 import { subscriptionContent } from "@/content/subscription";
 import { formatMoney } from "@/shared/logic/money";
 import { useEffect, useRef, useState } from "react";
@@ -19,8 +18,6 @@ export function useCancelFlow({
 }: IUseCancelFlowArgs): IUseCancelFlowResult {
   const [view, setView] = useState<TPageView>("subscription");
   const [reason, setReason] = useState<TCancelReason | "">("");
-  const [fromSku, setFromSku] = useState("");
-  const [productSku, setProductSku] = useState("");
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const shownView = useRef<TPageView>("subscription");
   const copy = subscriptionContent.cancel;
@@ -43,14 +40,6 @@ export function useCancelFlow({
     if (!cancellable) return;
     clearNotice();
     setReason("");
-    setFromSku(subscription?.lines[0]?.sku ?? "");
-    setProductSku(
-      catalog.find(
-        (product) =>
-          product.sku !== "NW-ESSENTIALS" &&
-          !subscription?.lines.some((line) => line.productSku === product.sku),
-      )?.sku ?? "",
-    );
     setView("cancelConfirm");
   };
 
@@ -58,12 +47,6 @@ export function useCancelFlow({
     setView("subscription");
     notify({ tone: "success", title, body });
   };
-
-  const availableProducts = catalog.filter(
-    (product) =>
-      product.sku !== "NW-ESSENTIALS" &&
-      !subscription?.lines.some((line) => line.productSku === product.sku),
-  );
 
   let offer: ICancelOffer | null = null;
   if (reason === "tooMuch" && subscription?.status === "active" && subscription.nextChargeAt) {
@@ -96,28 +79,13 @@ export function useCancelFlow({
         finishOffer(copy.cadenceDone, copy.cadenceDoneBody);
       },
     };
-  } else if (
-    reason === "otherProduct" &&
-    subscription?.status === "active" &&
-    availableProducts.length > 0
-  ) {
-    const product = availableProducts.find((item) => item.sku === productSku);
+  } else if (reason === "otherProduct" && subscription?.status === "active") {
     offer = {
-      kind: "swap",
-      title: copy.swapTitle,
-      body: copy.swapBody,
-      label: copy.swapAction,
-      fromSku,
-      onFromChange: setFromSku,
-      fromOptions: subscription.lines.map((line) => ({ value: line.sku, label: line.name })),
-      productSku,
-      onProductChange: setProductSku,
-      productOptions: availableProducts.map((item) => ({ value: item.sku, label: item.name })),
-      onAccept: () => {
-        if (!product || !subscription.lines.some((line) => line.sku === fromSku)) return;
-        dispatch({ type: "swapProduct", fromSku, product });
-        finishOffer(copy.swapDone, copy.swapDoneBody);
-      },
+      kind: "browse",
+      title: copy.browseTitle,
+      body: copy.browseBody,
+      label: copy.browseAction,
+      onAccept: () => undefined,
     };
   } else if (reason === "noResults") {
     offer =

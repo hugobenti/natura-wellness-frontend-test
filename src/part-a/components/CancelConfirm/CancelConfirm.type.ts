@@ -3,18 +3,12 @@ import type { RefObject } from "react";
 import type { TCancelReason } from "../../logic/cancelReason.type";
 
 export interface ICancelOffer {
-  kind: "skip" | "cadence" | "swap" | "support";
+  kind: "skip" | "cadence" | "browse" | "support";
   title: string;
   body: string;
   label?: string;
   onAccept?: () => void;
   supportLink?: { href: string; label: string };
-  fromOptions?: IRadioOption[];
-  fromSku?: string;
-  onFromChange?: (value: string) => void;
-  productOptions?: IRadioOption[];
-  productSku?: string;
-  onProductChange?: (value: string) => void;
 }
 
 export interface ICancelConfirmProps {

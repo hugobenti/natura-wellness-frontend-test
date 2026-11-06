@@ -7,7 +7,6 @@ export const EMPTY_OVERLAY: ILocalOverlay = {
   skippedSkus: [],
   zeroSkus: [],
   intervalDays: null,
-  swappedItems: {},
   cancelReason: null,
   lifecycle: null,
 };
@@ -31,17 +30,11 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
       : null
     : snapshot.cancelledAt;
 
-  const allItems = snapshot.items.map((item) => {
-    const replacement = overlay.swappedItems[item.sku];
-    return replacement
-      ? {
-          ...item,
-          ...replacement,
-          sku: item.sku,
-          quantity: overlay.quantities[item.sku] ?? item.quantity,
-        }
-      : { ...item, quantity: overlay.quantities[item.sku] ?? item.quantity };
-  });
+  const allItems = snapshot.items.map((item) => ({
+    ...item,
+    quantity: overlay.quantities[item.sku] ?? item.quantity,
+  }));
+
   const items = allItems.filter(
     (item) => status !== "active" || !overlay.skippedSkus.includes(item.sku),
   );
@@ -52,7 +45,6 @@ export function deriveView(snapshot: Subscription, overlay: ILocalOverlay): ISub
     const priced = skipped ? null : pricing.lines[pricedIndex++];
     return {
       sku: item.sku,
-      productSku: overlay.swappedItems[item.sku]?.sku ?? item.sku,
       name: item.name,
       imageUrl: item.imageUrl,
       quantity:

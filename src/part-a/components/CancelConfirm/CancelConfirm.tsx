@@ -43,28 +43,6 @@ export function CancelConfirm({
           <section className={cancelConfirm.offer}>
             <h2 className={cancelConfirm.offerTitle}>{offer.title}</h2>
             <p className={cancelConfirm.offerBody}>{offer.body}</p>
-            {offer.fromOptions && offer.onFromChange && offer.fromSku && (
-              <RadioGroup
-                legend={subscriptionContent.cancel.fromLegend}
-                name="swap-from"
-                value={offer.fromSku}
-                options={offer.fromOptions}
-                onChange={offer.onFromChange}
-                appearance="list"
-                className={cancelConfirm.swapOptions}
-              />
-            )}
-            {offer.productOptions && offer.onProductChange && offer.productSku && (
-              <RadioGroup
-                legend={subscriptionContent.cancel.productLegend}
-                name="swap-to"
-                value={offer.productSku}
-                options={offer.productOptions}
-                onChange={offer.onProductChange}
-                appearance="list"
-                className={cancelConfirm.swapOptions}
-              />
-            )}
             {offer.supportLink && (
               <a className={cancelConfirm.supportLink} href={offer.supportLink.href}>
                 {offer.supportLink.label}

@@ -1,4 +1,4 @@
-import { catalog, fixtures } from "@/api/fixtures";
+import { fixtures } from "@/api/fixtures";
 import { describe, expect, it } from "vitest";
 import { addDays } from "./dates";
 import { deriveView, EMPTY_OVERLAY } from "./subscriptionView";
@@ -15,40 +15,7 @@ describe("cancellation alternatives", () => {
       addDays(snapshot.nextChargeAt!, 60),
     );
   });
-  it("swapping a catalog item updates the receipt line and its discounted total", () => {
-    const view = deriveView(
-      fixtures.active(),
-      overlayWith({ swappedItems: { "NW-VITD-60": catalog[2]! } }),
-    );
-    expect(view.lines[0]).toMatchObject({ sku: "NW-VITD-60", name: "Magnesium, 90 capsules" });
-    expect(view.pricing.totalCents).toBe(9762);
-  });
-  it("keeps the original item identity through repeated swaps, quantity edits, and skip-once", () => {
-    const original = fixtures.active();
-    const first = overlayWith({ swappedItems: { "NW-VITD-60": catalog[2]! } });
-    expect(deriveView(original, first).lines[0]).toMatchObject({
-      sku: "NW-VITD-60",
-      name: "Magnesium, 90 capsules",
-    });
-    const second = {
-      ...first,
-      swappedItems: { "NW-VITD-60": catalog[3]! },
-      quantities: { "NW-VITD-60": 2 },
-      skippedSkus: ["NW-VITD-60"],
-    };
-    const skipped = deriveView(original, second);
-    expect(skipped.lines[0]).toMatchObject({
-      sku: "NW-VITD-60",
-      name: "Daily Essentials Bundle (Vitamin D, Multivitamin, Magnesium)",
-      quantity: 2,
-      skipped: true,
-    });
-    expect(skipped.pricing.totalCents).toBe(7642);
-    const restored = deriveView(original, { ...second, skippedSkus: [] });
-    expect(restored.pricing.totalCents).toBe(22933);
-  });
 });
-
 describe("deriveView", () => {
   it("EMPTY_OVERLAY on active matches the API", () => {
     const snapshot = fixtures.active();
