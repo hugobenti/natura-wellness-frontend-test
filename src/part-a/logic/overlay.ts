@@ -47,9 +47,12 @@ export function overlayReducer(overlay: ILocalOverlay, action: TOverlayAction): 
           nextChargeAt: addDays(action.nextChargeAt, action.intervalDays),
         },
       };
+    case "setCadence":
+      return { ...overlay, intervalDays: action.intervalDays };
     case "cancel":
       return {
         ...overlay,
+        cancelReason: action.reason,
         skippedSkus: [],
         zeroSkus: [],
         lifecycle: { status: "cancelled", cancelledAt: action.now.toISOString() },

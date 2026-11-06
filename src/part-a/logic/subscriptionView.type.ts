@@ -1,4 +1,5 @@
 import type { SubscriptionStatus } from "@/api/types";
+import type { TCancelReason } from "./cancelReason.type";
 import type { IBoxPricing } from "./pricing.type";
 import type { TPausePresetId } from "./pause.type";
 
@@ -18,10 +19,13 @@ export interface ILocalOverlay {
   skippedSkus: readonly string[];
   /** Skipped products whose quantity was stepped down to 0; shown as Qty 0 while skipped. */
   zeroSkus: readonly string[];
+  intervalDays: number | null;
+  cancelReason: TCancelReason | null;
   lifecycle: TLifecycleOverride | null;
 }
 
 interface IViewLine {
+  /** Stable original SKU keys edit drafts and local overlay state. */
   sku: string;
   name: string;
   imageUrl: string | null;

@@ -1,8 +1,9 @@
 import { fixtures } from "@/api/fixtures";
 import { getSubscription } from "@/api/mockApi";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { SubscriptionCard } from "./SubscriptionCard";
+import { addDays, formatDay } from "./logic/dates";
 
 vi.mock("@/api/mockApi", () => ({ getSubscription: vi.fn() }));
 
@@ -82,7 +83,7 @@ it("requires a radio selection when changing a server pause and offers an open-e
   expect(screen.queryByRole("button", { name: "Edit products" })).not.toBeInTheDocument();
 });
 
-it("walks cancel → survey → no thanks to the cancelled receipt", async () => {
+it("cancels without choosing a reason and returns directly to the receipt", async () => {
   window.scrollTo = vi.fn();
   vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
   render(<SubscriptionCard />);
@@ -93,18 +94,93 @@ it("walks cancel → survey → no thanks to the cancelled receipt", async () =>
   expect(screen.queryByRole("heading", { name: "Manage" })).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
-  const surveyHeading = screen.getByRole("heading", {
-    level: 1,
-    name: "Your subscription is cancelled",
-  });
-  expect(surveyHeading).toHaveFocus();
-  expect(screen.getByRole("button", { name: "Send answer" })).toBeDisabled();
-
-  fireEvent.click(screen.getByRole("button", { name: "No thanks" }));
-  expect(screen.getByRole("heading", { level: 1, name: "My subscription" })).toHaveFocus();
+  expect(screen.getByRole("heading", { name: /^Cancelled on / })).toHaveFocus();
   expect(screen.getByText(/^Cancelled on /)).toBeInTheDocument();
   expect(screen.getByText("No more charges")).toBeInTheDocument();
+  expect(screen.getByText("You won't be charged again.")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Cancel subscription" })).not.toBeInTheDocument();
+});
+
+it("shows the moved date in the skip alternative", async () => {
+  window.scrollTo = vi.fn();
+  const snapshot = fixtures.active();
+  vi.mocked(getSubscription).mockResolvedValue(snapshot);
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  expect(screen.getByText(/Move your next charge to/)).toHaveTextContent(
+    formatDay(addDays(snapshot.nextChargeAt!, snapshot.intervalDays), new Date()),
+  );
+});
+
+it("shows a 60-day receipt after accepting the cadence offer, without repeating that offer", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  fireEvent.click(screen.getByRole("button", { name: "Switch to every 60 days" }));
+  expect(screen.getByText("Every 60 days")).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  expect(screen.queryByRole("button", { name: "Switch to every 60 days" })).not.toBeInTheDocument();
+});
+
+it("offers the product list without suggesting a replacement", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I'm trying a different product" }));
+
+  expect(screen.queryByRole("radio", { name: "Magnesium, 90 capsules" })).not.toBeInTheDocument();
+  const browse = screen.getByRole("button", { name: "Browse products" });
+  fireEvent.click(browse);
+  expect(screen.getByRole("heading", { name: "Before you cancel" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Browse products" })).toBeInTheDocument();
+});
+
+it("restores focus after dismissing an offer handoff sheet", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip my next box" }));
+  fireEvent.click(screen.getByRole("button", { name: "Keep my box" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I didn't see results" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause instead" }));
+  fireEvent.click(screen.getByRole("button", { name: "Keep it active" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+});
+
+it("restores focus after confirming locally simulated skip and pause offers", async () => {
+  window.scrollTo = vi.fn();
+  vi.mocked(getSubscription).mockResolvedValue(fixtures.active());
+  render(<SubscriptionCard />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "It costs too much" }));
+  fireEvent.click(screen.getByRole("button", { name: "Switch to every 60 days" }));
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I have too much product left" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip my next box" }));
+  fireEvent.click(screen.getByRole("button", { name: "Skip this box" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Cancel subscription" }));
+  fireEvent.click(screen.getByRole("radio", { name: "I didn't see results" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause instead" }));
+  fireEvent.click(screen.getByRole("button", { name: "Pause for 1 month" }));
+  await waitFor(() =>
+    expect(screen.getByRole("heading", { name: "My subscription" })).toHaveFocus(),
+  );
 });
 
 it("moves focus to the page heading when retrying a failed load", async () => {

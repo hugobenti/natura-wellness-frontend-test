@@ -24,7 +24,7 @@ Reviewers judge product and design decisions more than layout. The page should r
 
 ## Non-goals
 
-- Changing the delivery frequency, swapping products, or adding products from `catalog`. The brief lists them as options; we chose others.
+- Delivery frequency is simulated in the local overlay; the product-list page is not implemented, so its button has no navigation or state effect. The API remains unchanged.
 - Removing a product from the subscription. The quantity minimum is 1, and per-product skip covers "not this time".
 - Persisting anything that isn't in the API. Local changes reset on reload; the brief allows this.
 - Undoing a whole-box skip. The API can't reverse it, and the confirmation step exists so that it isn't needed.
@@ -33,8 +33,8 @@ Reviewers judge product and design decisions more than layout. The page should r
 
 ## Anti-goals
 
-- **Trapping the customer.** Cancel must stay reachable, visible and two taps from the page: "Cancel subscription" → "Before you cancel" → "Cancel subscription". No guilt copy, and no extra step before the cancel button.
-- **Actions inside the cancellation page's arguments.** That page persuades; it doesn't turn into a menu of offers.
+- **Trapping the customer.** Cancel must stay reachable, visible and two taps from the page: "Cancel subscription" → "Before you cancel" → "Cancel subscription". Choosing a reason is optional, with no guilt copy or extra step before the cancel button.
+- **Generic reasons to stay.** The cancellation page offers at most one alternative matched to an optional reason.
 - **Cards inside cards, or a busy default view.** Controls appear only in edit mode or in sheets.
 - **A crossed-out number that means anything other than "price before the subscription discount".**
 - **Error copy that blames or explains internals.** Errors are generic and say what to do next: "We couldn't load your subscription. Please try again, or contact support."
@@ -80,29 +80,27 @@ Reviewers judge product and design decisions more than layout. The page should r
    - **Leaving:** nothing applies until "Save changes". "Cancel" discards the edits.
 5. **Change quantity** of each product. **Skip one product** from the next box only, keeping the rest.
 6. **Cancellation flow:**
-   - **"Before you cancel" page,** reached from "Cancel subscription". It's a full in-page view, not a sheet, with a "← Back" link.
-   - **No cards and no action buttons in its content.** It's a plain list of reasons to stay, each with a check icon:
-     - "Too much product left? You don't need to cancel": you can skip your next box, or leave out a single product, from your subscription page whenever you like. Below it is one **quiet** link, "Edit my next box", which returns to the page with the receipt in edit mode.
-     - "Subscribing costs you less": 15% off every box, with the customer's real numbers (savings on the next box, and over the next 12 boxes).
-   - **Exactly two buttons:** "Keep my subscription" (primary, returns unchanged) and "Cancel subscription" (destructive).
-7. **After cancelling:** an optional survey, "Why did you cancel?", with the brief's five reasons as a radio list, plus "Send answer" and "No thanks". After that, the cancelled page: the same receipt card, read-only, with a grey "Cancelled" badge and no total.
-8. **Skipping the whole box:**
+   - **"Before you cancel" page,** reached from "Cancel subscription". It's a full in-page view, not a sheet, with a "← Back to subscription" link.
+   - **Optional reason first:** five large radio rows in brief order: too much product, too expensive, trying a different product, didn't see results, something else. The "Cancel subscription" button stays visible and works without any selection.
+   - **One matched inline alternative:** too much product offers the existing Skip sheet with the moved charge date; cost offers local 60-day cadence with annual difference computed from the current price and interval; trying another product shows a "Browse products" button for the unavailable product-list page, with no navigation or state effect; no results offers support and, while active, the existing Pause sheet without health claims; something else has no offer. Accepted changes return to the receipt with a success notice. The 60-day offer disappears once cadence reaches 60 days.
+   - **After cancelling:** the cancelled receipt appears immediately, with a success notice saying "You won't be charged again." The selected reason is stored locally; there is no post-cancel survey.
+7. **Skipping the whole box:**
    - **Confirm** in a bottom sheet (`ResponsiveDialog`) that shows the old date crossed out → the new date, and the amount charged on the new date.
    - **Waiting:** the confirm button shows a spinner and "Skipping…" (`Button pending`). The sheet stays open and can't be dismissed while the request is pending.
    - **Success:** the sheet closes, the receipt updates, and a success `Alert` above the card says the new date and amount.
    - **Error:** a generic `Alert` with "Try again" and "Contact support".
-9. **Generic error copy** everywhere (decision made on the load error).
-10. **Pause, with a chosen duration:**
-    - **Pausing from active:** a "Pause subscription" button opens a bottom sheet with a radio list of 1 month, 2 months, 3 months (each showing its resulting next-charge date) and "Until I resume". The confirm button names the choice ("Pause for 1 month").
-    - **The paused page:**
-      - an amber "Paused" badge
-      - a header reading "Paused until Sun, Nov 29" or "Paused until you resume"
-      - "No charges while paused" directly below the heading, before the items; timed pauses also show the next-charge amount and date there
-      - a "Box when you resume" label above the listed products, whose names and prices use muted text tokens and regular weight, without compare-at prices or a savings line
-      - no skip and no edit
-      - actions: "Resume now" (primary), "Change pause" (the same sheet, starting from the current choice), and a quiet "Cancel subscription"
-11. **Keep all four extras:** quantity, skip one product, pause, cancellation flow. Hugo accepted the breadth-versus-depth risk.
-12. **Desktop is responsive** (option B of three):
+8. **Generic error copy** everywhere (decision made on the load error).
+9. **Pause, with a chosen duration:**
+   - **Pausing from active:** a "Pause subscription" button opens a bottom sheet with a radio list of 1 month, 2 months, 3 months (each showing its resulting next-charge date) and "Until I resume". The confirm button names the choice ("Pause for 1 month").
+   - **The paused page:**
+     - an amber "Paused" badge
+     - a header reading "Paused until Sun, Nov 29" or "Paused until you resume"
+     - "No charges while paused" directly below the heading, before the items; timed pauses also show the next-charge amount and date there
+     - a "Box when you resume" label above the listed products, whose names and prices use muted text tokens and regular weight, without compare-at prices or a savings line
+     - no skip and no edit
+     - actions: "Resume now" (primary), "Change pause" (the same sheet, starting from the current choice), and a quiet "Cancel subscription"
+10. **Keep all four extras:** quantity, skip one product, pause, cancellation flow. Hugo accepted the breadth-versus-depth risk.
+11. **Desktop is responsive** (option B of three):
     - **From the `lg` breakpoint (1024px):** two columns. The whole receipt card sits on the left, unchanged except that product rows spread into columns (name · quantity · price). A "Manage" panel on the right, about 320px wide and sticky at the top, holds the actions.
     - **Reading and changing are visibly separate.** The receipt never splits.
 
@@ -123,7 +121,7 @@ Reviewers judge product and design decisions more than layout. The page should r
   - paused: Resume now, Change pause, Cancel subscription
   - cancelled: no action area at all; the receipt keeps the left column's width
 - **The "Manage" panel** is just a heading and the buttons. I dropped the mockup's "Changes apply from your next box" line, because it isn't true for pause or cancel.
-- **Between 375px and 1024px:** the phone layout, as a single column of at most 560px, centered. The "Before you cancel" page and the survey stay in that single centered column at every width. Success and error alerts sit above the receipt, in the left column on desktop.
+- **Between 375px and 1024px:** the phone layout, as a single column of at most 560px, centered. The "Before you cancel" reason list and matched alternative stay in that single centered column at every width. Success and error alerts sit above the receipt, in the left column on desktop.
 - **Dates** are formatted in the user's locale and timezone as weekday, month and day ("Wed, Nov 11"), adding the year only when it isn't the current year.
 
 ## How local changes coexist with the API (my call; the builder may refine the mechanics, not the outcomes)
@@ -132,6 +130,7 @@ The server snapshot (from `getSubscription` or `skipNextShipment`) stays the sou
 
 - **`quantities` (by SKU):** applies to every future box. It survives reloads of the snapshot within the session (after a 409, or after a successful skip).
 - **`skippedSkus`:** applies to the next box only. It is cleared when the whole box is skipped, because the box it referred to no longer exists.
+- `intervalDays` and `cancelReason` stay local. The product-list page is not implemented, so its button does not navigate or change the subscription.
 - **Lifecycle override:**
   - local pause (until a date, or open-ended), resume, or cancel
   - status, next charge date and pause end are taken from the override when one is present
@@ -142,8 +141,8 @@ The server snapshot (from `getSubscription` or `skipNextShipment`) stays the sou
 
 **Skip routing:**
 
-- When there's no lifecycle override and the snapshot is active, skip calls `skipNextShipment` with the snapshot's `updatedAt`.
-- When the lifecycle was changed locally (for example the paused fixture resumed locally), the server would reject the skip with a 400, or move a date the customer no longer sees. So the skip is applied locally instead:
+- When there's no lifecycle or cadence override and the snapshot is active, skip calls `skipNextShipment` with the snapshot's `updatedAt`.
+- When the lifecycle or cadence was changed locally (for example the paused fixture resumed locally), the server would reject the skip with a 400, or move a date the customer no longer sees. So the skip is applied locally instead:
   - the next charge moves by `intervalDays`
   - the same confirm, success and "Next box skipped" states
   - no pending delay and no conflict
@@ -153,24 +152,23 @@ The server snapshot (from `getSubscription` or `skipNextShipment`) stays the sou
 
 ## States and views
 
-| View              | Reached by                                                | Shows                                                                                                                                                                         | Actions                                                                                  |
-| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Loading           | first load, "Try again"                                   | static receipt skeleton                                                                                                                                                       | —                                                                                        |
-| Load error        | `?fixture=error`, any load failure                        | error `Alert`                                                                                                                                                                 | Try again, Contact support                                                               |
-| Active            | `?fixture=active`, after resume                           | receipt card with date, totals and savings                                                                                                                                    | Edit products, Skip the whole box, Pause subscription, Cancel subscription (quiet)       |
-| Editing           | Edit products, or "Edit my next box" from the cancel page | receipt with steppers, Skip once / Undo, live new total                                                                                                                       | Save changes, Cancel                                                                     |
-| Skip sheet        | Skip the whole box                                        | confirm → pending → (closes on success) / 409 named changes or honest no-change info / error; paused or cancelled refresh closes the sheet and announces status               | Skip this box / Try again, Keep my box, Contact support (on error)                       |
-| Pause sheet       | Pause subscription, Change pause                          | radio list: 1, 2, 3 months, Until I resume                                                                                                                                    | Pause for …, Keep it active / Keep {date}                                                |
-| Paused            | `?fixture=paused`, after pausing                          | amber badge, "Paused until …", "No charges while paused" first (plus next-charge line when timed), muted "Box when you resume" products with prices but no compare-at/savings | Resume now, Change pause, Cancel subscription (quiet)                                    |
-| Before you cancel | Cancel subscription (active or paused)                    | two reasons to stay, real savings figures                                                                                                                                     | ← Back, Edit my next box (quiet; active only), Keep my subscription, Cancel subscription |
-| Survey            | right after cancelling locally                            | optional radio list of the five reasons                                                                                                                                       | Send answer, No thanks                                                                   |
-| Cancelled         | `?fixture=cancelled`, after the survey                    | grey badge, "Cancelled on {date}", "No more charges" first, muted "Last box" products with prices but no compare-at/savings                                                   | none                                                                                     |
+| View              | Reached by                                                | Shows                                                                                                                                                                         | Actions                                                                            |
+| ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Loading           | first load, "Try again"                                   | static receipt skeleton                                                                                                                                                       | —                                                                                  |
+| Load error        | `?fixture=error`, any load failure                        | error `Alert`                                                                                                                                                                 | Try again, Contact support                                                         |
+| Active            | `?fixture=active`, after resume                           | receipt card with date, totals and savings                                                                                                                                    | Edit products, Skip the whole box, Pause subscription, Cancel subscription (quiet) |
+| Editing           | Edit products, or "Edit my next box" from the cancel page | receipt with steppers, Skip once / Undo, live new total                                                                                                                       | Save changes, Cancel                                                               |
+| Skip sheet        | Skip the whole box                                        | confirm → pending → (closes on success) / 409 named changes or honest no-change info / error; paused or cancelled refresh closes the sheet and announces status               | Skip this box / Try again, Keep my box, Contact support (on error)                 |
+| Pause sheet       | Pause subscription, Change pause                          | radio list: 1, 2, 3 months, Until I resume                                                                                                                                    | Pause for …, Keep it active / Keep {date}                                          |
+| Paused            | `?fixture=paused`, after pausing                          | amber badge, "Paused until …", "No charges while paused" first (plus next-charge line when timed), muted "Box when you resume" products with prices but no compare-at/savings | Resume now, Change pause, Cancel subscription (quiet)                              |
+| Before you cancel | Cancel subscription (active or paused)                    | optional reason list with one matched offer; the different-product offer is a Browse products button with no effect because the product-list page is unavailable              | Back to subscription, offer action when present, Cancel subscription               |
+| Cancelled         | `?fixture=cancelled`, after direct cancellation           | grey badge, "Cancelled on {date}", "No more charges" first, muted "Last box" products with prices but no compare-at/savings                                                   | none                                                                               |
 
-Success `Alert`s (above the card, `role="status"`, replaced by the next one): box skipped (with the new date and amount), changes saved, paused (until when), resumed (next charge date). After the survey, a short thank-you shows above the cancelled card.
+Success `Alert`s (above the card, `role="status"`, replaced by the next one): box skipped (with the new date and amount), changes saved, paused (until when), resumed (next charge date), cadence changed, cancellation confirmed.
 
 ## Accessibility notes
 
-- Everything runs on the shared components (native `<dialog>`, native radios, `Button pending`), so focus return and dismissal come from the platform.
+- Shared native dialogs handle dismissal; after a cancellation alternative opens a sheet, closing that sheet returns focus to the subscription heading.
 - **Editing:**
   - Entering edit mode moves focus to the card's heading.
   - Save and Cancel return focus to "Edit products".

@@ -5,6 +5,17 @@ import { deriveView, EMPTY_OVERLAY } from "./subscriptionView";
 
 const overlayWith = (changes: Partial<typeof EMPTY_OVERLAY>) => ({ ...EMPTY_OVERLAY, ...changes });
 
+describe("cancellation alternatives", () => {
+  it("cadence updates the receipt and the next-after-skip date", () => {
+    const snapshot = fixtures.active();
+    const cadence = deriveView(snapshot, overlayWith({ intervalDays: 60 }));
+    expect(cadence.intervalDays).toBe(60);
+    expect(cadence.skipIsLocal).toBe(true);
+    expect(addDays(cadence.nextChargeAt!, cadence.intervalDays)).toBe(
+      addDays(snapshot.nextChargeAt!, 60),
+    );
+  });
+});
 describe("deriveView", () => {
   it("EMPTY_OVERLAY on active matches the API", () => {
     const snapshot = fixtures.active();
