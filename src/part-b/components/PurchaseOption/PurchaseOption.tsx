@@ -3,7 +3,7 @@ import { cx } from "@/shared/utils/cx";
 import { purchaseOption } from "./PurchaseOption.style";
 import type { IPurchaseOptionProps } from "./PurchaseOption.type";
 
-/** A native radio as a card: label, optional badge and price in the row, extras only while selected. */
+/** A native radio as a card: label, optional badge and price in the row, extras that expand while selected. */
 export function PurchaseOption({
   name,
   checked,
@@ -33,7 +33,19 @@ export function PurchaseOption({
         </span>
         <span className={purchaseOption.price}>{price}</span>
       </label>
-      {checked && children && <div className={purchaseOption.extras}>{children}</div>}
+      {children && (
+        <div
+          className={cx(
+            purchaseOption.collapse,
+            checked ? purchaseOption.expanded : purchaseOption.collapsed,
+          )}
+          inert={!checked}
+        >
+          <div className={purchaseOption.clip}>
+            <div className={purchaseOption.extras}>{children}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
