@@ -130,7 +130,7 @@ export const subscriptionContent = {
     cadenceDone: "Delivery schedule updated",
     cadenceDoneBody: "Your box now ships every 60 days.",
     browseTitle: "Try a different product",
-    browseBody: "The product list isn't available here yet.",
+    browseBody: "Choose a different product from the list.",
     browseAction: "Browse products",
     supportTitle: "We're here to listen",
     supportBody: "Talk to our team, or take a break if you'd prefer.",
