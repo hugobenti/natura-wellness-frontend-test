@@ -5,7 +5,7 @@ import * as Stories from "./Typography.stories";
 
 # Typography
 
-The brand uses one typeface, Plus Jakarta Sans (400, 500, 600, 700), in two roles and a five-step scale. The `part-b` theme sets them to Fraunces (headings) over Inter (text) and resizes the steps to match the buy box. Size, line height, weight and letter spacing travel together in each step.
+The brand uses one typeface, Plus Jakarta Sans (400, 500, 600, 700), in two roles and an eight-step scale. The `part-b` theme sets them to Fraunces (headings) over Inter (text) and resizes the steps to match the buy box. Size, line height, weight and letter spacing travel together in each step.
 
 ## Family
 
@@ -15,7 +15,7 @@ The brand uses one typeface, Plus Jakarta Sans (400, 500, 600, 700), in two role
 
 ## Scale
 
-Tailwind's default sizes are removed: only `text-title`, `text-section`, `text-body`, `text-small` and `text-eyebrow` exist. Values are read from the live tokens.
+Tailwind's default sizes are removed: only `text-title`, `text-section`, `text-body`, `text-small`, `text-eyebrow`, `text-caption`, `text-fine` and `text-micro` exist. Values are read from the live tokens.
 
 <Canvas of={Stories.Scale} />
 
@@ -32,6 +32,9 @@ The subscription card's text stack, from eyebrow to price.
 - `text-body`: default text and buttons (weight 600).
 - `text-small`: secondary info and fine print.
 - `text-eyebrow`: short uppercase labels above a heading.
+- `text-caption`: compact labels next to an icon, such as trust badges.
+- `text-fine`: legal and renewal fine print.
+- `text-micro`: the uppercase text inside a small pill badge.
 - Prices and any figures that line up: add `tabular-nums` so digits keep the same width.
 
 ## Don't use when

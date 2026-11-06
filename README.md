@@ -41,4 +41,4 @@ variables. Security headers live in `vercel.json`.
 ## Contributing
 
 `main` is protected: work on a branch, open a pull request, and squash-merge once the `check` and `e2e`
-jobs are green.
+jobs are green

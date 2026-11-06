@@ -26,4 +26,4 @@ export const semanticColorTokens: readonly string[] = [
 ];
 
 export const fontRoles = ["sans", "heading"] as const;
-export const radiusRoles = ["control", "card", "pill"] as const;
+export const radiusRoles = ["control", "card", "field", "panel", "pill"] as const;
